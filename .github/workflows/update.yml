@@ -1,0 +1,61 @@
+name: Matches bijwerken
+
+on:
+  schedule:
+    - cron: "17 * * * *"   # elk uur, op minuut 17
+  workflow_dispatch:        # handmatig starten via de Actions-tab
+  push:
+    branches: [main]
+    paths: ["index.html", "config.json", "scripts/**"]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Nieuwe matches ophalen
+        env:
+          HENRIK_API_KEY: ${{ secrets.HENRIK_API_KEY }}
+        run: python scripts/fetch.py
+
+      - name: Statistieken berekenen
+        run: python scripts/build_stats.py
+
+      - name: Data opslaan in de repo
+        run: |
+          git config user.name "squad-tracker-bot"
+          git config user.email "squad-tracker-bot@users.noreply.github.com"
+          git add data
+          git diff --cached --quiet || git commit -m "Matches bijgewerkt $(date -u +'%Y-%m-%d %H:%M')"
+          git push
+
+      - name: Website klaarzetten
+        run: |
+          mkdir -p _site/data
+          cp index.html _site/
+          cp data/stats.json _site/data/
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deploy
+        uses: actions/deploy-pages@v4

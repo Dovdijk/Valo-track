@@ -222,6 +222,8 @@ function render(){
       return `<td class="val"><div class="cv"><b style="color:${p.color}">${f(v)}${v===best&&fin.filter(x=>x===best).length===1?'<span class="crown">♛</span>':''}</b><div class="bar"><i style="width:${isFinite(v)?Math.max(0,v)/mx*100:0}%;background:${p.color}"></i></div></div></td>`}).join('')+'</tr>';
   });
   app.insertAdjacentHTML('beforeend',h+'</tbody></table></div></section>');
+  renderStyle(app,act);
+  renderHeatOverview(app,act);
 
   // trend
   const sec=document.createElement('section');
@@ -295,7 +297,7 @@ function render(){
 
 // ================= MATCHVERSLAG =================
 let CUR=null;
-function openMatch(id){CUR=id;history.replaceState(null,'','#m='+id);render();window.scrollTo({top:0,behavior:'smooth'})}
+function openMatch(id){CUR=id;MH={show:{K:1,D:1,P:1},round:'all',off:{}};history.replaceState(null,'','#m='+id);render();window.scrollTo({top:0,behavior:'smooth'})}
 function closeMatch(){CUR=null;history.replaceState(null,'',location.pathname);render()}
 const isAtk=(team,i,fha)=>{const first=i<12||(i>=24&&(i-24)%2===0);return (team===fha)===first};
 const colorOf=k=>(DATA.players.find(p=>p.key===k)||{}).color||'#ff4655';
@@ -354,6 +356,7 @@ function renderMatch(id){
       <div style="font-family:Anton,Impact,sans-serif;font-size:80px;line-height:1">${won}<span style="color:var(--mute);font-size:46px;margin:0 8px">:</span>${lost}</div>
       <div class="label">${n} rondes</div></div></div>`;
 
+  h+=matchFeedbackHTML(d,F,per,ST);
   // ---- scoreboard
   const sb=team=>{const ps=d.players.map((p,i)=>({...p,i})).filter(p=>p.tm===team).sort((a,b)=>b.acs-a.acs);
     return `<table><thead><tr><th>Speler</th><th>Agent</th><th>ACS</th><th>K</th><th>D</th><th>A</th><th>K/D</th><th>ADR</th><th>HS%</th><th>Rank</th></tr></thead><tbody>`+
@@ -377,8 +380,9 @@ function renderMatch(id){
     tl+=`<div style="font-size:13px;color:${col(f)};display:flex;align-items:center;overflow:hidden;white-space:nowrap">${f.n}</div>`;
     per[f.i].forEach((x,i)=>{
       let tipH=`<b style='color:${col(f)}'>${f.n}</b> · ronde ${i+1}<br>`;
-      x.kills.forEach(k=>tipH+=`Kill op ${nameOf(d,k[2])} · ${k[3]} · ${k[0]} s<br>`);
-      tipH+=x.death?`Dood door ${nameOf(d,x.death[1])} · ${x.death[3]} · ${x.death[0]} s${x.traded?' · getraded':''}${x.death[5]!=null?' · teamgenoot op '+Math.round(x.death[5]/100)+' m':''}`:'Overleefd';
+      const MMp=mapOf(d);const where=(x,y)=>MMp&&x!=null?' · '+callout(MMp,x,y):'';
+      x.kills.forEach(k=>tipH+=`Kill op ${nameOf(d,k[2])} · ${k[3]} · ${k[0]} s${where(k[8]!=null?k[8]:k[6],k[9]!=null?k[9]:k[7])}<br>`);
+      tipH+=x.death?`Dood door ${nameOf(d,x.death[1])} · ${x.death[3]} · ${x.death[0]} s${where(x.death[6],x.death[7])}${x.traded?' · getraded':''}${x.death[5]!=null?' · teamgenoot op '+Math.round(x.death[5]/100)+' m':''}`:'Overleefd';
       if(x.assist)tipH+='<br>Assist';
       tipH+=`<br>Loadout ¤${x.eco[0]}${x.eco[1]?' · '+x.eco[1]:''}${x.eco[2]?' · '+x.eco[2]:''}`;
       if(x.fb)tipH+='<br><span style=\'color:#f5c451\'>First blood</span>'; if(x.fd)tipH+='<br><span style=\'color:#b98bff\'>First death</span>';
@@ -389,6 +393,7 @@ function renderMatch(id){
   h+=`<section><h2>Ronde voor ronde</h2><p class="lead">Per ronde de uitslag, het aantal kills (groot) en of de speler dood ging (✕) of overleefde (●). Beweeg over een vakje voor de details.</p>
     <div class="panel scroll">${tl}<div class="legend"><span><b style="display:inline-block;width:14px;height:10px;background:var(--gold);margin-right:6px"></b>First blood</span><span><b style="display:inline-block;width:14px;height:10px;background:#9a5bff;margin-right:6px"></b>First death</span><span>AANV = aanval · VERD = verdediging · A/B/C = plant</span></div></div></section>`;
 
+  h+=matchHeatHTML(d);
   // ---- timing
   h+=`<section><h2>Wanneer vallen de kills?</h2><p class="lead">Elke stip is een kill (groen) of death (rood), op de seconde in de ronde waarop die gebeurde.</p><div class="panel"><svg id="mTiming" viewBox="0 0 1100 ${70+F.length*110}" width="100%"></svg></div>
     <div class="g2" style="margin-top:18px;grid-template-columns:repeat(${Math.min(F.length,3)},1fr)">${F.map(f=>{const s=ST[f.i];return `<div class="panel"><div class="label" style="color:${col(f)}">${f.n}</div><div style="display:flex;gap:26px;margin-top:8px;flex-wrap:wrap">
@@ -439,6 +444,7 @@ function renderMatch(id){
 
   app.innerHTML=h;
   app.querySelectorAll('[data-h]').forEach(e=>bindTip(e,e.dataset.h));
+  drawMatchHeat(d,F,myTeam);
 
   // timing svg
   (function(){const svg=$('#mTiming'),x0=130,x1=1080,maxT=Math.max(100,...R.flatMap(r=>r.ev.map(e=>e[0])));const X=s=>x0+Math.min(s,maxT)/maxT*(x1-x0);let g='';
@@ -459,6 +465,261 @@ function renderMatch(id){
       g+=`<text x="${x0+i*slot+slot/2}" y="${y0+16}" fill="#8696a7" font-size="11" text-anchor="middle">${i+1}</text><circle cx="${x0+i*slot+slot/2}" cy="${y0+30}" r="4" fill="${r.w===myTeam?'#3ee6a0':'#ff4655'}"/>`;
       if(i===11)g+=`<line x1="${x0+12*slot}" x2="${x0+12*slot}" y1="${y1}" y2="${y0}" stroke="#ff4655" stroke-dasharray="4 4"/>`;});
     svg.innerHTML=g;svg.querySelectorAll('.tp').forEach(c=>bindTip(c,c.dataset.h));})();
+}
+
+// ================= KAARTEN, SPEELSTIJL, HEATMAPS, FEEDBACK =================
+// ev = [t, killer, victim, wapen, assists, afstand-teamgenoot, vx, vy, kx, ky, vriendposities]
+const mapOf=d=>{const M=DATA.maps||{};return M[d.map_id]||Object.values(M).find(m=>m.name===d.map)};
+const toImg=(m,x,y)=>[(y*m.xm+m.xa)*1000,(x*m.ym+m.ya)*1000];
+function callout(m,x,y){if(!m||x==null||!m.callouts||!m.callouts.length)return null;let b=null,bd=Infinity;
+  for(const c of m.callouts){const dd=(c[2]-x)**2+(c[3]-y)**2;if(dd<bd){bd=dd;b=c}}return b?`${b[0]} ${b[1]}`:null}
+const pctile=(arr,v)=>arr.length?arr.filter(x=>x<v).length/arr.length*100+arr.filter(x=>x===v).length/arr.length*50:50;
+const esc=s=>String(s).replace(/"/g,'&quot;');
+
+// ---------- lobbydistributie (alle niet-vrienden in de gekozen matches) ----------
+function fbfdFor(d){const fb=new Array(d.players.length).fill(0),fd=new Array(d.players.length).fill(0);
+  d.rounds.forEach(r=>{if(r.ev[0]){if(r.ev[0][1]!=null)fb[r.ev[0][1]]++;fd[r.ev[0][2]]++}});return {fb,fd}}
+function lobbyRef(matchIds){
+  const ref={acs:[],adr:[],hs:[],kd:[],apr:[],fbr:[],fdr:[],dpr:[]};
+  matchIds.forEach(id=>{const d=DATA.details[id];if(!d)return;const n=d.rounds.length||1,{fb,fd}=fbfdFor(d);
+    d.players.forEach((p,i)=>{if(p.fk)return;ref.acs.push(p.acs);ref.adr.push(p.adr);ref.hs.push(p.hs);ref.kd.push(p.k/Math.max(1,p.d));
+      ref.apr.push(p.a/n);ref.fbr.push(fb[i]/n);ref.fdr.push(fd[i]/n);ref.dpr.push(p.d/n)})});
+  return ref;
+}
+
+// ---------- posities van een speler over meerdere matches ----------
+function eventsFor(pkey,matchIds,sideFilter){
+  const out=[];
+  matchIds.forEach(id=>{const d=DATA.details[id];if(!d)return;const m=mapOf(d);const fi=d.players.findIndex(p=>p.fk===pkey);if(fi<0)return;const tm=d.players[fi].tm;
+    d.rounds.forEach((r,ri)=>{const atk=isAtk(tm,ri,d.fha);if(sideFilter==='atk'&&!atk||sideFilter==='def'&&atk)return;
+      r.ev.forEach(e=>{
+        if(e[1]===fi&&d.players[e[2]].tm!==tm){const x=e[8]!=null?e[8]:e[6],y=e[9]!=null?e[9]:e[7];if(x!=null)out.push({type:'K',x,y,vx:e[6],vy:e[7],m,map:d.map,map_id:d.map_id,id,ri,t:e[0],other:d.players[e[2]].n,w:e[3],atk,win:r.w===tm})}
+        if(e[2]===fi&&e[6]!=null)out.push({type:'D',x:e[6],y:e[7],kx:e[8],ky:e[9],m,map:d.map,map_id:d.map_id,id,ri,t:e[0],other:e[1]!=null?d.players[e[1]].n:'?',w:e[3],atk,win:r.w===tm});
+      })})});
+  return out;
+}
+
+// ---------- SPEELSTIJL (overzicht) ----------
+function styleFor(p,rows,ref){
+  const a=agg(rows); if(!a.m) return null;
+  const R=a.R, sum=k=>rows.reduce((s,r)=>s+(r[k]||0),0);
+  const v={acs:a.acs,adr:a.adr,hs:a.hsp*100,kd:a.kd,apr:a.a/R,fbr:sum('fb')/R,fdr:sum('fd')/R,dpr:a.d/R};
+  const P={}; Object.keys(v).forEach(k=>P[k]=pctile(ref[k],v[k]));
+  const radar=[['Aim',P.hs],['Impact',P.acs],['Entry',P.fbr],['Overleven',100-P.dpr],['Teamplay',P.apr],['Duels',P.kd]];
+  const evs=eventsFor(p.key,rows.map(r=>r.match),'all');
+  // kandidaten voor de 5 punten
+  const C=[];
+  const add=(score,kind,title,text)=>C.push({score,kind,title,text});
+  const pr=x=>Math.round(x);
+  // rol / entry
+  if(P.fbr>=65) add(P.fbr-50+(P.fdr>=65?5:0),'neutral','Je opent de rondes',`${(v.fbr*100/100).toFixed(2)} first bloods per ronde, meer dan ${pr(P.fbr)}% van de spelers in jullie potjes. ${P.fdr>=65?`Maar je gaat ook vaak als eerste neer (${v.fdr.toFixed(2)} per ronde): je speelt het entry-risico.`:'En je gaat zelden als eerste neer. Sterk.'}`);
+  else if(P.fdr>=65) add(P.fdr-45,'bad','Vaak als eerste neer',`Je hebt ${v.fdr.toFixed(2)} first deaths per ronde, meer dan ${pr(P.fdr)}% van de lobby, zonder veel first bloods terug. Laat de eerste duel vaker aan je entry over of speel met utility.`);
+  else if(P.fbr<=30&&P.fdr<=35) add(55-(P.fbr+P.fdr)/2,'neutral','Je wacht de opening af',`Weinig first bloods en weinig first deaths: je laat anderen de ronde openen en komt daarna in actie.`);
+  // aim
+  add(Math.abs(P.hs-50),P.hs>=55?'good':P.hs<=40?'bad':'neutral',P.hs>=55?'Sterke aim':'Aim op het hoofd kan beter',`Je headshotpercentage is ${pr(v.hs)}%, hoger dan ${pr(P.hs)}% van de spelers in jullie lobbies.${P.hs<45?' Let op je crosshair-plaatsing op hoofdhoogte.':''}`);
+  // impact
+  add(Math.abs(P.acs-50)+3,P.acs>=55?'good':P.acs<=40?'bad':'neutral',P.acs>=70?'Je draagt het team':P.acs>=55?'Bovengemiddelde impact':'Impact per ronde kan omhoog',`ACS ${pr(v.acs)} en ADR ${pr(v.adr)}. Daarmee scoor je beter dan ${pr(P.acs)}% van de lobby.`);
+  // positionering
+  if(sum('deaths_known_team')>=8){const al=sum('alone_d')/sum('deaths_known_team')*100;
+    if(al>=60) add((al-50)*0.9,'bad','Je speelt veel alleen',`Bij ${pr(al)}% van je deaths stond er geen teamgenoot binnen ongeveer 15 meter. Dat past bij een lurker, maar je wordt dan zelden getrade (${pr(a.tradedp*100)}% van je deaths).`);
+    else if(al<=40) add((50-al)*0.9,'good','Je speelt dicht bij je team',`Maar ${pr(al)}% van je deaths was zonder teamgenoot in de buurt. ${pr(a.tradedp*100)}% van je deaths werd getrade.`)}
+  // timing
+  if(a.d>=10){const ep=a.earlyp*100;
+    if(ep>=25) add(ep-12,'bad','Vroeg in de ronde neer',`${pr(ep)}% van je deaths valt in de eerste 20 seconden van een ronde. Gemiddeld ga je na ${pr(a.dtime)} seconden dood. Rustiger openen kan rondes redden.`);
+    else if(a.dtime>=45) add((a.dtime-40)*0.8,'good','Geduldig speler',`Je gaat gemiddeld pas na ${pr(a.dtime)} seconden dood en maar ${pr(ep)}% van je deaths is in de eerste 20 seconden.`)}
+  // kant
+  if(isFinite(a.atkkd)&&isFinite(a.defkd)){const df=a.atkkd-a.defkd;if(Math.abs(df)>=0.2)add(Math.abs(df)*50,'neutral',df>0?'Sterker in de aanval':'Sterker in de verdediging',`K/D in de aanval ${a.atkkd.toFixed(2)}, in de verdediging ${a.defkd.toFixed(2)}.`)}
+  // clutch
+  if(a.cla>=6){const cp=a.clw/a.cla*100;add(Math.abs(cp-20)*0.9,cp>=30?'good':cp<=12?'bad':'neutral',cp>=30?'Clutch-speler':cp<=12?'Clutches lukken weinig':'Als laatste overgebleven',`Je won ${a.clw} van de ${a.cla} rondes waarin je als laatste van je team overbleef (${pr(cp)}%), vaak tegen meerdere tegenstanders.`)}
+  // economie
+  const f=a.buy.force,fu=a.buy.full;if(f[1]>=5&&fu[1]>=5){const fw=f[0]/f[1]*100,fuw=fu[0]/fu[1]*100;if(fuw-fw>=20)add((fuw-fw)*0.6,'bad','Force buys kosten rondes',`Met een full buy wint je team ${pr(fuw)}% van de rondes, met een force buy maar ${pr(fw)}%. Vaker samen sparen loont.`)}
+  // callouts
+  const byC={};evs.forEach(e=>{const c=callout(e.m,e.type==='D'?e.x:e.x,e.type==='D'?e.y:e.y);if(!c)return;byC[c]=byC[c]||{k:0,d:0};byC[c][e.type==='K'?'k':'d']++});
+  const cl=Object.entries(byC);
+  if(cl.length){const worst=cl.filter(([c,s])=>s.d>=5).sort((x,y)=>(y[1].d-y[1].k)-(x[1].d-x[1].k))[0];
+    const best=cl.filter(([c,s])=>s.k>=5).sort((x,y)=>(y[1].k-y[1].d)-(x[1].k-x[1].d))[0];
+    if(worst&&worst[1].d>worst[1].k)add(12+(worst[1].d-worst[1].k)*2,'bad',`Lastige plek: ${worst[0]}`,`Daar ging je ${worst[1].d} keer dood en maakte je ${worst[1].k} kills. Kijk in de heatmap hoe je daar binnenkomt.`);
+    if(best&&best[1].k>best[1].d)add(10+(best[1].k-best[1].d)*2,'good',`Jouw plek: ${best[0]}`,`Daar maakte je ${best[1].k} kills tegenover ${best[1].d} deaths.`)}
+  // consistentie
+  if(rows.length>=8){const xs=rows.map(r=>r.acs_sum/r.rounds),mu=xs.reduce((s,x)=>s+x,0)/xs.length,sd=Math.sqrt(xs.reduce((s,x)=>s+(x-mu)**2,0)/xs.length),cv=sd/mu;
+    if(cv>=0.38)add((cv-0.3)*90,'neutral','Wisselvallig',`Je ACS schommelt sterk per match (tussen ${pr(Math.min(...xs))} en ${pr(Math.max(...xs))}). Je goede potjes zijn heel goed, je slechte potjes trekken het gemiddelde omlaag.`);
+    else if(cv<=0.22)add((0.3-cv)*90,'good','Constant',`Je ACS is per match heel stabiel, rond de ${pr(mu)}.`);
+    // vorm
+    if(rows.length>=10){const last=xs.slice(0,5).reduce((s,x)=>s+x,0)/5,rest=xs.slice(5).reduce((s,x)=>s+x,0)/(xs.length-5),df=(last-rest)/rest*100;
+      if(Math.abs(df)>=12)add(Math.abs(df)*0.7,df>0?'good':'bad',df>0?'In vorm':'Uit vorm',`Je laatste 5 matches had je een ACS van ${pr(last)}, tegenover ${pr(rest)} daarvoor (${df>0?'+':''}${pr(df)}%).`)}}
+  // teamplay
+  if(P.apr>=70)add(P.apr-50,'good','Teamspeler',`${v.apr.toFixed(2)} assists per ronde, meer dan ${pr(P.apr)}% van de lobby. Je utility helpt je team.`);
+  // archetype
+  const al=sum('deaths_known_team')>=8?sum('alone_d')/sum('deaths_known_team'):0.5;
+  let arche='Allrounder';
+  if(P.acs>=75)arche='Carry';
+  if(P.fbr>=65&&P.fdr>=55)arche='Entry fragger';
+  else if(al>=0.62&&P.fbr<55)arche='Lurker';
+  else if(P.apr>=70&&P.acs<70)arche='Support';
+  else if(100-P.dpr>=65&&P.fbr<45)arche='Anchor';
+  C.sort((x,y)=>y.score-x.score);
+  // zorg voor minstens 1 verbeterpunt als dat er is
+  let top=C.slice(0,5);if(!top.some(c=>c.kind==='bad')){const b=C.find(c=>c.kind==='bad');if(b)top[4]=b}
+  return {arche,radar,points:top,v,P,n:rows.length};
+}
+function radarSVG(series){
+  const cx=150,cy=140,R=105,N=6;const ang=i=>-Math.PI/2+i*2*Math.PI/N;const pt=(i,r)=>[cx+Math.cos(ang(i))*r,cy+Math.sin(ang(i))*r];
+  let g='';[25,50,75,100].forEach(l=>g+=`<polygon points="${[...Array(N)].map((_,i)=>pt(i,R*l/100).join(',')).join(' ')}" fill="none" stroke="#22303f"/>`);
+  series[0].radar.forEach(([lab],i)=>{const [x,y]=pt(i,R+18);g+=`<line x1="${cx}" y1="${cy}" x2="${pt(i,R)[0]}" y2="${pt(i,R)[1]}" stroke="#1b2633"/><text x="${x}" y="${y+4}" fill="#8696a7" font-size="12" text-anchor="middle">${lab}</text>`});
+  series.forEach(s=>{g+=`<polygon points="${s.radar.map(([,v],i)=>pt(i,R*Math.max(4,v)/100).join(',')).join(' ')}" fill="${s.color}" fill-opacity=".18" stroke="${s.color}" stroke-width="2"/>`});
+  return `<svg viewBox="0 0 300 285" width="100%" style="max-width:340px">${g}</svg>`;
+}
+function renderStyle(app,act){
+  const ids=[...new Set(act.flatMap(p=>rowsFor(p).map(r=>r.match)))];
+  const ref=lobbyRef(ids);
+  const S=act.map(p=>({p,s:styleFor(p,rowsFor(p),ref)})).filter(x=>x.s);
+  if(!S.length)return;
+  const icon=k=>k==='good'?'<span style="color:var(--win)">▲</span>':k==='bad'?'<span style="color:var(--loss)">▼</span>':'<span style="color:var(--gold)">●</span>';
+  let h=`<section><h2>Speelstijl</h2><p class="lead">Vijf dingen die opvallen aan hoe jullie spelen, binnen de gekozen matches. Vergeleken met alle andere spelers in jullie potjes (${ref.acs.length} spelerprestaties). ▲ sterk punt · ▼ verbeterpunt · ● kenmerk.</p>
+   <div class="g2" style="grid-template-columns:minmax(260px,340px) 1fr;align-items:start"><div class="panel"><h3>Profiel <small>percentiel t.o.v. de lobby</small></h3>${radarSVG(S.map(x=>({radar:x.s.radar,color:x.p.color})))}
+   <div class="legend">${S.map(x=>`<span><i class="dot" style="background:${x.p.color}"></i>${x.p.name}</span>`).join('')}</div></div><div style="display:grid;gap:18px">`;
+  S.forEach(({p,s})=>{
+    h+=`<div class="panel" style="border-top:3px solid ${p.color}"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap"><h3 style="color:${p.color};margin:0">${p.name}</h3>
+      <span class="pill" style="background:color-mix(in srgb,${p.color} 18%,transparent);color:${p.color};font-size:14px">${s.arche}</span></div>
+      <ol style="list-style:none;margin-top:10px">${s.points.map(c=>`<li style="display:grid;grid-template-columns:22px 1fr;gap:6px;padding:9px 0;border-bottom:1px solid #18232f">${icon(c.kind)}<div><b>${c.title}</b><div style="color:#b9c7d6;font-size:14px">${c.text}</div></div></li>`).join('')}</ol></div>`;
+  });
+  app.insertAdjacentHTML('beforeend',h+'</div></div></section>');
+}
+
+// ---------- HEATMAP (overzicht, over meerdere matches) ----------
+let HM={map:'',who:'',type:'D',side:'all',mode:'heat'};
+function heatLayer(m,pts,color,mode){
+  let g='';
+  if(mode==='heat'){g+=`<g filter="url(#hblur)">`+pts.map(p=>{const [x,y]=toImg(m,p.x,p.y);return `<circle cx="${x}" cy="${y}" r="26" fill="${color}" fill-opacity=".22"/>`}).join('')+'</g>'}
+  g+=pts.map(p=>{const [x,y]=toImg(m,p.x,p.y);const c=callout(m,p.x,p.y)||'';
+    const tipTxt=`${p.type==='K'?'Kill op '+p.other:'Dood door '+p.other} · ${p.w} · ${p.t} s<br>${c} · ${p.map} · ${p.atk?'aanval':'verdediging'}`;
+    return p.type==='K'?`<circle class="hp" cx="${x}" cy="${y}" r="${mode==='heat'?5:7}" fill="${color}" stroke="#06090d" stroke-width="1.5" data-h="${esc(tipTxt)}"/>`
+      :`<g class="hp" data-h="${esc(tipTxt)}"><circle cx="${x}" cy="${y}" r="9" fill="transparent"/><path d="M${x-6},${y-6}L${x+6},${y+6}M${x+6},${y-6}L${x-6},${y+6}" stroke="${color}" stroke-width="3.2" stroke-linecap="round"/></g>`}).join('');
+  return g;
+}
+function mapFrame(m,inner){return `<svg viewBox="0 0 1000 1000" width="100%" style="display:block;background:#0b1118;border-radius:4px"><defs><filter id="hblur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="16"/></filter></defs><image href="${m.icon}" width="1000" height="1000" opacity=".85"/>${inner}</svg>`}
+function renderHeatOverview(app,act){
+  if(!DATA.maps||!Object.keys(DATA.maps).length)return;
+  const sec=document.createElement('section');sec.id='heatSec';app.appendChild(sec);
+  const draw=()=>{
+    const ids=[...new Set(act.flatMap(p=>rowsFor(p).map(r=>r.match)))].filter(id=>DATA.details[id]&&mapOf(DATA.details[id]));
+    const cnt={};ids.forEach(id=>{const n=DATA.details[id].map;cnt[n]=(cnt[n]||0)+1});
+    const maps=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]);
+    if(!maps.length){sec.innerHTML='';return}
+    if(!maps.includes(HM.map))HM.map=maps[0];
+    const whoList=act.filter(p=>p.key);if(!whoList.find(p=>p.key===HM.who))HM.who=whoList[0].key;
+    const mids=ids.filter(id=>DATA.details[id].map===HM.map);
+    const m=mapOf(DATA.details[mids[0]]);
+    const evs=eventsFor(HM.who,mids,HM.side).filter(e=>HM.type==='B'||e.type===HM.type);
+    const col=colorOf(HM.who);
+    let inner='';
+    if(HM.type!=='K')inner+=heatLayer(m,evs.filter(e=>e.type==='D'),'#ff4655',HM.mode);
+    if(HM.type!=='D')inner+=heatLayer(m,evs.filter(e=>e.type==='K'),'#3ee6a0',HM.mode);
+    // callout-tabel
+    const byC={};eventsFor(HM.who,mids,HM.side).forEach(e=>{const c=callout(m,e.x,e.y)||'?';byC[c]=byC[c]||{k:0,d:0};byC[c][e.type==='K'?'k':'d']++});
+    const rowsC=Object.entries(byC).sort((a,b)=>(b[1].k+b[1].d)-(a[1].k+a[1].d)).slice(0,12);
+    const btn=(grp,val,lab)=>`<button class="btn ${HM[grp]===val?'on':''}" data-hm="${grp}" data-v="${val}">${lab}</button>`;
+    sec.innerHTML=`<h2>Heatmap</h2><p class="lead">Waar de kills en deaths vallen, over alle gekozen matches op één map. Kills staan op de plek waar de speler stond, deaths op de plek waar hij viel. Beweeg over een punt voor details.</p>
+     <div class="panel" style="margin-bottom:14px"><div class="frow" style="gap:8px">
+       <select id="hmMap">${maps.map(n=>`<option ${n===HM.map?'selected':''} value="${n}">${n} (${cnt[n]})</option>`).join('')}</select>
+       <select id="hmWho">${whoList.map(p=>`<option value="${p.key}" ${p.key===HM.who?'selected':''}>${p.name}</option>`).join('')}</select>
+       ${btn('type','D','Deaths')}${btn('type','K','Kills')}${btn('type','B','Beide')}
+       <span style="width:10px"></span>${btn('side','all','Beide kanten')}${btn('side','atk','Aanval')}${btn('side','def','Verdediging')}
+       <span style="width:10px"></span>${btn('mode','heat','Heatmap')}${btn('mode','dots','Punten')}</div></div>
+     <div class="g2" style="grid-template-columns:minmax(300px,620px) 1fr;align-items:start"><div class="panel" style="padding:10px">${mapFrame(m,inner)}</div>
+      <div class="panel scroll"><h3>Per plek <small>${HM.map} · ${mids.length} matches</small></h3><table><thead><tr><th>Plek</th><th>Kills</th><th>Deaths</th><th>Saldo</th></tr></thead><tbody>${rowsC.map(([c,s])=>`<tr><td>${c}</td><td style="color:var(--win)">${s.k}</td><td style="color:var(--loss)">${s.d}</td><td><b style="color:${s.k-s.d>=0?'var(--win)':'var(--loss)'}">${s.k-s.d>0?'+':''}${s.k-s.d}</b></td></tr>`).join('')}</tbody></table>
+      <div style="color:var(--mute);font-size:12px;margin-top:10px">De plek is de dichtstbijzijnde callout op de kaart.</div></div></div>`;
+    sec.querySelector('#hmMap').onchange=e=>{HM.map=e.target.value;draw()};
+    sec.querySelector('#hmWho').onchange=e=>{HM.who=e.target.value;draw()};
+    sec.querySelectorAll('[data-hm]').forEach(b=>b.onclick=()=>{HM[b.dataset.hm]=b.dataset.v;draw()});
+    sec.querySelectorAll('.hp').forEach(e=>bindTip(e,e.dataset.h));
+  };
+  draw();
+}
+
+// ---------- HEATMAP IN HET MATCHVERSLAG ----------
+let MH={show:{K:1,D:1,P:1},round:'all',off:{}};
+function matchHeatHTML(d){
+  const m=mapOf(d);
+  if(!m)return `<section><h2>Heatmap</h2><div class="panel" style="color:var(--mute)">Voor deze map zijn nog geen kaartgegevens beschikbaar.</div></section>`;
+  return `<section><h2>Wat er gebeurde op de kaart</h2><p class="lead">Groene stip = waar een kill werd gemaakt, met een lijn naar het slachtoffer. Rood kruis = waar iemand van jullie viel, met een lijn naar de killer. De dunne lijnen zijn jullie posities door de ronde heen, vastgelegd op elk moment dat er iemand doodging.</p>
+   <div class="panel" style="margin-bottom:14px"><div class="frow" id="mhCtl" style="gap:8px"></div></div>
+   <div class="g2" style="grid-template-columns:minmax(300px,620px) 1fr;align-items:start"><div class="panel" style="padding:10px" id="mhMap"></div><div class="panel scroll" id="mhTab"></div></div></section>`;
+}
+function drawMatchHeat(d,F,myTeam){
+  const m=mapOf(d);if(!m)return;
+  const ctl=$('#mhCtl'),box=$('#mhMap'),tab=$('#mhTab');
+  const draw=()=>{
+    const col=f=>colorOf(f.fk);
+    ctl.innerHTML=F.map(f=>`<button class="chip ${MH.off[f.i]?'':'on'}" style="--c:${col(f)}" data-f="${f.i}"><i class="dot" style="background:${col(f)}"></i>${f.n}</button>`).join('')+
+      `<span style="width:8px"></span>`+[['K','Kills'],['D','Deaths'],['P','Posities']].map(([k,l])=>`<button class="btn ${MH.show[k]?'on':''}" data-s="${k}">${l}</button>`).join('')+
+      `<select id="mhRound"><option value="all">Alle rondes</option>${d.rounds.map((r,i)=>`<option value="${i}" ${String(i)===String(MH.round)?'selected':''}>Ronde ${i+1} · ${r.w===myTeam?'W':'L'} · ${isAtk(myTeam,i,d.fha)?'aanval':'verdediging'}</option>`).join('')}</select>`;
+    const rounds=MH.round==='all'?d.rounds.map((r,i)=>i):[+MH.round];
+    let g='',stats={};
+    F.filter(f=>!MH.off[f.i]).forEach(f=>{stats[f.i]={};const c=col(f);
+      rounds.forEach(ri=>{const r=d.rounds[ri];
+        if(MH.show.P){const tr=[];r.ev.forEach(e=>(e[10]||[]).forEach(q=>{if(q[0]===f.i)tr.push(q)}));
+          if(tr.length>1)g+=`<polyline points="${tr.map(q=>toImg(m,q[1],q[2]).join(',')).join(' ')}" fill="none" stroke="${c}" stroke-width="2" stroke-opacity=".45"/>`;
+          tr.forEach(q=>{const [x,y]=toImg(m,q[1],q[2]);g+=`<circle cx="${x}" cy="${y}" r="3" fill="${c}" fill-opacity=".6"/>`})}
+        r.ev.forEach(e=>{
+          if(MH.show.K&&e[1]===f.i&&d.players[e[2]].tm!==f.tm&&e[6]!=null){const kx=e[8]!=null?e[8]:e[6],ky=e[9]!=null?e[9]:e[7];const [x1,y1]=toImg(m,kx,ky),[x2,y2]=toImg(m,e[6],e[7]);const co=callout(m,kx,ky);
+            stats[f.i][co]=stats[f.i][co]||{k:0,d:0};stats[f.i][co].k++;
+            g+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#3ee6a0" stroke-width="1.6" stroke-dasharray="5 4" opacity=".7"/><circle cx="${x2}" cy="${y2}" r="3" fill="#ff8a95"/>
+              <circle class="hp" cx="${x1}" cy="${y1}" r="8" fill="${c}" stroke="#3ee6a0" stroke-width="3" data-h="${esc(`<b style='color:${c}'>${f.n}</b> · ronde ${ri+1}<br>Kill op ${d.players[e[2]].n} · ${e[3]} · ${e[0]} s<br>Vanaf ${co||'?'}`)}"/>`}
+          if(MH.show.D&&e[2]===f.i&&e[6]!=null){const [x,y]=toImg(m,e[6],e[7]);const co=callout(m,e[6],e[7]);stats[f.i][co]=stats[f.i][co]||{k:0,d:0};stats[f.i][co].d++;
+            if(e[8]!=null){const [kx,ky]=toImg(m,e[8],e[9]);g+=`<line x1="${kx}" y1="${ky}" x2="${x}" y2="${y}" stroke="#ff4655" stroke-width="1.6" stroke-dasharray="5 4" opacity=".75"/><circle cx="${kx}" cy="${ky}" r="4" fill="#ff4655"/>`}
+            g+=`<g class="hp" data-h="${esc(`<b style='color:${c}'>${f.n}</b> · ronde ${ri+1}<br>Dood door ${e[1]!=null?d.players[e[1]].n:'?'} · ${e[3]} · ${e[0]} s<br>In ${co||'?'}${e[5]!=null?' · teamgenoot op '+Math.round(e[5]/100)+' m':''}`)}"><circle cx="${x}" cy="${y}" r="11" fill="#06090d" fill-opacity=".6"/><path d="M${x-7},${y-7}L${x+7},${y+7}M${x+7},${y-7}L${x-7},${y+7}" stroke="${c}" stroke-width="3.6" stroke-linecap="round"/></g>`}
+        })})});
+    box.innerHTML=mapFrame(m,g);
+    tab.innerHTML=`<h3>Per plek <small>${MH.round==='all'?'hele match':'ronde '+(+MH.round+1)}</small></h3>`+F.filter(f=>!MH.off[f.i]).map(f=>{const rows=Object.entries(stats[f.i]).sort((a,b)=>(b[1].k+b[1].d)-(a[1].k+a[1].d)).slice(0,8);
+      return `<div class="label" style="color:${col(f)};margin-top:10px">${f.n}</div><table><tbody>${rows.length?rows.map(([c,s])=>`<tr><td>${c}</td><td style="color:var(--win)">${s.k} kills</td><td style="color:var(--loss)">${s.d} deaths</td></tr>`).join(''):'<tr><td style="color:var(--mute)">Geen kills of deaths</td></tr>'}</tbody></table>`}).join('');
+    ctl.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{MH.off[b.dataset.f]=!MH.off[b.dataset.f];draw()});
+    ctl.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{MH.show[b.dataset.s]=!MH.show[b.dataset.s];draw()});
+    ctl.querySelector('#mhRound').onchange=e=>{MH.round=e.target.value;draw()};
+    box.querySelectorAll('.hp').forEach(e=>bindTip(e,e.dataset.h));
+  };
+  draw();
+}
+
+// ---------- COACH-FEEDBACK PER MATCH ----------
+function matchFeedbackHTML(d,F,per,ST){
+  const m=mapOf(d), n=d.rounds.length;
+  const byAcs=d.players.map((p,i)=>({i,acs:p.acs})).sort((a,b)=>b.acs-a.acs);
+  const blocks=F.map(f=>{
+    const s=ST[f.i], col=colorOf(f.fk), G=[], B=[];
+    const hist=(DATA.matches[f.fk]||[]).filter(r=>r.match!==d.id);
+    const avg=k=>{const R=hist.reduce((a,r)=>a+r.rounds,0);return R?hist.reduce((a,r)=>a+(r[k]||0),0)/R:null};
+    const hAcs=avg('acs_sum'),hAdr=avg('dmg');
+    const rank=byAcs.findIndex(x=>x.i===f.i)+1;
+    if(rank===1)G.push([30,`<b>MVP van de lobby</b> met de hoogste ACS (${f.acs}).`]);
+    else if(rank<=3)G.push([18,`<b>Top ${rank}</b> van de lobby op ACS (${f.acs}).`]);
+    else if(rank>=8)B.push([16,`<b>Plek ${rank} van 10</b> op ACS (${f.acs}). Een lastig potje.`]);
+    if(hAcs){const df=(f.acs-hAcs)/hAcs*100;if(df>=15)G.push([df*0.6,`ACS <b>${Math.round(df)}% hoger</b> dan je gemiddelde (${Math.round(hAcs)}).`]);else if(df<=-15)B.push([-df*0.6,`ACS <b>${Math.round(-df)}% lager</b> dan je gemiddelde (${Math.round(hAcs)}).`])}
+    if(s.fb-s.fd>=2)G.push([12+(s.fb-s.fd)*3,`Je won de openingsduels: <b>${s.fb} first bloods</b> tegenover ${s.fd} first deaths.`]);
+    if(s.fd-s.fb>=2)B.push([12+(s.fd-s.fb)*3,`<b>${s.fd} keer als eerste neer</b> tegenover ${s.fb} first bloods. Daarmee begon je team ${s.fd} rondes met 4 tegen 5.`]);
+    if(s.d&&s.early/s.d>=0.3&&s.early>=3)B.push([10+s.early*2,`<b>${s.early} van je ${s.d} deaths</b> vielen in de eerste 20 seconden.`]);
+    if(s.aloneKnown>=4){const ap=s.alone/s.aloneKnown;if(ap>=0.6)B.push([10+ap*15,`Bij <b>${s.alone} van de ${s.aloneKnown}</b> deaths stond er geen teamgenoot in de buurt. ${s.traded} daarvan werden getrade.`]);else if(ap<=0.3)G.push([10,`Je bleef dicht bij je team: maar ${s.alone} van de ${s.aloneKnown} deaths zonder teamgenoot in de buurt.`])}
+    if(s.tradeK>=3)G.push([8+s.tradeK*2,`<b>${s.tradeK} trade-kills</b>: je wreekte je teamgenoten snel.`]);
+    if(s.best>=3)G.push([10+s.best*4,`Een ronde met <b>${s.best} kills</b>.`]);
+    if(s.kast>=0.8)G.push([12,`KAST van <b>${Math.round(s.kast*100)}%</b>: in bijna elke ronde droeg je iets bij.`]);else if(s.kast<=0.6)B.push([10,`KAST van <b>${Math.round(s.kast*100)}%</b>: in ${Math.round((1-s.kast)*n)} rondes geen kill, assist, trade of overleving.`]);
+    const ak=s.atkK/Math.max(1,s.atkD),dk=s.defK/Math.max(1,s.defD);if(s.atkN>=6&&s.defN>=6&&Math.abs(ak-dk)>=0.6){(ak<dk?B:G).push([9,`In de ${ak<dk?'aanval':'verdediging'} een K/D van <b>${(ak<dk?ak:dk).toFixed(2)}</b> tegenover ${(ak<dk?dk:ak).toFixed(2)} aan de andere kant.`])}
+    // plekken
+    if(m){const dc={};per[f.i].forEach(x=>{if(x.death&&x.death[6]!=null){const c=callout(m,x.death[6],x.death[7]);dc[c]=(dc[c]||0)+1}});
+      const w=Object.entries(dc).sort((a,b)=>b[1]-a[1])[0];if(w&&w[1]>=3)B.push([8+w[1]*3,`Je ging <b>${w[1]} keer dood in ${w[0]}</b>. Probeer daar een andere timing of hoek.`]);}
+    // clutch
+    const cl=per[f.i].map((x,ri)=>{const r=d.rounds[ri];const alive=new Set(d.players.map((p,i)=>i));let c=0;for(const e of r.ev){alive.delete(e[2]);const mine=[...alive].filter(i=>d.players[i].tm===f.tm),th=[...alive].filter(i=>d.players[i].tm!==f.tm);if(!c&&mine.length===1&&mine[0]===f.i&&th.length)c=th.length}return c?{n:c,win:x.win}:null}).filter(Boolean);
+    const cw=cl.filter(c=>c.win);if(cw.length)G.push([14+Math.max(...cw.map(c=>c.n))*4,`<b>Clutch gewonnen</b>${cw.length>1?` (${cw.length}x)`:''}: 1 tegen ${Math.max(...cw.map(c=>c.n))}.`]);
+    // economie
+    const forceL=per[f.i].filter((x,i)=>i!==0&&i!==12&&x.eco[0]>=1500&&x.eco[0]<3600&&!x.win).length;if(forceL>=3)B.push([7+forceL,`<b>${forceL} force buys verloren</b>. Samen sparen geeft vaak een sterkere volgende ronde.`]);
+    if(f.hs>=25)G.push([10+(f.hs-25)/2,`Headshotpercentage van <b>${f.hs}%</b>.`]);
+    G.sort((a,b)=>b[0]-a[0]);B.sort((a,b)=>b[0]-a[0]);
+    const g=G.slice(0,3),b=B.slice(0,2);
+    return `<div class="panel" style="border-top:3px solid ${col}"><h3 style="color:${col}">${f.n} <small>${f.ag} · ${f.k}/${f.d}/${f.a}</small></h3>
+      ${g.length?`<div class="label" style="color:var(--win);margin-top:4px">Ging goed</div>`+g.map(x=>`<div style="padding:7px 0 7px 12px;border-left:3px solid var(--win);margin:6px 0;background:rgba(62,230,160,.05)">${x[1]}</div>`).join(''):''}
+      ${b.length?`<div class="label" style="color:var(--loss);margin-top:10px">Kan beter</div>`+b.map(x=>`<div style="padding:7px 0 7px 12px;border-left:3px solid var(--loss);margin:6px 0;background:rgba(255,70,85,.05)">${x[1]}</div>`).join(''):''}
+      ${!g.length&&!b.length?'<div style="color:var(--mute)">Een gemiddeld potje, niets wat er echt uitspringt.</div>':''}</div>`;
+  });
+  return `<section><h2>Coach-feedback</h2><p class="lead">Wat ging er goed en wat kan beter in deze match. Vergeleken met de rest van de lobby en met jullie eigen gemiddelde.</p><div class="g2" style="grid-template-columns:repeat(${Math.min(F.length,3)},1fr)">${blocks.join('')}</div></section>`;
 }
 </script>
 </body>

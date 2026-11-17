@@ -194,6 +194,34 @@ def analyse(m):
     return rows
 
 
+MAPS_FILE = ROOT / "data" / "maps.json"
+
+
+def load_maps():
+    """Kaartgegevens (minimap, coördinaten-omrekening, callouts) van valorant-api.com, met cache."""
+    import urllib.request
+    cache = json.loads(MAPS_FILE.read_text(encoding="utf-8")) if MAPS_FILE.exists() else {}
+    try:
+        req = urllib.request.Request("https://valorant-api.com/v1/maps", headers={"User-Agent": "valo-squad-tracker"})
+        with urllib.request.urlopen(req, timeout=60) as r:
+            data = json.load(r)["data"]
+        maps = {}
+        for mp in data:
+            if mp.get("xMultiplier") is None or not mp.get("displayIcon"):
+                continue
+            maps[mp["uuid"]] = dict(
+                name=mp["displayName"], icon=mp["displayIcon"],
+                xm=mp["xMultiplier"], ym=mp["yMultiplier"], xa=mp["xScalarToAdd"], ya=mp["yScalarToAdd"],
+                callouts=[[c.get("superRegionName"), c.get("regionName"), round(c["location"]["x"]), round(c["location"]["y"])]
+                          for c in (mp.get("callouts") or []) if c.get("location")])
+        if maps:
+            MAPS_FILE.write_text(json.dumps(maps, ensure_ascii=False), encoding="utf-8")
+            return maps
+    except Exception as e:
+        print(f"Kaartgegevens niet opgehaald ({e}), cache gebruikt.")
+    return cache
+
+
 def short_weapon(w):
     n = (w or {}).get("name")
     return n or "Ability"
@@ -237,8 +265,14 @@ def detail(m):
                          if q["player"]["puuid"] != k["victim"]["puuid"] and team_of.get(q["player"]["puuid"]) == team_of[k["victim"]["puuid"]]]
                 if loc and mates:
                     alone = round(min(dist(loc, q["location"]) for q in mates))
+            loc = k.get("location") or {}
+            kpos = next((q["location"] for q in k.get("player_locations", []) if q["player"]["puuid"] == k["killer"]["puuid"]), None) or {}
+            fpos = [[idx[q["player"]["puuid"]], round(q["location"]["x"]), round(q["location"]["y"])]
+                    for q in k.get("player_locations", [])
+                    if idx.get(q["player"]["puuid"]) in friend_idx and q["player"]["puuid"] != k["victim"]["puuid"]]
             ev.append([round(k["time_in_round_in_ms"] / 1000, 1), ki, vi, short_weapon(k.get("weapon")),
-                       [idx[a["puuid"]] for a in k.get("assistants", []) if a["puuid"] in idx], alone])
+                       [idx[a["puuid"]] for a in k.get("assistants", []) if a["puuid"] in idx], alone,
+                       loc.get("x"), loc.get("y"), kpos.get("x"), kpos.get("y"), fpos])
         eco = {}
         for stt in r.get("stats", []):
             pi = idx.get(stt["player"]["puuid"])
@@ -252,6 +286,7 @@ def detail(m):
                        plp=idx.get((pt.get("player") or {}).get("puuid")),
                        df=bool(r.get("defuse")), ev=ev, eco=eco))
     return dict(id=md["match_id"], date=md["started_at"], map=(md.get("map") or {}).get("name"),
+                map_id=(md.get("map") or {}).get("id"),
                 mode=(md.get("queue") or {}).get("name") or (md.get("queue") or {}).get("id"),
                 season=(md.get("season") or {}).get("short"), fha=first_half_attacker(m),
                 teams={t["team_id"]: [t["rounds"]["won"], t["rounds"]["lost"], bool(t.get("won"))] for t in m["teams"]},
@@ -290,7 +325,7 @@ def main():
         generated_at=datetime.now(timezone.utc).isoformat(timespec="seconds"),
         players=[dict(key=key(p["name"], p["tag"]), name=p["name"], tag=p["tag"],
                       label=p.get("label", p["name"]), color=p.get("color", "#ff4655")) for p in CONFIG["players"]],
-        matches=per_player, shared=shared, details=details,
+        matches=per_player, shared=shared, details=details, maps=load_maps(),
         settings=dict(trade_ms=TRADE_MS, early_s=EARLY_S, alone_units=ALONE_UNITS),
     )
     OUT.write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")

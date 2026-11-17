@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Squad Tracker · Valorant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b1118;--panel:#111a24;--panel2:#152130;--line:#22303f;--txt:#e9eef3;--mute:#8696a7;--red:#ff4655;--win:#3ee6a0;--loss:#ff4655;--gold:#f5c451}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:Inter,system-ui,sans-serif;line-height:1.5;
+ background-image:radial-gradient(1200px 600px at 85% -10%,rgba(255,70,85,.14),transparent 60%),radial-gradient(900px 500px at -10% 30%,rgba(62,230,194,.07),transparent 60%)}
+.wrap{max-width:1220px;margin:0 auto;padding:30px 22px 80px}
+h1,h2,h3,.big{font-family:Anton,Impact,sans-serif;font-weight:400;letter-spacing:.5px}
+.label{font-family:Rajdhani,'Arial Narrow',sans-serif;text-transform:uppercase;letter-spacing:2px;font-weight:700;font-size:12px;color:var(--mute)}
+header{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
+header h1{font-size:54px;line-height:1;text-transform:uppercase}
+header h1 span{color:var(--red)}
+.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{background:#0e1620;border:1px solid var(--line);color:var(--mute);font-family:Rajdhani,'Arial Narrow',sans-serif;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:7px 14px;border-radius:3px;cursor:pointer;font-size:13px}
+.btn.on{color:#fff;border-color:var(--red);background:rgba(255,70,85,.14)}
+section{margin-top:52px}
+section>h2{font-size:32px;text-transform:uppercase;display:flex;align-items:center;gap:14px}
+section>h2:before{content:"";width:10px;height:28px;background:var(--red);clip-path:polygon(0 0,100% 12%,100% 100%,0 88%)}
+section>p.lead{color:var(--mute);margin:6px 0 18px;max-width:780px}
+.panel{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:4px;padding:20px;position:relative;overflow:hidden}
+.panel:after{content:"";position:absolute;right:0;top:0;width:26px;height:26px;background:linear-gradient(135deg,transparent 50%,rgba(255,70,85,.5) 50%)}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:26px}
+.card{border-top:3px solid var(--c)}
+.card .nm{font-family:Anton,Impact,sans-serif;font-size:34px;line-height:1.05;color:var(--c);word-break:break-word}
+.card .tag{color:var(--mute);font-family:Rajdhani,'Arial Narrow',sans-serif;font-weight:700;font-size:18px}
+.card .rank{margin-top:4px;color:var(--mute);font-size:13px}
+.kv{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}
+.kv div b{display:block;font-family:Rajdhani,'Arial Narrow',sans-serif;font-size:24px;font-weight:700;line-height:1.1}
+.kv div span{font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:1px}
+.form{display:flex;gap:4px;margin-top:14px}
+.form i{width:16px;height:6px;border-radius:2px;background:#2a3644}
+.form i.W{background:var(--win)}.form i.L{background:var(--loss)}.form i.D{background:var(--mute)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-family:Rajdhani,'Arial Narrow',sans-serif;text-transform:uppercase;letter-spacing:1.5px;font-size:12px;color:var(--mute);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid #18232f;vertical-align:middle}
+tr:hover td{background:rgba(255,255,255,.02)}
+.cmp td.stat{font-family:Rajdhani,'Arial Narrow',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mute);font-size:13px;white-space:nowrap}
+.cmp td.val{width:27%}
+.cv{display:flex;align-items:center;gap:10px}
+.cv b{font-family:Rajdhani,'Arial Narrow',sans-serif;font-size:20px;min-width:66px;text-align:right}
+.cv .bar{flex:1;height:10px;background:#0d151e;border-radius:2px;overflow:hidden}
+.cv .bar i{display:block;height:100%;border-radius:2px}
+.crown{color:var(--gold);margin-left:4px;font-size:13px}
+.hint{font-size:11px;color:var(--mute);font-weight:400;text-transform:none;letter-spacing:0;display:block}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+h3{font-size:19px;text-transform:uppercase;margin-bottom:12px}
+h3 small{font-family:Inter;font-size:12px;color:var(--mute);text-transform:none;letter-spacing:0;margin-left:8px}
+.pill{display:inline-block;padding:2px 9px;border-radius:20px;font-family:Rajdhani,'Arial Narrow',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase}
+.p-W{background:rgba(62,230,160,.15);color:var(--win)}.p-L{background:rgba(255,70,85,.15);color:var(--loss)}.p-D{background:#1b2939;color:#b9c7d6}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;vertical-align:middle}
+.legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:10px;color:var(--mute);font-size:13px}
+.heat{font-family:Rajdhani,'Arial Narrow',sans-serif;font-weight:700;text-align:center;border-radius:3px;padding:6px 4px}
+.empty{padding:60px 20px;text-align:center;color:var(--mute)}
+.empty b{display:block;font-family:Anton,Impact,sans-serif;font-size:30px;color:var(--txt);margin-bottom:8px;font-weight:400}
+.tip{position:fixed;pointer-events:none;background:#06090d;border:1px solid var(--line);padding:6px 10px;border-radius:3px;font-size:13px;display:none;z-index:9}
+.foot{color:var(--mute);font-size:13px;margin-top:40px}
+.foot li{margin:5px 0 5px 18px}
+svg text{font-family:Rajdhani,'Arial Narrow',sans-serif;font-weight:600}
+.scroll{overflow-x:auto}
+.filters{margin-top:22px;display:grid;gap:12px}
+.frow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.frow .label{width:92px;flex:none}
+.chip{border:1px solid var(--line);background:#0e1620;color:var(--mute);padding:6px 14px;border-radius:20px;cursor:pointer;font-family:Rajdhani,'Arial Narrow',sans-serif;font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px}
+.chip .dot{margin:0}
+.chip.on{color:#fff;border-color:var(--c);background:color-mix(in srgb,var(--c) 16%,transparent)}
+select,input[type=number]{background:#0e1620;border:1px solid var(--line);color:var(--txt);padding:6px 10px;border-radius:3px;font-family:Inter,sans-serif;font-size:13px}
+input[type=number]{width:74px}
+.fsum{color:var(--mute);font-size:13px;margin-top:2px}
+.fsum b{color:var(--txt)}
+@media(max-width:900px){.cards,.g2{grid-template-columns:1fr}.kv{grid-template-columns:repeat(4,1fr)}header h1{font-size:40px}}
+</style>
+</head>
+<body>
+<div class="tip" id="tip"></div>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="label">Valorant · Competitive · automatisch bijgewerkt</div>
+      <h1>Squad <span>Tracker</span></h1>
+      <div class="label" id="updated" style="margin-top:6px"></div>
+    </div>
+  </header>
+  <div class="panel filters">
+    <div class="frow"><span class="label">Spelers</span><div id="fPlayers" class="frow"></div></div>
+    <div class="frow"><span class="label">Matches</span>
+      <button class="btn on" data-t="all">Alle matches</button>
+      <button class="btn" data-t="together" title="Alleen matches waarin alle gekozen spelers samen in één team zaten">Samen met de gekozen spelers</button>
+      <button class="btn" data-t="solo" title="Alleen matches zonder een van de andere vrienden in je team">Zonder de anderen</button>
+    </div>
+    <div class="frow"><span class="label">Aantal</span>
+      <button class="btn" data-n="5">Laatste 5</button><button class="btn on" data-n="10">10</button><button class="btn" data-n="20">20</button><button class="btn" data-n="50">50</button><button class="btn" data-n="0">Alles</button>
+      <span style="color:var(--mute);font-size:13px;margin-left:6px">of laatste</span><input type="number" id="fN" min="1" placeholder="aantal">
+    </div>
+    <div class="frow"><span class="label">Filter</span>
+      <select id="fMode"></select><select id="fSeason"></select><select id="fMap"></select>
+    </div>
+    <div class="fsum" id="fSum"></div>
+  </div>
+
+  <div id="app"></div>
+
+  <div class="foot">
+    <ul>
+      <li>Data via de onofficiële HenrikDev API. Niet gemaakt of goedgekeurd door Riot Games.</li>
+      <li>ACS = gemiddelde combat score per ronde. ADR = gemiddelde schade per ronde. KAST = rondes met een kill, assist, overleefd of getraded.</li>
+      <li>Een death telt als getraded als je killer binnen 5 seconden door een teamgenoot werd uitgeschakeld. "Alleen gestorven" = geen teamgenoot binnen ongeveer 15 meter op het moment van je death.</li>
+      <li>Kooptype per ronde op basis van de waarde van je loadout: eco onder ¤1.500, force onder ¤3.600, daarboven full buy. Ronde 1 en 13 zijn pistolrondes.</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const tip=$('#tip');
+function bindTip(el,html){el.addEventListener('mousemove',e=>{tip.innerHTML=html;tip.style.display='block';tip.style.left=Math.min(e.clientX+14,innerWidth-260)+'px';tip.style.top=(e.clientY+14)+'px'});el.addEventListener('mouseleave',()=>tip.style.display='none')}
+const fmt={pct:v=>isFinite(v)?Math.round(v*100)+'%':'–',f2:v=>isFinite(v)?v.toFixed(2):'–',f1:v=>isFinite(v)?v.toFixed(1):'–',f0:v=>isFinite(v)?Math.round(v):'–',int:v=>v};
+let DATA=null, N=10, TOG='all', SEL=null, MODE='', SEASON='', MAP='';
+const opts=(el,list,label,cur)=>{el.innerHTML=`<option value="">${label}</option>`+list.map(v=>`<option ${v===cur?'selected':''}>${v}</option>`).join('')};
+function initFilters(){
+  const all=Object.values(DATA.matches).flat();
+  const uniq=k=>[...new Set(all.map(r=>r[k]).filter(Boolean))];
+  const modes=uniq('mode'); MODE=modes.find(m=>/competitive/i.test(m))||'';
+  opts($('#fMode'),modes.sort(),'Alle modi',MODE);
+  opts($('#fSeason'),uniq('season').sort().reverse(),'Alle seizoenen',SEASON);
+  opts($('#fMap'),uniq('map').sort(),'Alle maps',MAP);
+  $('#fMode').onchange=e=>{MODE=e.target.value;render()};
+  $('#fSeason').onchange=e=>{SEASON=e.target.value;render()};
+  $('#fMap').onchange=e=>{MAP=e.target.value;render()};
+  SEL=new Set(DATA.players.map(p=>p.key));
+  $('#fPlayers').innerHTML=DATA.players.map(p=>`<button class="chip on" style="--c:${p.color}" data-k="${p.key}"><i class="dot" style="background:${p.color}"></i>${p.name}</button>`).join('');
+  document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{const k=c.dataset.k;
+    if(SEL.has(k)){if(SEL.size>1)SEL.delete(k)}else SEL.add(k);
+    c.classList.toggle('on',SEL.has(k));render()});
+}
+fetch('data/stats.json?'+Date.now()).then(r=>{if(!r.ok)throw 0;return r.json()}).then(d=>{DATA=d;initFilters();render()}).catch(()=>{
+  $('#app').innerHTML=`<div class="panel empty" style="margin-top:30px"><b>Nog geen data</b>Draai eerst de GitHub Action "Matches bijwerken" (zie README). Open je deze pagina als los bestand, dan kan de browser de data niet laden: bekijk hem via GitHub Pages.</div>`;
+});
+document.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>{N=+b.dataset.n;$('#fN').value='';document.querySelectorAll('[data-n]').forEach(x=>x.classList.toggle('on',x===b));render()});
+$('#fN').oninput=e=>{const v=parseInt(e.target.value);if(v>0){N=v;document.querySelectorAll('[data-n]').forEach(x=>x.classList.remove('on'));render()}};
+document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{TOG=b.dataset.t;document.querySelectorAll('[data-t]').forEach(x=>x.classList.toggle('on',x===b));render()});
+
+function baseFilter(r){return (!MODE||r.mode===MODE)&&(!SEASON||r.season===SEASON)&&(!MAP||r.map===MAP)}
+function rowsFor(p){
+  let rows=(DATA.matches[p.key]||[]).filter(baseFilter);
+  const others=[...SEL].filter(k=>k!==p.key);
+  if(TOG==='together') rows=rows.filter(r=>others.every(k=>(r.with||[]).includes(k)));
+  if(TOG==='solo') rows=rows.filter(r=>!(r.with||[]).length);
+  return N?rows.slice(0,N):rows;
+}
+function agg(rows){
+  const s=k=>rows.reduce((a,r)=>a+(r[k]||0),0);
+  const R=s('rounds'), shots=s('hs')+s('bs')+s('ls');
+  const buy={pistol:[0,0],eco:[0,0],force:[0,0],full:[0,0]};
+  rows.forEach(r=>Object.entries(r.buy||{}).forEach(([t,[w,n]])=>{buy[t][0]+=w;buy[t][1]+=n}));
+  const wpn={}; rows.forEach(r=>Object.entries(r.weapons||{}).forEach(([w,n])=>wpn[w]=(wpn[w]||0)+n));
+  const m=rows.length;
+  return {m,w:rows.filter(r=>r.result==='W').length,R,k:s('k'),d:s('d'),a:s('a'),
+    wr:rows.filter(r=>r.result==='W').length/m, kd:s('k')/s('d'), kda:(s('k')+s('a'))/s('d'),
+    acs:s('acs_sum')/R, adr:s('dmg')/R, hsp:s('hs')/shots, kast:s('kast')/R,
+    fb:s('fb')/m, fd:s('fd')/m, fbdiff:(s('fb')-s('fd'))/m, mk:(s('mk2')+s('mk3')+s('mk4')+s('mk5'))/m, aces:s('mk5'), big:s('mk3')+s('mk4')+s('mk5'),
+    clw:s('clutch_w'), cla:s('clutch_a'), clp:s('clutch_w')/s('clutch_a'),
+    tk:s('trade_k')/m, tradedp:s('traded_d')/s('d'), earlyp:s('early_d')/s('d'), alonep:s('alone_d')/s('deaths_known_team'),
+    dtime:s('death_time_sum')/s('d'), plants:s('plants')/m, defuses:s('defuses'),
+    atkkd:s('atk_k')/s('atk_d'), defkd:s('def_k')/s('def_d'), atkwr:s('atk_won')/s('atk_rounds'), defwr:s('def_won')/s('def_rounds'),
+    loadout:s('loadout_sum')/R, buy, wpn};
+}
+
+function render(){
+  const P=DATA.players.filter(p=>SEL.has(p.key)), A={};
+  P.forEach(p=>A[p.key]=agg(rowsFor(p)));
+  $('#updated').textContent='Laatst bijgewerkt: '+new Date(DATA.generated_at).toLocaleString('nl-NL',{dateStyle:'medium',timeStyle:'short'});
+  const app=$('#app'); app.innerHTML='';
+  const names=P.map(p=>`<b style="color:${p.color}">${p.name}</b>`);
+  const tTxt=TOG==='together'?(P.length>1?`alleen matches waarin ${names.join(' en ')} samen speelden`:'alle matches (kies minstens 2 spelers voor "samen")'):TOG==='solo'?'alleen matches zonder een van de andere vrienden in het team':'alle matches per speler';
+  $('#fSum').innerHTML=`Je ziet: ${tTxt} · ${N?'laatste '+N:'alle'} · ${MODE||'alle modi'}${SEASON?' · '+SEASON:''}${MAP?' · '+MAP:''}`;
+  // cards
+  const cards=document.createElement('div'); cards.className='cards'; cards.style.gridTemplateColumns=`repeat(${P.length},1fr)`;
+  P.forEach(p=>{
+    const a=A[p.key], rows=rowsFor(p), last=(DATA.matches[p.key]||[])[0];
+    cards.insertAdjacentHTML('beforeend',`<div class="panel card" style="--c:${p.color}">
+      <div class="nm">${p.name}<span class="tag"> #${p.tag}</span></div>
+      <div class="rank">${last&&last.tier?'Rank: '+last.tier+' · ':''}${a.m} matches · ${a.w}W ${a.m-a.w}L</div>
+      ${a.m?`<div class="kv">
+        <div><b>${fmt.pct(a.wr)}</b><span>Winrate</span></div><div><b>${fmt.f2(a.kd)}</b><span>K/D</span></div>
+        <div><b>${fmt.f0(a.acs)}</b><span>ACS</span></div><div><b>${fmt.f0(a.adr)}</b><span>ADR</span></div>
+        <div><b>${fmt.pct(a.hsp)}</b><span>HS%</span></div><div><b>${fmt.pct(a.kast)}</b><span>KAST</span></div>
+        <div><b>${a.k}/${a.d}/${a.a}</b><span>K/D/A</span></div><div><b>${a.clw}/${a.cla}</b><span>Clutches</span></div></div>
+      <div class="form">${rows.slice(0,20).reverse().map(r=>`<i class="${r.result}" title="${r.map} ${r.score}"></i>`).join('')}</div>`:'<div class="rank" style="margin-top:14px">Geen matches in deze selectie.</div>'}
+    </div>`);
+  });
+  app.appendChild(cards);
+  const act=P.filter(p=>A[p.key].m);
+  if(!act.length) return;
+
+  // comparison
+  const stats=[
+   ['Winrate','wr',fmt.pct,1],['K/D','kd',fmt.f2,1],['KDA','kda',fmt.f2,1,'(kills + assists) / deaths'],['ACS','acs',fmt.f0,1],['ADR','adr',fmt.f0,1],
+   ['Headshot %','hsp',fmt.pct,1],['KAST','kast',fmt.pct,1],['First bloods / match','fb',fmt.f2,1],['First deaths / match','fd',fmt.f2,-1],
+   ['Entry-saldo / match','fbdiff',fmt.f2,1,'first bloods min first deaths'],['Multikills / match','mk',fmt.f2,1,'rondes met 2+ kills'],['3K of meer','big',fmt.int,1],
+   ['Clutch %','clp',fmt.pct,1,'1vX gewonnen'],['Trade-kills / match','tk',fmt.f2,1],['Deaths getraded','tradedp',fmt.pct,1],
+   ['Vroege deaths','earlyp',fmt.pct,-1,'death in de eerste 20 s'],['Alleen gestorven','alonep',fmt.pct,-1,'geen teamgenoot in de buurt'],
+   ['Gem. moment van death','dtime',v=>fmt.f0(v)+' s',1,'seconden in de ronde'],['K/D aanval','atkkd',fmt.f2,1],['K/D verdediging','defkd',fmt.f2,1],
+   ['Plants / match','plants',fmt.f2,1]];
+  let h=`<section><h2>Head-to-head</h2><p class="lead">De kroon gaat naar wie op dat punt het best scoort binnen de gekozen periode.</p><div class="panel scroll"><table class="cmp"><thead><tr><th></th>${act.map(p=>`<th style="color:${p.color}">${p.name}</th>`).join('')}</tr></thead><tbody>`;
+  stats.forEach(([lab,k,f,dir,hint])=>{
+    const vals=act.map(p=>A[p.key][k]), fin=vals.filter(isFinite), mx=Math.max(...fin.map(Math.abs))||1;
+    const best=fin.length>1?(dir>0?Math.max(...fin):Math.min(...fin)):null;
+    h+=`<tr><td class="stat">${lab}${hint?`<span class="hint">${hint}</span>`:''}</td>`+act.map((p,i)=>{const v=vals[i];
+      return `<td class="val"><div class="cv"><b style="color:${p.color}">${f(v)}${v===best&&fin.filter(x=>x===best).length===1?'<span class="crown">♛</span>':''}</b><div class="bar"><i style="width:${isFinite(v)?Math.max(0,v)/mx*100:0}%;background:${p.color}"></i></div></div></td>`}).join('')+'</tr>';
+  });
+  app.insertAdjacentHTML('beforeend',h+'</tbody></table></div></section>');
+
+  // trend
+  const sec=document.createElement('section');
+  sec.innerHTML=`<h2>Vorm</h2><p class="lead">ACS per match, van oud naar nieuw. Beweeg over een punt voor de details.</p><div class="panel"><svg id="trend" viewBox="0 0 1120 300" width="100%"></svg><div class="legend">${act.map(p=>`<span><i class="dot" style="background:${p.color}"></i>${p.name}</span>`).join('')}</div></div>`;
+  app.appendChild(sec);
+  (function(){
+    const svg=$('#trend'),x0=50,x1=1100,y0=260,y1=20;
+    const series=act.map(p=>({p,r:rowsFor(p).slice().reverse()}));
+    const maxLen=Math.max(...series.map(s=>s.r.length)), vals=series.flatMap(s=>s.r.map(r=>r.acs_sum/r.rounds));
+    const top=Math.ceil(Math.max(...vals,300)/50)*50;
+    const X=i=>x0+(maxLen<2?0.5:i/(maxLen-1))*(x1-x0), Y=v=>y0-v/top*(y0-y1);
+    let g='';
+    for(let v=0;v<=top;v+=100)g+=`<line x1="${x0}" x2="${x1}" y1="${Y(v)}" y2="${Y(v)}" stroke="#1f2b38"/><text x="${x0-8}" y="${Y(v)+4}" fill="#8696a7" font-size="12" text-anchor="end">${v}</text>`;
+    series.forEach(({p,r})=>{
+      const off=maxLen-r.length, pts=r.map((m,i)=>[X(i+off),Y(m.acs_sum/m.rounds),m]);
+      g+=`<polyline points="${pts.map(q=>q[0]+','+q[1]).join(' ')}" fill="none" stroke="${p.color}" stroke-width="2.5" opacity=".9"/>`;
+      pts.forEach(([x,y,m])=>g+=`<circle class="tp" cx="${x}" cy="${y}" r="5" fill="${m.result==='W'?p.color:'#0b1118'}" stroke="${p.color}" stroke-width="2" data-h="<b style='color:${p.color}'>${p.name}</b><br>${new Date(m.date).toLocaleDateString('nl-NL')} · ${m.map} · ${m.agent}<br>${m.result==='W'?'Gewonnen':m.result==='L'?'Verloren':'Gelijk'} ${m.score} · ${m.k}/${m.d}/${m.a} · ACS ${Math.round(m.acs_sum/m.rounds)}"/>`);
+    });
+    svg.innerHTML=g+`<text x="${x1}" y="${y0+28}" fill="#8696a7" font-size="12" text-anchor="end">gevuld = gewonnen · leeg = verloren</text>`;
+    svg.querySelectorAll('.tp').forEach(c=>bindTip(c,c.dataset.h));
+  })();
+
+  // maps + agents
+  const mapSet=[...new Set(act.flatMap(p=>rowsFor(p).map(r=>r.map)))].sort();
+  const heat=(w,n)=>{if(!n)return '<td class="heat" style="color:#3a4756">–</td>';const v=w/n;const c=v>=.5?`rgba(62,230,160,${.12+v*.4})`:`rgba(255,70,85,${.12+(1-v)*.4})`;return `<td><div class="heat" style="background:${c}">${Math.round(v*100)}%<span style="font-weight:500;color:#c7d2dd;font-size:11px"> (${w}/${n})</span></div></td>`};
+  let mh=`<table><thead><tr><th>Map</th>${act.map(p=>`<th style="color:${p.color}">${p.name}</th>`).join('')}</tr></thead><tbody>`;
+  mapSet.forEach(m=>{mh+=`<tr><td>${m}</td>`+act.map(p=>{const r=rowsFor(p).filter(x=>x.map===m);return heat(r.filter(x=>x.result==='W').length,r.length)}).join('')+'</tr>'});
+  mh+='</tbody></table>';
+  let ah='';
+  act.forEach(p=>{
+    const by={};rowsFor(p).forEach(r=>{(by[r.agent]=by[r.agent]||[]).push(r)});
+    const list=Object.entries(by).sort((a,b)=>b[1].length-a[1].length).slice(0,4);
+    ah+=`<div style="margin-bottom:14px"><div class="label" style="color:${p.color};margin-bottom:4px">${p.name}</div><table><tbody>`+list.map(([ag,rs])=>{const a=agg(rs);return `<tr><td style="width:34%">${ag}</td><td>${rs.length}x</td><td>${fmt.pct(a.wr)} win</td><td>K/D ${fmt.f2(a.kd)}</td><td>ACS ${fmt.f0(a.acs)}</td></tr>`}).join('')+'</tbody></table></div>';
+  });
+  app.insertAdjacentHTML('beforeend',`<section><h2>Maps en agents</h2><p class="lead">Winrate per map en jullie meest gespeelde agents.</p><div class="g2"><div class="panel scroll"><h3>Winrate per map</h3>${mh}</div><div class="panel"><h3>Agents</h3>${ah}</div></div></section>`);
+
+  // economy + weapons
+  const types=[['pistol','Pistol'],['eco','Eco'],['force','Force'],['full','Full buy']];
+  let eh=`<table><thead><tr><th>Kooptype</th>${act.map(p=>`<th style="color:${p.color}">${p.name}</th>`).join('')}</tr></thead><tbody>`;
+  types.forEach(([t,l])=>{eh+=`<tr><td>${l}</td>`+act.map(p=>{const [w,n]=A[p.key].buy[t];return heat(w,n)}).join('')+'</tr>'});
+  eh+=`<tr><td>Gem. loadout</td>${act.map(p=>`<td style="font-family:Rajdhani,'Arial Narrow',sans-serif;font-weight:700;font-size:17px;text-align:center">¤ ${isFinite(A[p.key].loadout)?Math.round(A[p.key].loadout).toLocaleString('nl-NL'):'–'}</td>`).join('')}</tr></tbody></table>`;
+  let wh='';
+  act.forEach(p=>{
+    const w=Object.entries(A[p.key].wpn).sort((a,b)=>b[1]-a[1]).slice(0,5), mx=w.length?w[0][1]:1;
+    wh+=`<div style="margin-bottom:12px"><div class="label" style="color:${p.color};margin-bottom:6px">${p.name}</div>`+w.map(([n,v])=>`<div style="display:grid;grid-template-columns:120px 1fr 36px;gap:10px;align-items:center;margin:4px 0;font-size:13px"><span>${n}</span><div style="height:10px;background:#0d151e;border-radius:2px"><i style="display:block;height:100%;width:${v/mx*100}%;background:${p.color};border-radius:2px"></i></div><b style="font-family:Rajdhani,'Arial Narrow',sans-serif;text-align:right">${v}</b></div>`).join('')+'</div>';
+  });
+  app.insertAdjacentHTML('beforeend',`<section><h2>Economie en wapens</h2><p class="lead">Rondewinst per type koop, en met welke wapens jullie de meeste kills maken.</p><div class="g2"><div class="panel scroll"><h3>Rondewinst per kooptype</h3>${eh}</div><div class="panel"><h3>Kills per wapen <small>top 5</small></h3>${wh}</div></div></section>`);
+
+  // together
+  if(P.length>=2){
+    const ks=P.map(p=>p.key);
+    let sh=DATA.shared.filter(x=>ks.every(k=>x.rows[k]) && ks.slice(1).every(k=>(x.rows[ks[0]].with||[]).includes(k)) && baseFilter(x.rows[ks[0]]));
+    const all=sh; if(N) sh=sh.slice(0,N);
+    if(all.length){
+      let th=`<table><thead><tr><th>Datum</th><th>Map</th>${P.map(p=>`<th style="color:${p.color}">${p.name}</th>`).join('')}</tr></thead><tbody>`;
+      sh.forEach(x=>{const any=x.rows[ks[0]];
+        th+=`<tr><td>${new Date(x.date).toLocaleDateString('nl-NL')}</td><td>${x.map} <span class="pill p-${any.result}">${any.score}</span></td>`+P.map(p=>{const r=x.rows[p.key];return `<td><b>${r.k}/${r.d}/${r.a}</b> <span style="color:var(--mute)">· ${r.agent} · ACS ${Math.round(r.acs_sum/r.rounds)}</span></td>`}).join('')+'</tr>'});
+      const wins=all.filter(x=>x.rows[ks[0]].result==='W').length;
+      app.insertAdjacentHTML('beforeend',`<section><h2>Samen gespeeld</h2><p class="lead">Matches waarin ${names.join(' en ')} in hetzelfde team zaten. Samen wonnen jullie <b style="color:#fff">${wins} van de ${all.length}</b> (${fmt.pct(wins/all.length)}).</p><div class="panel scroll">${th}</tbody></table></div></section>`);
+    }
+  }
+
+  // match list
+  let ml='<section><h2>Laatste matches</h2><div class="g2" style="grid-template-columns:1fr">';
+  act.forEach(p=>{
+    ml+=`<div class="panel scroll"><h3 style="color:${p.color}">${p.name}</h3><table><thead><tr><th>Datum</th><th>Map</th><th>Agent</th><th>Uitslag</th><th>K/D/A</th><th>ACS</th><th>ADR</th><th>HS%</th><th>KAST</th><th>FB/FD</th></tr></thead><tbody>`+
+    rowsFor(p).map(r=>`<tr><td>${new Date(r.date).toLocaleDateString('nl-NL')}</td><td>${r.map}</td><td>${r.agent}</td><td><span class="pill p-${r.result}">${r.result==='W'?'Win':r.result==='L'?'Loss':'Gelijk'} ${r.score}</span></td><td><b>${r.k}/${r.d}/${r.a}</b></td><td>${Math.round(r.acs_sum/r.rounds)}</td><td>${Math.round(r.dmg/r.rounds)}</td><td>${fmt.pct(r.hs/(r.hs+r.bs+r.ls))}</td><td>${fmt.pct(r.kast/r.rounds)}</td><td>${r.fb}/${r.fd}</td></tr>`).join('')+'</tbody></table></div>';
+  });
+  app.insertAdjacentHTML('beforeend',ml+'</div></section>');
+}
+</script>
+</body>
+</html>

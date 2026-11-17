@@ -1,0 +1,29 @@
+{
+  "region": "eu",
+  "platform": "pc",
+  "modes": [
+    "competitive",
+    "unrated"
+  ],
+  "max_pages": 100,
+  "players": [
+    {
+      "name": "marciebeur",
+      "tag": "EUW",
+      "label": "marciebeur",
+      "color": "#ff7a45"
+    },
+    {
+      "name": "DennisVG",
+      "tag": "3745",
+      "label": "DennisVG",
+      "color": "#3ee6c2"
+    },
+    {
+      "name": "Mr Mmlk",
+      "tag": "EUW",
+      "label": "Mr Mmlk",
+      "color": "#b48cff"
+    }
+  ]
+}

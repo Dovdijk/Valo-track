@@ -64,6 +64,10 @@ h3 small{font-family:Inter;font-size:12px;color:var(--mute);text-transform:none;
 .foot li{margin:5px 0 5px 18px}
 svg text{font-family:Rajdhani,'Arial Narrow',sans-serif;font-weight:600}
 .scroll{overflow-x:auto}
+.rc{min-height:38px;border-radius:3px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0e1620;border:1px solid #1a2532;line-height:1.1}
+.rc.W{background:rgba(62,230,160,.16);border-color:rgba(62,230,160,.45);color:var(--win)}
+.rc.L{background:rgba(255,70,85,.13);border-color:rgba(255,70,85,.4);color:var(--loss)}
+tr.click{cursor:pointer} tr.click:hover td{background:rgba(255,70,85,.06)}
 .filters{margin-top:22px;display:grid;gap:12px}
 .frow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .frow .label{width:92px;flex:none}
@@ -139,7 +143,7 @@ function initFilters(){
     if(SEL.has(k)){if(SEL.size>1)SEL.delete(k)}else SEL.add(k);
     c.classList.toggle('on',SEL.has(k));render()});
 }
-fetch('data/stats.json?'+Date.now()).then(r=>{if(!r.ok)throw 0;return r.json()}).then(d=>{DATA=d;initFilters();render()}).catch(()=>{
+fetch('data/stats.json?'+Date.now()).then(r=>{if(!r.ok)throw 0;return r.json()}).then(d=>{DATA=d;initFilters();const m=location.hash.match(/^#m=(.+)$/);if(m)CUR=m[1];render()}).catch(()=>{
   $('#app').innerHTML=`<div class="panel empty" style="margin-top:30px"><b>Nog geen data</b>Draai eerst de GitHub Action "Matches bijwerken" (zie README). Open je deze pagina als los bestand, dan kan de browser de data niet laden: bekijk hem via GitHub Pages.</div>`;
 });
 document.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>{N=+b.dataset.n;$('#fN').value='';document.querySelectorAll('[data-n]').forEach(x=>x.classList.toggle('on',x===b));render()});
@@ -173,6 +177,8 @@ function agg(rows){
 }
 
 function render(){
+  if(CUR) return renderMatch(CUR);
+  document.querySelector('.filters').style.display='';
   const P=DATA.players.filter(p=>SEL.has(p.key)), A={};
   P.forEach(p=>A[p.key]=agg(rowsFor(p)));
   $('#updated').textContent='Laatst bijgewerkt: '+new Date(DATA.generated_at).toLocaleString('nl-NL',{dateStyle:'medium',timeStyle:'short'});
@@ -272,19 +278,187 @@ function render(){
     if(all.length){
       let th=`<table><thead><tr><th>Datum</th><th>Map</th>${P.map(p=>`<th style="color:${p.color}">${p.name}</th>`).join('')}</tr></thead><tbody>`;
       sh.forEach(x=>{const any=x.rows[ks[0]];
-        th+=`<tr><td>${new Date(x.date).toLocaleDateString('nl-NL')}</td><td>${x.map} <span class="pill p-${any.result}">${any.score}</span></td>`+P.map(p=>{const r=x.rows[p.key];return `<td><b>${r.k}/${r.d}/${r.a}</b> <span style="color:var(--mute)">· ${r.agent} · ACS ${Math.round(r.acs_sum/r.rounds)}</span></td>`}).join('')+'</tr>'});
+        th+=`<tr class="click" onclick="openMatch('${x.match}')"><td>${new Date(x.date).toLocaleDateString('nl-NL')}</td><td>${x.map} <span class="pill p-${any.result}">${any.score}</span></td>`+P.map(p=>{const r=x.rows[p.key];return `<td><b>${r.k}/${r.d}/${r.a}</b> <span style="color:var(--mute)">· ${r.agent} · ACS ${Math.round(r.acs_sum/r.rounds)}</span></td>`}).join('')+'</tr>'});
       const wins=all.filter(x=>x.rows[ks[0]].result==='W').length;
       app.insertAdjacentHTML('beforeend',`<section><h2>Samen gespeeld</h2><p class="lead">Matches waarin ${names.join(' en ')} in hetzelfde team zaten. Samen wonnen jullie <b style="color:#fff">${wins} van de ${all.length}</b> (${fmt.pct(wins/all.length)}).</p><div class="panel scroll">${th}</tbody></table></div></section>`);
     }
   }
 
   // match list
-  let ml='<section><h2>Laatste matches</h2><div class="g2" style="grid-template-columns:1fr">';
+  let ml='<section><h2>Laatste matches</h2><p class="lead">Klik op een match voor het volledige verslag: ronde voor ronde, timing, duels, economie en positionering.</p><div class="g2" style="grid-template-columns:1fr">';
   act.forEach(p=>{
     ml+=`<div class="panel scroll"><h3 style="color:${p.color}">${p.name}</h3><table><thead><tr><th>Datum</th><th>Map</th><th>Agent</th><th>Uitslag</th><th>K/D/A</th><th>ACS</th><th>ADR</th><th>HS%</th><th>KAST</th><th>FB/FD</th></tr></thead><tbody>`+
-    rowsFor(p).map(r=>`<tr><td>${new Date(r.date).toLocaleDateString('nl-NL')}</td><td>${r.map}</td><td>${r.agent}</td><td><span class="pill p-${r.result}">${r.result==='W'?'Win':r.result==='L'?'Loss':'Gelijk'} ${r.score}</span></td><td><b>${r.k}/${r.d}/${r.a}</b></td><td>${Math.round(r.acs_sum/r.rounds)}</td><td>${Math.round(r.dmg/r.rounds)}</td><td>${fmt.pct(r.hs/(r.hs+r.bs+r.ls))}</td><td>${fmt.pct(r.kast/r.rounds)}</td><td>${r.fb}/${r.fd}</td></tr>`).join('')+'</tbody></table></div>';
+    rowsFor(p).map(r=>`<tr class="click" onclick="openMatch('${r.match}')"><td>${new Date(r.date).toLocaleDateString('nl-NL')}</td><td>${r.map}</td><td>${r.agent}</td><td><span class="pill p-${r.result}">${r.result==='W'?'Win':r.result==='L'?'Loss':'Gelijk'} ${r.score}</span></td><td><b>${r.k}/${r.d}/${r.a}</b></td><td>${Math.round(r.acs_sum/r.rounds)}</td><td>${Math.round(r.dmg/r.rounds)}</td><td>${fmt.pct(r.hs/(r.hs+r.bs+r.ls))}</td><td>${fmt.pct(r.kast/r.rounds)}</td><td>${r.fb}/${r.fd}</td></tr>`).join('')+'</tbody></table></div>';
   });
   app.insertAdjacentHTML('beforeend',ml+'</div></section>');
+}
+
+// ================= MATCHVERSLAG =================
+let CUR=null;
+function openMatch(id){CUR=id;history.replaceState(null,'','#m='+id);render();window.scrollTo({top:0,behavior:'smooth'})}
+function closeMatch(){CUR=null;history.replaceState(null,'',location.pathname);render()}
+const isAtk=(team,i,fha)=>{const first=i<12||(i>=24&&(i-24)%2===0);return (team===fha)===first};
+const colorOf=k=>(DATA.players.find(p=>p.key===k)||{}).color||'#ff4655';
+const nameOf=(d,i)=>i==null?'?':d.players[i].n;
+
+function renderMatch(id){
+  const d=DATA.details&&DATA.details[id];
+  const app=$('#app');
+  document.querySelector('.filters').style.display='none';
+  if(!d){app.innerHTML=`<div class="panel empty" style="margin-top:30px"><b>Geen verslag</b>Van deze match is geen verslag beschikbaar.<br><br><button class="btn" onclick="closeMatch()">← Terug</button></div>`;return}
+  const F=d.players.map((p,i)=>({...p,i})).filter(p=>p.fk);           // vrienden in deze match
+  const myTeam=F[0].tm, other=Object.keys(d.teams).find(t=>t!==myTeam);
+  const [won,lost,isWin]=d.teams[myTeam], res=isWin?'W':(d.teams[other]&&d.teams[other][2]?'L':'D');
+  const R=d.rounds, n=R.length;
+  // ---- per vriend per ronde
+  const per={};
+  F.forEach(f=>{
+    per[f.i]=R.map((r,ri)=>{
+      const kills=r.ev.filter(e=>e[1]===f.i&&d.players[e[2]].tm!==f.tm);
+      const death=r.ev.find(e=>e[2]===f.i);
+      const assist=r.ev.some(e=>e[4].includes(f.i));
+      let traded=false;
+      if(death){traded=r.ev.some(e=>e[2]===death[1]&&e[1]!=null&&d.players[e[1]].tm===f.tm&&e[0]>=death[0]&&e[0]-death[0]<=5)}
+      const tradeK=kills.filter(k=>r.ev.some(e=>e[1]===k[2]&&d.players[e[2]].tm===f.tm&&k[0]>=e[0]&&k[0]-e[0]<=5)).length;
+      const fb=r.ev[0]&&r.ev[0][1]===f.i, fd=r.ev[0]&&r.ev[0][2]===f.i;
+      const atk=isAtk(f.tm,ri,d.fha), win=r.w===f.tm;
+      const eco=r.eco[f.i]||[0,null,null,0];
+      return {kills,death,assist,traded,tradeK,fb,fd,atk,win,eco,kast:kills.length>0||assist||!death||traded};
+    });
+  });
+  const S=f=>{const a=per[f.i];const ds=a.filter(x=>x.death);
+    const alone=ds.filter(x=>x.death[5]!=null), early=ds.filter(x=>x.death[0]<=20);
+    const mk=a.filter(x=>x.kills.length>=2).length, best=Math.max(0,...a.map(x=>x.kills.length));
+    const at=a.filter(x=>x.atk), df=a.filter(x=>!x.atk);
+    const sum=(arr,fn)=>arr.reduce((s,x)=>s+fn(x),0);
+    return {k:f.k,d:f.d,a:f.a,acs:f.acs,adr:f.adr,hs:f.hs,kd:f.k/f.d,
+      fb:a.filter(x=>x.fb).length,fd:a.filter(x=>x.fd).length,mk,best,
+      surv:a.filter(x=>!x.death).length,kast:a.filter(x=>x.kast).length/n,
+      tradeK:sum(a,x=>x.tradeK),traded:ds.filter(x=>x.traded).length,
+      early:early.length,alone:alone.filter(x=>x.death[5]>DATA.settings.alone_units).length,aloneKnown:alone.length,
+      avgDist:alone.length?Math.round(sum(alone,x=>x.death[5])/alone.length):null,
+      atkK:sum(at,x=>x.kills.length),atkD:at.filter(x=>x.death).length,atkW:at.filter(x=>x.win).length,atkN:at.length,
+      defK:sum(df,x=>x.kills.length),defD:df.filter(x=>x.death).length,defW:df.filter(x=>x.win).length,defN:df.length,
+      avgK:sum(a,x=>sum(x.kills,k=>k[0]))/Math.max(1,sum(a,x=>x.kills.length)),avgD:sum(ds,x=>x.death[0])/Math.max(1,ds.length)}};
+  const ST={};F.forEach(f=>ST[f.i]=S(f));
+  const col=f=>colorOf(f.fk);
+  let h=`<div style="margin-top:22px"><button class="btn" onclick="closeMatch()">← Terug naar overzicht</button></div>`;
+
+  // ---- hero
+  h+=`<div class="hero2 panel" style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;
+      background:linear-gradient(120deg,${res==='W'?'rgba(62,230,160,.14)':'rgba(255,70,85,.14)'},transparent 55%),var(--panel)">
+    <div><div class="label">${d.mode||''} · ${d.season||''} · ${new Date(d.date).toLocaleString('nl-NL',{dateStyle:'full',timeStyle:'short'})}</div>
+      <div style="font-family:Anton,Impact,sans-serif;font-size:56px;line-height:1.05">${d.map}</div>
+      <div style="margin-top:6px">${F.map(f=>`<span style="color:${col(f)};font-family:Rajdhani,'Arial Narrow',sans-serif;font-weight:700;font-size:18px;margin-right:16px">${f.n} <span style="color:var(--mute)">· ${f.ag}</span></span>`).join('')}</div></div>
+    <div style="text-align:center"><div style="font-family:Anton,Impact,sans-serif;font-size:20px;letter-spacing:4px;color:${res==='W'?'var(--win)':res==='L'?'var(--loss)':'var(--mute)'}">${res==='W'?'VICTORY':res==='L'?'DEFEAT':'DRAW'}</div>
+      <div style="font-family:Anton,Impact,sans-serif;font-size:80px;line-height:1">${won}<span style="color:var(--mute);font-size:46px;margin:0 8px">:</span>${lost}</div>
+      <div class="label">${n} rondes</div></div></div>`;
+
+  // ---- scoreboard
+  const sb=team=>{const ps=d.players.map((p,i)=>({...p,i})).filter(p=>p.tm===team).sort((a,b)=>b.acs-a.acs);
+    return `<table><thead><tr><th>Speler</th><th>Agent</th><th>ACS</th><th>K</th><th>D</th><th>A</th><th>K/D</th><th>ADR</th><th>HS%</th><th>Rank</th></tr></thead><tbody>`+
+      ps.map(p=>`<tr style="${p.fk?`background:color-mix(in srgb,${colorOf(p.fk)} 10%,transparent)`:''}"><td style="${p.fk?`color:${colorOf(p.fk)};font-weight:700`:''}">${p.n}<span style="color:var(--mute)">#${p.t}</span></td><td>${p.ag}</td><td><b>${p.acs}</b></td><td>${p.k}</td><td>${p.d}</td><td>${p.a}</td><td>${(p.k/Math.max(1,p.d)).toFixed(2)}</td><td>${p.adr}</td><td>${p.hs}%</td><td style="color:var(--mute)">${p.tier||''}</td></tr>`).join('')+'</tbody></table>'};
+  h+=`<section><h2>Scorebord</h2><div class="g2"><div class="panel scroll"><h3 style="color:var(--win)">Jullie team <small>${won} rondes</small></h3>${sb(myTeam)}</div><div class="panel scroll"><h3 style="color:var(--loss)">Tegenstanders <small>${lost} rondes</small></h3>${sb(other)}</div></div></section>`;
+
+  // ---- head to head (alleen bij 2+ vrienden)
+  const rowsH=[['Kills','k',v=>v,1],['Deaths','d',v=>v,-1],['Assists','a',v=>v,1],['K/D','kd',v=>isFinite(v)?v.toFixed(2):'–',1],['ACS','acs',v=>v,1],['ADR','adr',v=>v,1],['Headshot %','hs',v=>v+'%',1],
+    ['First bloods','fb',v=>v,1],['First deaths','fd',v=>v,-1],['Multikill-rondes','mk',v=>v,1],['Beste ronde','best',v=>v+'K',1],['Rondes overleefd','surv',v=>v+' / '+n,1],
+    ['KAST','kast',v=>Math.round(v*100)+'%',1],['Trade-kills','tradeK',v=>v,1],['Deaths getraded','traded',v=>v,1],['Vroege deaths (≤20 s)','early',v=>v,-1],['Alleen gestorven','alone',v=>v,-1]];
+  h+=`<section><h2>${F.length>1?'Head-to-head':'Jouw cijfers'}</h2><div class="panel scroll"><table class="cmp"><thead><tr><th></th>${F.map(f=>`<th style="color:${col(f)}">${f.n}</th>`).join('')}</tr></thead><tbody>`+
+    rowsH.map(([lab,k,fm,dir])=>{const vals=F.map(f=>ST[f.i][k]),fin=vals.filter(isFinite),mx=Math.max(...fin,0.0001),best=F.length>1?(dir>0?Math.max(...fin):Math.min(...fin)):null,uniq=fin.filter(x=>x===best).length===1;
+      return `<tr><td class="stat">${lab}</td>`+F.map((f,j)=>`<td class="val"><div class="cv"><b style="color:${col(f)}">${fm(vals[j])}${uniq&&vals[j]===best?'<span class="crown">♛</span>':''}</b><div class="bar"><i style="width:${isFinite(vals[j])?vals[j]/mx*100:0}%;background:${col(f)}"></i></div></div></td>`).join('')+'</tr>'}).join('')+'</tbody></table></div></section>';
+
+  // ---- ronde voor ronde
+  let tl=`<div class="tl2" style="display:grid;grid-template-columns:130px repeat(${n},minmax(26px,1fr));gap:4px;font-family:Rajdhani,'Arial Narrow',sans-serif;font-weight:700">`;
+  tl+='<div></div>'+R.map((_,i)=>`<div style="text-align:center;font-size:12px;color:var(--mute)">${i+1}</div>`).join('');
+  tl+='<div style="font-size:13px;color:var(--mute);display:flex;align-items:center">UITSLAG</div>'+R.map((r,i)=>{const w=r.w===myTeam,atk=isAtk(myTeam,i,d.fha);
+    return `<div class="rc ${w?'W':'L'}" data-h="<b>Ronde ${i+1}</b> · ${w?'gewonnen':'verloren'} · ${atk?'aanval':'verdediging'}${r.pl?'<br>Spike geplant op '+r.pl+(r.plt?' ('+r.plt+' s)':''):''}${r.df?'<br>Spike gedefused':''}<br>${r.res||''}"><span style="font-size:14px">${w?'W':'L'}</span><span style="font-size:9px;color:var(--mute)">${atk?'AANV':'VERD'}${r.pl?' · '+r.pl:''}</span></div>`}).join('');
+  F.forEach(f=>{
+    tl+=`<div style="font-size:13px;color:${col(f)};display:flex;align-items:center;overflow:hidden;white-space:nowrap">${f.n}</div>`;
+    per[f.i].forEach((x,i)=>{
+      let tipH=`<b style='color:${col(f)}'>${f.n}</b> · ronde ${i+1}<br>`;
+      x.kills.forEach(k=>tipH+=`Kill op ${nameOf(d,k[2])} · ${k[3]} · ${k[0]} s<br>`);
+      tipH+=x.death?`Dood door ${nameOf(d,x.death[1])} · ${x.death[3]} · ${x.death[0]} s${x.traded?' · getraded':''}${x.death[5]!=null?' · teamgenoot op '+Math.round(x.death[5]/100)+' m':''}`:'Overleefd';
+      if(x.assist)tipH+='<br>Assist';
+      tipH+=`<br>Loadout ¤${x.eco[0]}${x.eco[1]?' · '+x.eco[1]:''}${x.eco[2]?' · '+x.eco[2]:''}`;
+      if(x.fb)tipH+='<br><span style=\'color:#f5c451\'>First blood</span>'; if(x.fd)tipH+='<br><span style=\'color:#b98bff\'>First death</span>';
+      tl+=`<div class="rc" style="${x.fb?'box-shadow:inset 0 -3px 0 #f5c451;':''}${x.fd?'box-shadow:inset 0 -3px 0 #9a5bff;':''}" data-h="${tipH}"><span style="font-size:15px;color:${x.kills.length?col(f):'#4a5868'}">${x.kills.length}</span><span style="font-size:10px;color:var(--mute)">${x.death?'✕':'●'}</span></div>`;
+    });
+  });
+  tl+='</div>';
+  h+=`<section><h2>Ronde voor ronde</h2><p class="lead">Per ronde de uitslag, het aantal kills (groot) en of de speler dood ging (✕) of overleefde (●). Beweeg over een vakje voor de details.</p>
+    <div class="panel scroll">${tl}<div class="legend"><span><b style="display:inline-block;width:14px;height:10px;background:var(--gold);margin-right:6px"></b>First blood</span><span><b style="display:inline-block;width:14px;height:10px;background:#9a5bff;margin-right:6px"></b>First death</span><span>AANV = aanval · VERD = verdediging · A/B/C = plant</span></div></div></section>`;
+
+  // ---- timing
+  h+=`<section><h2>Wanneer vallen de kills?</h2><p class="lead">Elke stip is een kill (groen) of death (rood), op de seconde in de ronde waarop die gebeurde.</p><div class="panel"><svg id="mTiming" viewBox="0 0 1100 ${70+F.length*110}" width="100%"></svg></div>
+    <div class="g2" style="margin-top:18px;grid-template-columns:repeat(${Math.min(F.length,3)},1fr)">${F.map(f=>{const s=ST[f.i];return `<div class="panel"><div class="label" style="color:${col(f)}">${f.n}</div><div style="display:flex;gap:26px;margin-top:8px;flex-wrap:wrap">
+      <div><div class="big" style="font-size:38px;color:var(--win)">${s.k?Math.round(s.avgK)+' s':'–'}</div><div style="font-size:12px;color:var(--mute)">gem. kill</div></div>
+      <div><div class="big" style="font-size:38px;color:var(--loss)">${s.d?Math.round(s.avgD)+' s':'–'}</div><div style="font-size:12px;color:var(--mute)">gem. death</div></div>
+      <div><div class="big" style="font-size:38px">${s.early}</div><div style="font-size:12px;color:var(--mute)">deaths ≤ 20 s</div></div></div></div>`}).join('')}</div></section>`;
+
+  // ---- aanval vs verdediging + positionering
+  h+=`<section><h2>Aanval vs verdediging</h2><div class="g2"><div class="panel scroll"><h3>Per kant</h3><table><thead><tr><th></th><th>Kant</th><th>Rondes gewonnen</th><th>Kills</th><th>Deaths</th><th>K/D</th></tr></thead><tbody>`+
+    F.map(f=>{const s=ST[f.i];return `<tr><td rowspan="2" style="color:${col(f)};font-weight:700">${f.n}</td><td>Aanval</td><td>${s.atkW} / ${s.atkN}</td><td>${s.atkK}</td><td>${s.atkD}</td><td><b>${(s.atkK/Math.max(1,s.atkD)).toFixed(2)}</b></td></tr><tr><td>Verdediging</td><td>${s.defW} / ${s.defN}</td><td>${s.defK}</td><td>${s.defD}</td><td><b>${(s.defK/Math.max(1,s.defD)).toFixed(2)}</b></td></tr>`}).join('')+
+    `</tbody></table></div><div class="panel"><h3>Positionering <small>bij je deaths</small></h3>`+
+    F.map(f=>{const s=ST[f.i];const pct=s.aloneKnown?s.alone/s.aloneKnown:0;return `<div style="margin:10px 0 16px"><div class="label" style="color:${col(f)}">${f.n}</div>
+      <div style="display:flex;gap:24px;align-items:baseline;margin-top:4px"><div><span class="big" style="font-size:34px">${s.aloneKnown?Math.round(pct*100)+'%':'–'}</span> <span style="color:var(--mute);font-size:13px">alleen gestorven (${s.alone}/${s.aloneKnown})</span></div>
+      <div><span class="big" style="font-size:34px">${s.avgDist!=null?Math.round(s.avgDist/100)+' m':'–'}</span> <span style="color:var(--mute);font-size:13px">gem. afstand tot dichtstbijzijnde teamgenoot</span></div></div>
+      <div style="height:8px;background:#0d151e;border-radius:2px;margin-top:6px"><i style="display:block;height:100%;width:${pct*100}%;background:${col(f)};border-radius:2px"></i></div></div>`}).join('')+
+    `<div style="color:var(--mute);font-size:12px">"Alleen" = geen teamgenoot binnen ongeveer 15 m. Afstand is een benadering op basis van de kaartcoördinaten.</div></div></div></section>`;
+
+  // ---- duels
+  const opp=d.players.map((p,i)=>({...p,i})).filter(p=>p.tm!==myTeam);
+  h+=`<section><h2>Duels per tegenstander</h2><p class="lead">Wie jullie het vaakst uitschakelden, en door wie jullie zelf het vaakst neergingen.</p><div class="g2" style="grid-template-columns:repeat(${Math.min(F.length,3)},1fr)">`+
+    F.map(f=>{const kc=opp.map(o=>[o.n,per[f.i].reduce((s,x)=>s+x.kills.filter(k=>k[2]===o.i).length,0)]);const dc=opp.map(o=>[o.n,per[f.i].filter(x=>x.death&&x.death[1]===o.i).length]);
+      const bar=(arr,c)=>arr.map(([nm,v])=>`<div style="display:grid;grid-template-columns:110px 1fr 26px;gap:8px;align-items:center;margin:5px 0;font-size:13px"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${nm}</span><div style="height:10px;background:#0d151e;border-radius:2px"><i style="display:block;height:100%;width:${v/Math.max(1,...arr.map(a=>a[1]))*100}%;background:${c};border-radius:2px"></i></div><b style="font-family:Rajdhani,'Arial Narrow',sans-serif;text-align:right">${v}</b></div>`).join('');
+      const nem=dc.slice().sort((a,b)=>b[1]-a[1])[0], vic=kc.slice().sort((a,b)=>b[1]-a[1])[0];
+      return `<div class="panel"><h3 style="color:${col(f)}">${f.n}</h3><div class="label">Kills op</div>${bar(kc,'#3ee6a0')}<div class="label" style="margin-top:10px">Gedood door</div>${bar(dc,'#ff4655')}
+        <div style="margin-top:12px;padding:10px 12px;border-left:3px solid ${col(f)};background:rgba(255,255,255,.03);font-size:13px">Favoriete doelwit: <b>${vic[1]?vic[0]:'–'}</b>${vic[1]?' ('+vic[1]+'x)':''}. Grootste kwelgeest: <b>${nem[1]?nem[0]:'–'}</b>${nem[1]?' ('+nem[1]+'x)':''}.</div></div>`}).join('')+'</div></section>';
+
+  // ---- economie
+  h+=`<section><h2>Economie</h2><p class="lead">Loadoutwaarde per ronde (wapen + schild + abilities). Bolletje onder de staaf: groen = ronde gewonnen.</p><div class="panel"><svg id="mEco" viewBox="0 0 1100 240" width="100%"></svg><div class="legend">${F.map(f=>`<span><i class="dot" style="background:${col(f)}"></i>${f.n}</span>`).join('')}</div></div>`;
+  const bt=(i,lv)=>i===0||i===12?'Pistol':lv<1500?'Eco':lv<3600?'Force':'Full buy';
+  h+=`<div class="g2" style="margin-top:18px;grid-template-columns:repeat(${Math.min(F.length,3)},1fr)">`+F.map(f=>{const g={};per[f.i].forEach((x,i)=>{const t=bt(i,x.eco[0]);g[t]=g[t]||[0,0];g[t][1]++;if(x.win)g[t][0]++});
+    const wp={};per[f.i].forEach(x=>{if(x.eco[1])wp[x.eco[1]]=(wp[x.eco[1]]||0)+1});const fav=Object.entries(wp).sort((a,b)=>b[1]-a[1])[0];
+    return `<div class="panel"><div class="label" style="color:${col(f)}">${f.n}</div><table style="margin-top:6px"><tbody>${['Pistol','Eco','Force','Full buy'].filter(t=>g[t]).map(t=>`<tr><td>${t}</td><td>${g[t][0]} / ${g[t][1]} gewonnen</td></tr>`).join('')}${fav?`<tr><td>Meest gekocht</td><td><b>${fav[0]}</b> (${fav[1]}x)</td></tr>`:''}</tbody></table></div>`}).join('')+'</div></section>';
+
+  // ---- conclusies
+  const lines=[];
+  const top=F.slice().sort((a,b)=>ST[b.i].acs-ST[a.i].acs)[0];
+  if(F.length>1)lines.push(`<b style="color:${col(top)}">${top.n}</b> was de beste van jullie met een ACS van ${ST[top.i].acs} en ${ST[top.i].k} kills.`);
+  F.forEach(f=>{const s=ST[f.i];
+    if(s.fb-s.fd>=2)lines.push(`<b style="color:${col(f)}">${f.n}</b> won de openingsduels: ${s.fb} first bloods tegenover ${s.fd} first deaths.`);
+    if(s.fd-s.fb>=2)lines.push(`<b style="color:${col(f)}">${f.n}</b> ging vaak als eerste neer: ${s.fd} first deaths tegenover ${s.fb} first bloods.`);
+    if(s.d&&s.early/s.d>=0.3)lines.push(`<b style="color:${col(f)}">${f.n}</b> stierf ${s.early} van de ${s.d} keer in de eerste 20 seconden van een ronde.`);
+    if(s.aloneKnown>=3&&s.alone/s.aloneKnown>=0.6)lines.push(`<b style="color:${col(f)}">${f.n}</b> stond bij ${s.alone} van de ${s.aloneKnown} deaths zonder teamgenoot in de buurt.`);
+    const ak=s.atkK/Math.max(1,s.atkD),dk=s.defK/Math.max(1,s.defD);
+    if(s.atkN&&s.defN&&Math.abs(ak-dk)>=0.5)lines.push(`<b style="color:${col(f)}">${f.n}</b> was veel sterker in de ${ak>dk?'aanval':'verdediging'} (K/D ${Math.max(ak,dk).toFixed(2)} tegen ${Math.min(ak,dk).toFixed(2)}).`);
+    if(s.best>=3)lines.push(`<b style="color:${col(f)}">${f.n}</b> had een ronde met ${s.best} kills.`);
+  });
+  if(lines.length)h+=`<section><h2>Opvallend</h2><div class="panel">${lines.map(l=>`<div style="border-left:3px solid var(--red);padding:10px 14px;margin:8px 0;background:rgba(255,70,85,.05)">${l}</div>`).join('')}</div></section>`;
+
+  app.innerHTML=h;
+  app.querySelectorAll('[data-h]').forEach(e=>bindTip(e,e.dataset.h));
+
+  // timing svg
+  (function(){const svg=$('#mTiming'),x0=130,x1=1080,maxT=Math.max(100,...R.flatMap(r=>r.ev.map(e=>e[0])));const X=s=>x0+Math.min(s,maxT)/maxT*(x1-x0);let g='';
+    const H=70+F.length*110;
+    for(let s=0;s<=maxT;s+=20)g+=`<line x1="${X(s)}" x2="${X(s)}" y1="20" y2="${H-30}" stroke="#1f2b38"/><text x="${X(s)}" y="${H-10}" fill="#8696a7" font-size="13" text-anchor="middle">${s} s</text>`;
+    g+=`<rect x="${X(0)}" y="20" width="${X(20)-X(0)}" height="${H-50}" fill="rgba(255,70,85,.05)"/>`;
+    F.forEach((f,j)=>{const y=80+j*110;g+=`<text x="10" y="${y+5}" fill="${col(f)}" font-size="15">${f.n}</text><line x1="${x0}" x2="${x1}" y1="${y}" y2="${y}" stroke="#22303f" stroke-dasharray="3 4"/>`;
+      const used={};
+      per[f.i].forEach((x,ri)=>{x.kills.forEach(k=>{const kk=Math.round(k[0]/3)+'K';used[kk]=(used[kk]||0)+1;g+=`<circle class="tp" cx="${X(k[0])}" cy="${y-14-(used[kk]-1)*11}" r="5.5" fill="#3ee6a0" data-h="R${ri+1} · kill op ${nameOf(d,k[2])} · ${k[3]} · ${k[0]} s"/>`});
+        if(x.death){const k=x.death,kk=Math.round(k[0]/3)+'D';used[kk]=(used[kk]||0)+1;g+=`<circle class="tp" cx="${X(k[0])}" cy="${y+14+(used[kk]-1)*11}" r="5.5" fill="#ff4655" data-h="R${ri+1} · dood door ${nameOf(d,k[1])} · ${k[3]} · ${k[0]} s"/>`}});});
+    svg.innerHTML=g;svg.querySelectorAll('.tp').forEach(c=>bindTip(c,c.dataset.h));})();
+  // eco svg
+  (function(){const svg=$('#mEco'),x0=50,x1=1085,y0=190,y1=20,mx=Math.max(5000,...F.flatMap(f=>per[f.i].map(x=>x.eco[0])));
+    const slot=(x1-x0)/n,bw=slot*0.8/F.length,Y=v=>y0-v/mx*(y0-y1);let g='';
+    [0,2000,4000].forEach(v=>g+=`<line x1="${x0}" x2="${x1}" y1="${Y(v)}" y2="${Y(v)}" stroke="#1f2b38"/><text x="${x0-8}" y="${Y(v)+4}" fill="#8696a7" font-size="12" text-anchor="end">${v/1000}k</text>`);
+    R.forEach((r,i)=>{const cx=x0+i*slot+slot*0.1;
+      F.forEach((f,j)=>{const x=per[f.i][i];g+=`<rect class="tp" x="${cx+j*bw}" y="${Y(x.eco[0])}" width="${bw-1}" height="${y0-Y(x.eco[0])}" fill="${col(f)}" opacity=".85" rx="1" data-h="<b style='color:${col(f)}'>${f.n}</b> · ronde ${i+1}<br>¤${x.eco[0]}${x.eco[1]?' · '+x.eco[1]:''}${x.eco[2]?' · '+x.eco[2]:''}<br>${x.win?'gewonnen':'verloren'}"/>`});
+      g+=`<text x="${x0+i*slot+slot/2}" y="${y0+16}" fill="#8696a7" font-size="11" text-anchor="middle">${i+1}</text><circle cx="${x0+i*slot+slot/2}" cy="${y0+30}" r="4" fill="${r.w===myTeam?'#3ee6a0':'#ff4655'}"/>`;
+      if(i===11)g+=`<line x1="${x0+12*slot}" x2="${x0+12*slot}" y1="${y1}" y2="${y0}" stroke="#ff4655" stroke-dasharray="4 4"/>`;});
+    svg.innerHTML=g;svg.querySelectorAll('.tp').forEach(c=>bindTip(c,c.dataset.h));})();
 }
 </script>
 </body>

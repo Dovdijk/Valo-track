@@ -194,9 +194,74 @@ def analyse(m):
     return rows
 
 
+def short_weapon(w):
+    n = (w or {}).get("name")
+    return n or "Ability"
+
+
+def detail(m):
+    """Compacte versie van één match voor het matchverslag op de site."""
+    md = m["metadata"]
+    players = m["players"]
+    idx = {p["puuid"]: i for i, p in enumerate(players)}
+    team_of = {p["puuid"]: p["team_id"] for p in players}
+    rounds = m["rounds"]
+    n = len(rounds) or 1
+    kills = m.get("kills") or []
+    offset = 0 if (any(k["round"] == 0 for k in kills) or (rounds and rounds[0].get("id") == 0)) else 1
+    by_round = defaultdict(list)
+    for k in kills:
+        by_round[k["round"] - offset].append(k)
+    friend_idx = [i for i, p in enumerate(players) if key(p["name"], p["tag"]) in FRIENDS]
+    pl = []
+    for p in players:
+        st = p["stats"]
+        shots = st["headshots"] + st["bodyshots"] + st["legshots"]
+        kk = key(p["name"], p["tag"])
+        pl.append(dict(n=p["name"], t=p["tag"], tm=p["team_id"], ag=(p.get("agent") or {}).get("name"),
+                       fk=kk if kk in FRIENDS else None, tier=(p.get("tier") or {}).get("name"),
+                       k=st["kills"], d=st["deaths"], a=st["assists"],
+                       acs=round(st["score"] / n), adr=round(st["damage"]["dealt"] / n),
+                       hs=round(100 * st["headshots"] / shots) if shots else 0))
+    rr = []
+    for i, r in enumerate(rounds):
+        ev = []
+        for k in sorted(by_round.get(i, []), key=lambda k: k["time_in_round_in_ms"]):
+            ki, vi = idx.get(k["killer"]["puuid"]), idx.get(k["victim"]["puuid"])
+            if vi is None:
+                continue
+            alone = None
+            if vi in friend_idx:
+                loc = k.get("location")
+                mates = [q for q in k.get("player_locations", [])
+                         if q["player"]["puuid"] != k["victim"]["puuid"] and team_of.get(q["player"]["puuid"]) == team_of[k["victim"]["puuid"]]]
+                if loc and mates:
+                    alone = round(min(dist(loc, q["location"]) for q in mates))
+            ev.append([round(k["time_in_round_in_ms"] / 1000, 1), ki, vi, short_weapon(k.get("weapon")),
+                       [idx[a["puuid"]] for a in k.get("assistants", []) if a["puuid"] in idx], alone])
+        eco = {}
+        for stt in r.get("stats", []):
+            pi = idx.get(stt["player"]["puuid"])
+            if pi in friend_idx:
+                e = stt.get("economy") or {}
+                eco[pi] = [e.get("loadout_value") or 0, (e.get("weapon") or {}).get("name"),
+                           (e.get("armor") or {}).get("name"), (stt.get("stats") or {}).get("headshots", 0)]
+        pt = r.get("plant") or {}
+        rr.append(dict(w=r.get("winning_team"), res=r.get("result"),
+                       pl=pt.get("site"), plt=round(pt["round_time_in_ms"] / 1000) if pt.get("round_time_in_ms") else None,
+                       plp=idx.get((pt.get("player") or {}).get("puuid")),
+                       df=bool(r.get("defuse")), ev=ev, eco=eco))
+    return dict(id=md["match_id"], date=md["started_at"], map=(md.get("map") or {}).get("name"),
+                mode=(md.get("queue") or {}).get("name") or (md.get("queue") or {}).get("id"),
+                season=(md.get("season") or {}).get("short"), fha=first_half_attacker(m),
+                teams={t["team_id"]: [t["rounds"]["won"], t["rounds"]["lost"], bool(t.get("won"))] for t in m["teams"]},
+                players=pl, rounds=rr)
+
+
 def main():
     per_player = {k: [] for k in FRIENDS}
     shared = []
+    details = {}
     files = sorted(MATCH_DIR.glob("*.json"))
     for f in files:
         try:
@@ -207,6 +272,11 @@ def main():
             continue
         for k, r in rows.items():
             per_player[k].append(r)
+        if rows:
+            try:
+                details[m["metadata"]["match_id"]] = detail(m)
+            except Exception as e:
+                print(f"Geen matchverslag voor {f.name}: {e}")
         teams_of_friends = Counter(r_team for r_team in (
             next(p["team_id"] for p in m["players"] if key(p["name"], p["tag"]) == k) for k in rows))
         if teams_of_friends and teams_of_friends.most_common(1)[0][1] >= 2:
@@ -220,7 +290,7 @@ def main():
         generated_at=datetime.now(timezone.utc).isoformat(timespec="seconds"),
         players=[dict(key=key(p["name"], p["tag"]), name=p["name"], tag=p["tag"],
                       label=p.get("label", p["name"]), color=p.get("color", "#ff4655")) for p in CONFIG["players"]],
-        matches=per_player, shared=shared,
+        matches=per_player, shared=shared, details=details,
         settings=dict(trade_ms=TRADE_MS, early_s=EARLY_S, alone_units=ALONE_UNITS),
     )
     OUT.write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")

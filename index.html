@@ -828,6 +828,105 @@ function renderAgentAdvice(app,act){
   });
   if(any)app.insertAdjacentHTML('beforeend',sectionWrap('Agent-advies per map','Per map je meest gespeelde agent en de agent waarmee je het best presteert (minstens 3 matches, op winrate en ACS).',h+'</div>'));
 }
+
+// ================= LEGENDA / BEGRIPPEN =================
+const GLOSS=[
+ ['Basis','acs','ACS','Average Combat Score. Een score per ronde die Valorant zelf berekent uit kills, multikills, schade en assists. Rond de 200 is gemiddeld, boven de 250 is sterk.'],
+ ['Basis','adr','ADR','Average Damage per Round. Gemiddelde schade die je per ronde doet. Rond de 130 tot 140 is gemiddeld.'],
+ ['Basis','kd','K/D','Kills gedeeld door deaths. 1.00 betekent dat je evenveel kills maakt als je doodgaat.'],
+ ['Basis','kda','KDA','(Kills + assists) gedeeld door deaths. Laat ook zien hoeveel je bijdraagt aan kills van anderen.'],
+ ['Basis','kast','KAST','Kill, Assist, Survived, Traded. Het percentage rondes waarin je minstens één van die vier deed. Een maat voor hoe vaak je iets bijdraagt. Rond de 70% is goed, boven de 75% sterk.'],
+ ['Basis','hs','HS% (headshot %)','Het deel van je raakschoten dat op het hoofd raakte. Headshots doen veel meer schade, dus een hoger percentage betekent snellere kills.'],
+ ['Basis','winrate','Winrate','Het percentage matches dat je won.'],
+ ['Basis','kpr','Kills per ronde','Gemiddeld aantal kills per ronde.'],
+ ['Gevecht','fb','First blood (FB)','De eerste kill van een ronde. Wie de first blood maakt, geeft zijn team een 5 tegen 4-voordeel.'],
+ ['Gevecht','fd','First death (FD)','Als eerste doodgaan in een ronde. Je team speelt dan de rest van de ronde met een man minder.'],
+ ['Gevecht','entry','Entry-saldo','First bloods min first deaths. Positief betekent dat je de openingsduels vaker wint dan verliest.'],
+ ['Gevecht','mk','Multikill (2K, 3K, 4K, Ace)','Meerdere kills in één ronde. 2K is twee kills, 3K drie, 4K vier en een Ace is het hele vijandelijke team (5K).'],
+ ['Gevecht','clutch','Clutch (1vX)','Een ronde waarin je als laatste van je team overblijft tegen één of meer tegenstanders. 1v2 betekent jij tegen twee. Een clutch gewonnen betekent dat je die ronde toch wint. Op de site telt elke situatie waarin je als laatste overbleef als poging.'],
+ ['Gevecht','duel','Duel','Een één-tegen-één gevecht. Bij "Duels per tegenstander" zie je hoe vaak je een bepaalde tegenstander uitschakelde en andersom.'],
+ ['Gevecht','nemesis','Kwelgeest / favoriete doelwit','De tegenstander die jou het vaakst uitschakelde, en de tegenstander die jij het vaakst uitschakelde.'],
+ ['Teamplay','trade','Trade','Als een teamgenoot de tegenstander uitschakelt die jou net doodde, ben je "getraded". Op de site telt dat als het binnen 5 seconden gebeurt.'],
+ ['Teamplay','tradek','Trade-kill','Een kill waarmee jij een teamgenoot wreekt: je schakelt binnen 5 seconden de tegenstander uit die net je teamgenoot doodde.'],
+ ['Teamplay','traded','Deaths getraded','Het percentage van je deaths waarbij een teamgenoot je killer binnen 5 seconden uitschakelde. Hoog betekent dat je dicht bij je team speelt.'],
+ ['Teamplay','assist','Assist','Je hielp bij een kill, bijvoorbeeld door schade te doen of een tegenstander te flashen of te markeren.'],
+ ['Teamplay','synergy','Duo-synergie','Hoe jullie presteren als jullie samen spelen tegenover apart. "Win samen" is de winrate in matches met elkaar in het team, "Win zonder" in matches zonder elkaar.'],
+ ['Positie','alone','Alleen gestorven','Je ging dood terwijl er geen teamgenoot binnen ongeveer 15 meter van je stond. Vaak alleen sterven past bij lurken, maar je wordt dan ook zelden getraded.'],
+ ['Positie','early','Vroege death','Doodgaan in de eerste 20 seconden van een ronde. Veel vroege deaths kan betekenen dat je te snel of te agressief opent.'],
+ ['Positie','dtime','Gem. moment van death','Na hoeveel seconden in de ronde je gemiddeld doodgaat. Hoger betekent dat je langer leeft.'],
+ ['Positie','callout','Callout','De naam van een plek op de map, zoals "A Lobby" of "B Main". Op de site wordt de dichtstbijzijnde callout gebruikt.'],
+ ['Positie','heatmap','Heatmap','Een kaart van de map waarop je ziet waar kills en deaths vaak gebeuren. Hoe roder of groener een plek, hoe vaker daar iets gebeurt.'],
+ ['Positie','positions','Posities / looproutes','In het matchverslag zie je waar jullie stonden. De API legt die posities alleen vast op elk moment dat iemand doodgaat, dus het is een benadering van je route.'],
+ ['Map en ronde','atk','Aanval (AANV)','De kant die de spike moet planten. Wordt ook "attack" genoemd.'],
+ ['Map en ronde','def','Verdediging (VERD)','De kant die de sites verdedigt en de spike moet defusen. Wordt ook "defense" genoemd.'],
+ ['Map en ronde','site','Site (A, B, C)','De plekken waar de spike geplant kan worden. In de ronde-voor-ronde-tabel staat de letter van de site waar geplant werd.'],
+ ['Map en ronde','plant','Plant / defuse','Planten is de spike op een site zetten (aanval). Defusen is hem onschadelijk maken (verdediging). "Plants / match" telt hoe vaak jij plantte.'],
+ ['Map en ronde','half','Helft en wissel','Na 12 rondes wisselen de teams van kant. Bij 12-12 volgt overtime, waarin elke ronde van kant wordt gewisseld.'],
+ ['Map en ronde','pistol','Pistolronde','De eerste ronde van elke helft (ronde 1 en 13). Iedereen heeft dan weinig geld en koopt alleen een pistool en eventueel licht schild.'],
+ ['Economie','loadout','Loadout','De totale waarde van wat je aan het begin van de ronde bij je hebt: wapen, schild en abilities.'],
+ ['Economie','eco','Eco','Een ronde waarin je bijna niets koopt (loadout onder ¤1.500) om geld te sparen voor de volgende ronde.'],
+ ['Economie','force','Force buy','Een ronde waarin je koopt wat je kunt, terwijl je eigenlijk te weinig geld hebt voor een volledige uitrusting (loadout ¤1.500 tot ¤3.600). Vaak een SMG, shotgun of goedkoop geweer.'],
+ ['Economie','full','Full buy','Een ronde met een volledige uitrusting: een geweer zoals Vandal of Phantom en zwaar schild (loadout ¤3.600 of meer).'],
+ ['Economie','credits','Credits (¤)','Het geld in Valorant. Je verdient het met kills, plants en rondewinst, en geeft het uit aan wapens, schild en abilities.'],
+ ['Utility','util','Abilities / utility','De vaardigheden van je agent, zoals smokes, flashes en muren. "Abilities / ronde" telt hoeveel je er gemiddeld per ronde gebruikt, zonder je ultimate.'],
+ ['Utility','ult','Ultimate (ult)','De sterkste vaardigheid van je agent, die je oplaadt met kills, deaths en orbs. "Ults / match" telt hoe vaak je hem gebruikte.'],
+ ['Utility','roles','Rollen: Duelist, Initiator, Controller, Sentinel','Duelist: maakt ruimte en zoekt gevechten (bijv. Phoenix, Jett). Initiator: verzamelt info en helpt anderen binnenkomen (Sova, Skye). Controller: blokkeert zicht met smokes (Brimstone, Omen). Sentinel: verdedigt en houdt flanken in de gaten (Sage, Killjoy).'],
+ ['Speelstijl','percentile','Percentiel / t.o.v. de lobby','"Hoger dan 70% van de lobby" betekent dat je beter scoort dan 70% van alle andere spelers in jullie potjes, teamgenoten en tegenstanders samen.'],
+ ['Speelstijl','radar','Profiel (radar)','Zes eigenschappen als percentiel tegenover de lobby. Aim = headshot %. Impact = ACS. Entry = first bloods. Overleven = hoe weinig je doodgaat. Teamplay = assists. Duels = K/D.'],
+ ['Speelstijl','arche','Speltypes','Entry fragger: opent rondes en zoekt het eerste gevecht. Lurker: speelt vaak alleen en flankt. Support: veel assists en utility voor het team. Anchor: houdt een plek vast en overleeft. Carry: maakt het verschil met hoge impact. Allrounder: geen duidelijke uitschieter.'],
+ ['Speelstijl','tilt','Tilt / tilt-check','Tilt is slechter gaan spelen door frustratie, bijvoorbeeld na een paar verloren potjes. De tilt-check vergelijkt je prestaties na winst en verlies, en per potje van de avond.'],
+ ['Speelstijl','session','Sessie','Een reeks potjes met minder dan 3 uur ertussen, zoals een gameavond.'],
+ ['Speelstijl','mvp','MVP','Most Valuable Player: de speler met de hoogste ACS in de match of in de week.'],
+ ['Speelstijl','form','Vorm','Hoe je de laatste tijd speelt. De vormgrafiek toont je ACS per match. Een gevuld bolletje is een gewonnen match.'],
+ ['Rank en modus','rank','Rank','Je niveau in competitive, van Iron tot Radiant. Op de site staat de rank uit je laatste match.'],
+ ['Rank en modus','mode','Modus: competitive, unrated','Competitive telt mee voor je rank, unrated niet. Bovenaan kun je per modus filteren.'],
+ ['Rank en modus','season','Seizoen (bijv. e11a6)','Episode en act van Valorant. e11a6 betekent episode 11, act 6.'],
+ ['Termen','peek','Peek','Om een hoek kijken of stappen om een tegenstander te vinden of aan te vallen.'],
+ ['Termen','lurk','Lurk','Alleen aan de andere kant van de map spelen om tegenstanders in de rug te pakken of info te geven.'],
+ ['Termen','rotate','Rotatie','Van de ene site naar de andere lopen, bijvoorbeeld als de tegenstanders ergens anders aanvallen.'],
+ ['Termen','crosshair','Crosshair-plaatsing','Je richtkruis alvast op hoofdhoogte houden waar een tegenstander kan verschijnen, zodat je minder hoeft te bewegen om te raken.'],
+ ['Termen','retake','Retake','Een site terugveroveren nadat de aanvallers de spike geplant hebben.'],
+ ['Termen','orb','Ult orb','Bolletjes op de map die je kunt oppakken om je ultimate sneller op te laden.'],
+];
+const GLOSS_KEY={'Winrate':'winrate','K/D':'kd','KDA':'kda','ACS':'acs','ADR':'adr','Headshot %':'hs','KAST':'kast','First bloods / match':'fb','First deaths / match':'fd','Entry-saldo / match':'entry','Multikills / match':'mk','3K of meer':'mk','Clutch %':'clutch','Trade-kills / match':'tradek','Deaths getraded':'traded','Vroege deaths':'early','Alleen gestorven':'alone','Gem. moment van death':'dtime','K/D aanval':'atk','K/D verdediging':'def','Plants / match':'plant','Abilities / ronde':'util','Ults / match':'ult',
+  'Kills':'kd','Deaths':'kd','Assists':'assist','First bloods':'fb','First deaths':'fd','Multikill-rondes':'mk','Beste ronde':'mk','Rondes overleefd':'kast','Trade-kills':'tradek','Vroege deaths (≤20 s)':'early'};
+(function(){
+  const css=`.gbtn{position:fixed;right:18px;bottom:18px;z-index:20;background:var(--red);color:#fff;border:0;border-radius:24px;padding:11px 18px;font-family:Rajdhani,'Arial Narrow',sans-serif;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;box-shadow:0 6px 24px rgba(255,70,85,.35)}
+  .gside{position:fixed;top:0;right:0;height:100%;width:min(420px,92vw);background:#0d151f;border-left:1px solid var(--line);z-index:30;transform:translateX(105%);transition:transform .25s ease;display:flex;flex-direction:column}
+  .gside.open{transform:none;box-shadow:-20px 0 60px rgba(0,0,0,.5)}
+  .gside header{padding:18px 20px 12px;border-bottom:1px solid var(--line);display:block}
+  .gside h2{font-family:Anton,Impact,sans-serif;font-weight:400;font-size:28px;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center}
+  .gside input{width:100%;margin-top:10px;background:#0e1620;border:1px solid var(--line);color:var(--txt);padding:9px 12px;border-radius:3px;font-size:14px}
+  .gside .glist{overflow:auto;padding:6px 20px 40px;flex:1}
+  .gside .gcat{font-family:Rajdhani,'Arial Narrow',sans-serif;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--red);font-size:12px;margin:18px 0 6px}
+  .gside .gi{padding:10px 12px;border-radius:4px;margin:4px 0;background:rgba(255,255,255,.02);border:1px solid transparent}
+  .gside .gi b{display:block;font-size:15px;margin-bottom:2px}
+  .gside .gi span{color:#b9c7d6;font-size:13.5px;line-height:1.5}
+  .gside .gi.hl{border-color:var(--gold);background:rgba(245,196,81,.08)}
+  .gclose{background:none;border:1px solid var(--line);color:var(--mute);border-radius:3px;cursor:pointer;font-size:18px;width:34px;height:34px}
+  .gshade{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:25;display:none}.gshade.open{display:block}
+  .ginfo{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;border:1px solid #3a4a5c;color:#8696a7;font-size:10px;margin-left:6px;cursor:pointer;font-family:Inter,sans-serif;font-weight:600;vertical-align:middle;text-transform:none;letter-spacing:0}
+  .ginfo:hover{border-color:var(--gold);color:var(--gold)}`;
+  document.head.insertAdjacentHTML('beforeend',`<style>${css}</style>`);
+  document.body.insertAdjacentHTML('beforeend',`<button class="gbtn" id="gOpen">? Legenda</button><div class="gshade" id="gShade"></div>
+   <aside class="gside" id="gSide" aria-label="Legenda"><header><h2>Legenda <button class="gclose" id="gClose" aria-label="Sluiten">×</button></h2>
+   <div style="color:var(--mute);font-size:13px">Alle afkortingen en Valorant-termen op deze site.</div><input id="gSearch" placeholder="Zoek een begrip, bijv. KAST of trade"></header><div class="glist" id="gList"></div></aside>`);
+  const list=$('#gList');
+  const draw=(q='',hl=null)=>{q=q.toLowerCase();let cur='',h='';
+    GLOSS.filter(g=>!q||(g[2]+' '+g[3]).toLowerCase().includes(q)).forEach(([cat,id,t,txt])=>{if(cat!==cur){h+=`<div class="gcat">${cat}</div>`;cur=cat}h+=`<div class="gi ${id===hl?'hl':''}" id="g_${id}"><b>${t}</b><span>${txt}</span></div>`});
+    list.innerHTML=h||'<div style="color:var(--mute);margin-top:20px">Niets gevonden.</div>'};
+  window.openGloss=(id)=>{$('#gSide').classList.add('open');$('#gShade').classList.add('open');$('#gSearch').value='';draw('',id);
+    if(id){const el=document.getElementById('g_'+id);if(el)el.scrollIntoView({block:'center'})}};
+  const close=()=>{$('#gSide').classList.remove('open');$('#gShade').classList.remove('open')};
+  $('#gOpen').onclick=()=>openGloss(null);$('#gClose').onclick=close;$('#gShade').onclick=close;
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
+  $('#gSearch').oninput=e=>draw(e.target.value);
+  draw();
+  // ⓘ-knopjes bij de statistieklabels in tabellen
+  const addInfo=()=>document.querySelectorAll('td.stat').forEach(td=>{if(td.dataset.gi)return;td.dataset.gi=1;const lab=td.childNodes[0]&&td.childNodes[0].textContent.trim();const id=GLOSS_KEY[lab];
+    if(id){const b=document.createElement('span');b.className='ginfo';b.textContent='i';b.title='Wat betekent dit?';b.onclick=()=>openGloss(id);td.insertBefore(b,td.childNodes[1]||null)}});
+  new MutationObserver(addInfo).observe(document.getElementById('app'),{childList:true,subtree:true});
+})();
 </script>
 </body>
 </html>

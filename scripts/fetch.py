@@ -106,8 +106,11 @@ def quote(s):
 
 def live_history(player, mode, known, full):
     """Live geschiedenis, nieuwste eerst. Bij full=True tot er niets meer komt."""
-    path = "/valorant/v4/matches/{}/{}/{}/{}".format(
-        CONFIG["region"], CONFIG["platform"], quote(player["name"]), quote(player["tag"]))
+    if player.get("puuid"):
+        path = "/valorant/v4/by-puuid/matches/{}/{}/{}".format(CONFIG["region"], CONFIG["platform"], player["puuid"])
+    else:
+        path = "/valorant/v4/matches/{}/{}/{}/{}".format(
+            CONFIG["region"], CONFIG["platform"], quote(player["name"]), quote(player["tag"]))
     new = 0
     for page in range(CONFIG.get("max_pages", 100)):
         if out_of_time():
@@ -129,8 +132,11 @@ def live_history(player, mode, known, full):
 
 def stored_history(player, mode, known, failed):
     """Lijst van opgeslagen matches bij HenrikDev; ontbrekende details los ophalen."""
-    path = "/valorant/v1/stored-matches/{}/{}/{}".format(
-        CONFIG["region"], quote(player["name"]), quote(player["tag"]))
+    if player.get("puuid"):
+        path = "/valorant/v1/by-puuid/stored-matches/{}/{}".format(CONFIG["region"], player["puuid"])
+    else:
+        path = "/valorant/v1/stored-matches/{}/{}/{}".format(
+            CONFIG["region"], quote(player["name"]), quote(player["tag"]))
     try:
         res = get(path, {"mode": mode})
     except NotFound:
@@ -150,6 +156,19 @@ def stored_history(player, mode, known, failed):
             failed[mid] = failed.get(mid, 0) + 1
             print(f"  details van {mid} niet gelukt: {e}")
     return new
+
+
+def find_puuid(player):
+    """Zoek de vaste account-ID van een speler op in matches die we al hebben."""
+    want = (player["name"].lower(), player["tag"].lower())
+    for f in MATCH_DIR.glob("*.json"):
+        try:
+            for p in json.loads(f.read_text(encoding="utf-8")).get("players", []):
+                if (p["name"].lower(), p["tag"].lower()) == want:
+                    return p["puuid"]
+        except Exception:
+            pass
+    return None
 
 
 def main():
@@ -178,6 +197,18 @@ def main():
                 label = "hele historie" if backfill else "nieuwe matches"
                 print(f"{player['name']}#{player['tag']} [{mode}, {label}]: {n} nieuw")
             except NotFound:
+                pu = None if player.get("puuid") else find_puuid(player)
+                if pu:
+                    print(f"{player['name']}#{player['tag']} niet gevonden op naam, nu via account-ID {pu}.")
+                    player["puuid"] = pu
+                    try:
+                        n, _ = live_history(player, mode, known, full=backfill)
+                        n += stored_history(player, mode, known, failed)
+                        total += n
+                        print(f"{player['name']}#{player['tag']} [{mode}, via account-ID]: {n} nieuw")
+                        continue
+                    except Exception as e:
+                        print(f"  ook via account-ID niet gelukt: {e}")
                 errors += 1
                 print(f"FOUT: {player['name']}#{player['tag']} niet gevonden. Klopt de naam en tag in config.json?")
             except Exception as e:

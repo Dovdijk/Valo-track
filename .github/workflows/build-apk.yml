@@ -49,7 +49,7 @@ jobs:
         if: steps.pw.outputs.ok != 'true'
         working-directory: android
         run: |
-          gradle --no-daemon assembleDebug
+          gradle --no-daemon --stacktrace assembleDebug
           echo "::error::De app bouwt, maar het secret ANDROID_KEYSTORE_PASSWORD ontbreekt nog. Zie de README, kopje Android-app."
           exit 1
 

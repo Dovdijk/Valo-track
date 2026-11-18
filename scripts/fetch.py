@@ -59,7 +59,8 @@ def get(path, params=None):
                 time.sleep(wait)
                 continue
             if e.code == 404:
-                raise NotFound(url)
+                body = e.read().decode("utf-8", "replace")[:300]
+                raise NotFound(f"{url} -> {body}")
             if e.code in (500, 502, 503, 504):
                 time.sleep(5 * (attempt + 1))
                 continue
@@ -196,7 +197,8 @@ def main():
                 total += n
                 label = "hele historie" if backfill else "nieuwe matches"
                 print(f"{player['name']}#{player['tag']} [{mode}, {label}]: {n} nieuw")
-            except NotFound:
+            except NotFound as nf:
+                print(f"  API-antwoord: {nf}")
                 pu = None if player.get("puuid") else find_puuid(player)
                 if pu:
                     print(f"{player['name']}#{player['tag']} niet gevonden op naam, nu via account-ID {pu}.")

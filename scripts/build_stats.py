@@ -224,6 +224,53 @@ def load_maps():
     return cache
 
 
+BUY_MIN = 2000           # loadout vanaf ¤2.000 telt als "kopen" in de ronde na een verloren pistolronde
+PISTOLS = {"Classic", "Shorty", "Frenzy", "Ghost", "Sheriff"}
+
+
+def after_pistol(m):
+    """Rondes direct na een verloren pistolronde (ronde 2 en 14): wie kocht, wie spaarde, en hoe liep het af."""
+    players = m["players"]
+    team_of = {p["puuid"]: p["team_id"] for p in players}
+    rounds = m["rounds"]
+    kills = m.get("kills") or []
+    offset = 0 if (any(k["round"] == 0 for k in kills) or (rounds and rounds[0].get("id") == 0)) else 1
+    out = {}
+    for p in players:
+        kk = key(p["name"], p["tag"])
+        if kk not in FRIENDS:
+            continue
+        team, pu = p["team_id"], p["puuid"]
+        for pistol in (0, 12):
+            nxt = pistol + 1
+            if len(rounds) <= nxt or rounds[pistol].get("winning_team") == team:
+                continue
+            r = rounds[nxt]
+            eco = {s["player"]["puuid"]: s.get("economy") or {} for s in r.get("stats", [])}
+            me = eco.get(pu, {})
+            mates = [eco.get(q["puuid"], {}) for q in players if q["team_id"] == team and q["puuid"] != pu]
+            mates_lv = sorted((e.get("loadout_value") or 0) for e in mates)
+            mine = me.get("loadout_value") or 0
+            weapon = (me.get("weapon") or {}).get("name")
+            rk = [k for k in kills if k["round"] - offset == nxt]
+            my_k = sum(1 for k in rk if k["killer"]["puuid"] == pu and team_of.get(k["victim"]["puuid"]) != team)
+            team_k = sum(1 for k in rk if team_of.get(k["killer"]["puuid"]) == team and team_of.get(k["victim"]["puuid"]) != team)
+            death = next((k for k in rk if k["victim"]["puuid"] == pu), None)
+            nxt2 = rounds[nxt + 1] if len(rounds) > nxt + 1 else None
+            out.setdefault(kk, []).append(dict(
+                match=m["metadata"]["match_id"], date=m["metadata"]["started_at"],
+                map=(m["metadata"].get("map") or {}).get("name"),
+                mode=(m["metadata"].get("queue") or {}).get("name"),
+                round=nxt + 1, weapon=weapon, armor=(me.get("armor") or {}).get("name"),
+                loadout=mine, mates=mates_lv, mates_buy=sum(1 for v in mates_lv if v >= BUY_MIN),
+                bought=mine >= BUY_MIN or (weapon and weapon not in PISTOLS),
+                win=r.get("winning_team") == team, k=my_k, team_k=team_k,
+                died=bool(death), death_t=round(death["time_in_round_in_ms"] / 1000) if death else None,
+                next_win=(nxt2.get("winning_team") == team) if nxt2 else None,
+            ))
+    return out
+
+
 def short_weapon(w):
     n = (w or {}).get("name")
     return n or "Ability"
@@ -301,6 +348,7 @@ def main():
     per_player = {k: [] for k in FRIENDS}
     shared = []
     details = {}
+    pistol_loss = {k: [] for k in FRIENDS}
     files = sorted(MATCH_DIR.glob("*.json"))
     for f in files:
         try:
@@ -311,6 +359,11 @@ def main():
             continue
         for k, r in rows.items():
             per_player[k].append(r)
+        try:
+            for k, evs in after_pistol(m).items():
+                pistol_loss[k].extend(evs)
+        except Exception as e:
+            print(f"Pistolanalyse overgeslagen voor {f.name}: {e}")
         if rows:
             try:
                 details[m["metadata"]["match_id"]] = detail(m)
@@ -329,7 +382,7 @@ def main():
         generated_at=datetime.now(timezone.utc).isoformat(timespec="seconds"),
         players=[dict(key=key(p["name"], p["tag"]), name=p["name"], tag=p["tag"],
                       label=p.get("label", p["name"]), color=p.get("color", "#ff4655")) for p in CONFIG["players"]],
-        matches=per_player, shared=shared, details=details, maps=load_maps(),
+        matches=per_player, shared=shared, details=details, maps=load_maps(), pistol_loss=pistol_loss,
         settings=dict(trade_ms=TRADE_MS, early_s=EARLY_S, alone_units=ALONE_UNITS),
     )
     OUT.write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")

@@ -444,6 +444,7 @@ function render(){
   app.insertAdjacentHTML('beforeend',`<section><h2>Economie en wapens</h2><p class="lead">Rondewinst per type koop, en met welke wapens jullie de meeste kills maken.</p><div class="g2"><div class="panel scroll"><h3>Rondewinst per kooptype</h3>${eh}</div><div class="panel"><h3>Kills per wapen <small>top 5</small></h3>${wh}</div></div></section>`);
 
 
+      renderPistolLoss(app,act);
   }
   if(PAGE==='tilt') renderTilt(app,act);
   if(PAGE==='matches'){
@@ -1022,6 +1023,7 @@ const GLOSS=[
  ['Map en ronde','site','Site (A, B, C)','De plekken waar de spike geplant kan worden. In de ronde-voor-ronde-tabel staat de letter van de site waar geplant werd.'],
  ['Map en ronde','plant','Plant / defuse','Planten is de spike op een site zetten (aanval). Defusen is hem onschadelijk maken (verdediging). "Plants / match" telt hoe vaak jij plantte.'],
  ['Map en ronde','half','Helft en wissel','Na 12 rondes wisselen de teams van kant. Bij 12-12 volgt overtime, waarin elke ronde van kant wordt gewisseld.'],
+ ['Economie','bonus','Ronde na verloren pistolronde','Na een verloren pistolronde heeft je team weinig geld. Meestal spaart iedereen in ronde 2 (en 14), zodat je in ronde 3 alles kunt kopen. Koopt één speler dan toch bijvoorbeeld een Marshal, dan heet dat een force of "hero buy". Op de pagina Economie zie je hoe dat uitpakt.'],
  ['Map en ronde','pistol','Pistolronde','De eerste ronde van elke helft (ronde 1 en 13). Iedereen heeft dan weinig geld en koopt alleen een pistool en eventueel licht schild.'],
  ['Economie','loadout','Loadout','De totale waarde van wat je aan het begin van de ronde bij je hebt: wapen, schild en abilities.'],
  ['Economie','eco','Eco','Een ronde waarin je bijna niets koopt (loadout onder ¤1.500) om geld te sparen voor de volgende ronde.'],
@@ -1087,6 +1089,67 @@ const GLOSS_KEY={'Winrate':'winrate','K/D':'kd','KDA':'kda','ACS':'acs','ADR':'a
     if(id){const b=document.createElement('span');b.className='ginfo';b.textContent='i';b.title='Wat betekent dit?';b.onclick=()=>openGloss(id);td.insertBefore(b,td.childNodes[1]||null)}});
   new MutationObserver(addInfo).observe(document.getElementById('app'),{childList:true,subtree:true});
 })();
+
+// ================= NA EEN VERLOREN PISTOLRONDE =================
+function rowsNoLimit(p){
+  let rows=(DATA.matches[p.key]||[]).filter(baseFilter);
+  const others=[...SEL].filter(k=>k!==p.key);
+  if(TOG==='together') rows=rows.filter(r=>others.every(k=>(r.with||[]).includes(k)));
+  if(TOG==='solo') rows=rows.filter(r=>!(r.with||[]).length);
+  return rows;
+}
+function plCat(e){
+  if(e.bought&&e.mates_buy<=1) return 'buy_alone';
+  if(e.bought) return 'buy_team';
+  if(e.mates_buy>=2) return 'save_teambuys';
+  return 'all_save';
+}
+const PL_LABEL={buy_alone:'Koopt, team spaart',all_save:'Iedereen spaart',buy_team:'Koopt, team koopt ook',save_teambuys:'Spaart, team koopt'};
+function plStats(l){
+  const n=l.length,w=l.filter(e=>e.win).length,k=l.reduce((s,e)=>s+e.k,0),d=l.filter(e=>e.died).length,nx=l.filter(e=>e.next_win!=null),nw=nx.filter(e=>e.next_win).length;
+  return {n,w,k,d,wr:w/n,kpr:k/n,dp:d/n,kd:k/Math.max(1,d),nx:nx.length,nw,nwr:nx.length?nw/nx.length:NaN};
+}
+function renderPistolLoss(app,act){
+  if(!DATA.pistol_loss)return;
+  let h='<div class="g2" style="grid-template-columns:1fr">';let any=false;
+  act.forEach(p=>{
+    const ids=new Set(rowsNoLimit(p).map(r=>r.match));
+    const ev=(DATA.pistol_loss[p.key]||[]).filter(e=>ids.has(e.match));
+    if(!ev.length)return;any=true;
+    const g={};ev.forEach(e=>(g[plCat(e)]=g[plCat(e)]||[]).push(e));
+    const order=['buy_alone','all_save','buy_team','save_teambuys'].filter(c=>g[c]);
+    const S={};order.forEach(c=>S[c]=plStats(g[c]));
+    const cell=(v,good)=>`<td><b style="color:${good==null?'':good?'var(--win)':'var(--loss)'}">${v}</b></td>`;
+    let t=`<table><thead><tr><th>Situatie</th><th>Rondes</th><th>Ronde gewonnen</th><th>Kills</th><th>Kills / ronde</th><th>Dood</th><th>K/D</th><th>Volgende ronde gewonnen</th></tr></thead><tbody>`;
+    order.forEach(c=>{const s=S[c];t+=`<tr><td>${PL_LABEL[c]}</td><td>${s.n}</td>${cell(`${s.w} / ${s.n} (${pc(s.wr)})`,null)}<td>${s.k}</td><td>${s.kpr.toFixed(2)}</td><td>${s.d} / ${s.n} (${pc(s.dp)})</td><td>${s.kd.toFixed(2)}</td><td>${s.nx?`${s.nw} / ${s.nx} (${pc(s.nwr)})`:'–'}</td></tr>`});
+    t+='</tbody></table>';
+    // wapens bij kopen
+    const bw={};ev.filter(e=>e.bought).forEach(e=>(bw[e.weapon||'?']=bw[e.weapon||'?']||[]).push(e));
+    const wt=Object.entries(bw).sort((a,b)=>b[1].length-a[1].length).map(([w,l])=>{const s=plStats(l);return `<tr><td><b>${w}</b></td><td>${s.n}</td><td>${s.w} (${pc(s.wr)})</td><td>${s.k}</td><td>${s.d}</td><td>${s.kd.toFixed(2)}</td><td>${s.nx?pc(s.nwr):'–'}</td></tr>`}).join('');
+    // conclusie
+    let concl='';
+    const A=S.buy_alone,B=S.all_save;
+    if(A&&B&&A.n>=5&&B.n>=5){
+      const dw=A.wr-B.wr,dn=A.nwr-B.nwr;
+      concl=`Als ${p.name} koopt terwijl het team spaart, wint jullie team die ronde <b>${pc(A.wr)}</b> (${A.w} van de ${A.n}), tegen <b>${pc(B.wr)}</b> als iedereen spaart. `+
+        `De ronde erna wint jullie team <b>${pc(A.nwr)}</b> tegen <b>${pc(B.nwr)}</b>. `+
+        (dw>=0.08&&dn>=-0.05?`Kopen levert dus vaker een rondewinst op en kost de volgende ronde niets. `:
+         dn<=-0.1?`De extra rondewinst weegt niet op tegen de slechtere volgende ronde. `:
+         Math.abs(dw)<0.05?`Kopen maakt voor de rondewinst weinig verschil. `:'')+
+        `${p.name} maakt in die rondes gemiddeld ${A.kpr.toFixed(2)} kills en gaat ${pc(A.dp)} van de keren dood.`+
+        (A.n+B.n<60?` <span style="color:var(--mute)">Let op: het gaat om ${A.n+B.n} rondes, dus kleine verschillen kunnen toeval zijn.</span>`:'');
+    } else if(A&&A.n>=3){
+      concl=`${p.name} kocht ${A.n} keer terwijl het team spaarde en won daarvan ${A.w} rondes, met ${A.k} kills en ${A.d} keer dood.`;
+    } else concl=`${p.name} kocht zelden alleen na een verloren pistolronde (${A?A.n:0} keer).`;
+    const list=ev.slice().sort((a,b)=>new Date(b.date)-new Date(a.date)).map(e=>`<tr class="click" onclick="openMatch('${e.match}')"><td>${new Date(e.date).toLocaleDateString('nl-NL')}</td><td>${e.map}</td><td>R${e.round}</td><td>${PL_LABEL[plCat(e)]}</td><td>${e.weapon||'–'} <span style="color:var(--mute)">¤${e.loadout}</span></td><td><span class="pill p-${e.win?'W':'L'}">${e.win?'Win':'Loss'}</span></td><td>${e.k}</td><td>${e.died?'✕ '+e.death_t+' s':'●'}</td><td>${e.next_win==null?'–':e.next_win?'<span style="color:var(--win)">W</span>':'<span style="color:var(--loss)">L</span>'}</td></tr>`).join('');
+    h+=`<div class="panel"><h3 style="color:${p.color}">${p.name} <small>${ev.length} rondes na een verloren pistolronde</small></h3>
+      <div class="scroll">${t}</div>
+      <div style="margin:14px 0;padding:11px 13px;border-left:3px solid ${p.color};background:rgba(255,255,255,.03);font-size:14px">${concl}</div>
+      ${wt?`<div class="label" style="margin-top:6px">Gekocht wapen</div><div class="scroll"><table><thead><tr><th>Wapen</th><th>Rondes</th><th>Gewonnen</th><th>Kills</th><th>Dood</th><th>K/D</th><th>Volgende ronde</th></tr></thead><tbody>${wt}</tbody></table></div>`:''}
+      <details style="margin-top:14px"><summary style="cursor:pointer;color:var(--mute);font-size:13px">Alle ${ev.length} rondes bekijken</summary><div class="scroll" style="margin-top:8px"><table><thead><tr><th>Datum</th><th>Map</th><th>Ronde</th><th>Situatie</th><th>Wapen</th><th>Uitslag</th><th>Kills</th><th>Dood</th><th>Volgende</th></tr></thead><tbody>${list}</tbody></table></div></details></div>`;
+  });
+  if(any)app.insertAdjacentHTML('beforeend',sectionWrap('Na een verloren pistolronde',`Ronde 2 en ronde 14 als jullie de pistolronde verloren hebben. Normaal spaart het team dan voor ronde 3. "Koopt" betekent een loadout van ¤${2000} of meer, of een ander wapen dan een pistool. "Team spaart" betekent dat hoogstens één teamgenoot ook koopt. Gebaseerd op alle matches binnen de filters (niet alleen de laatste ${N||'x'}).`,h+'</div>'));
+}
 </script>
 </body>
 </html>

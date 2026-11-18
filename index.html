@@ -14,9 +14,8 @@ body{background:var(--bg);color:var(--txt);font-family:Inter,system-ui,sans-seri
 .wrap{max-width:1220px;margin:0 auto;padding:30px 22px 80px}
 h1,h2,h3,.big{font-family:Anton,Impact,sans-serif;font-weight:400;letter-spacing:.5px}
 .label{font-family:Rajdhani,'Arial Narrow',sans-serif;text-transform:uppercase;letter-spacing:2px;font-weight:700;font-size:12px;color:var(--mute)}
-header{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
-header h1{font-size:54px;line-height:1;text-transform:uppercase}
-header h1 span{color:var(--red)}
+
+
 .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .btn{background:#0e1620;border:1px solid var(--line);color:var(--mute);font-family:Rajdhani,'Arial Narrow',sans-serif;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:7px 14px;border-radius:3px;cursor:pointer;font-size:13px}
 .btn.on{color:#fff;border-color:var(--red);background:rgba(255,70,85,.14)}
@@ -78,36 +77,141 @@ select,input[type=number]{background:#0e1620;border:1px solid var(--line);color:
 input[type=number]{width:74px}
 .fsum{color:var(--mute);font-size:13px;margin-top:2px}
 .fsum b{color:var(--txt)}
-@media(max-width:900px){.cards,.g2{grid-template-columns:1fr}.kv{grid-template-columns:repeat(4,1fr)}header h1{font-size:40px}}
+@media(max-width:900px){.cards,.g2{grid-template-columns:1fr}.kv{grid-template-columns:repeat(4,1fr)}}
+
+/* ---------- navigatie ---------- */
+.topbar{position:sticky;top:0;z-index:15;background:rgba(11,17,24,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.tb-in{max-width:1220px;margin:0 auto;padding:0 22px;display:flex;align-items:center;gap:18px;height:60px}
+.brand{font-family:Anton,Impact,sans-serif;font-size:24px;color:var(--txt);text-decoration:none;white-space:nowrap;letter-spacing:.5px}
+.brand span{color:var(--red)}
+.tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1;height:100%}
+.tabs::-webkit-scrollbar{display:none}
+.tabs a{display:flex;align-items:center;padding:0 10px;color:var(--mute);text-decoration:none;font-family:Rajdhani,'Arial Narrow',sans-serif;font-weight:700;letter-spacing:1px;text-transform:uppercase;font-size:13px;white-space:nowrap;border-bottom:3px solid transparent}
+.tabs a:hover{color:var(--txt)}
+.tabs a.on{color:#fff;border-bottom-color:var(--red)}
+.tb-r{display:flex;align-items:center;gap:8px}
+.upd{color:var(--mute);font-size:12px;white-space:nowrap}
+.tbtn{background:#0e1620;border:1px solid var(--line);color:var(--txt);border-radius:3px;padding:7px 12px;cursor:pointer;font-family:Rajdhani,'Arial Narrow',sans-serif;font-weight:700;letter-spacing:1px;text-transform:uppercase;font-size:13px;white-space:nowrap}
+.tbtn:hover{border-color:var(--red)}
+.qbtn{width:34px;padding:7px 0}
+.ptitle{margin:28px 0 6px}
+.ptitle h1{font-family:Anton,Impact,sans-serif;font-weight:400;font-size:46px;line-height:1;text-transform:uppercase}
+.ptitle p{color:var(--mute);margin-top:6px}
+.fchip{margin-top:12px;background:#0e1620;border:1px solid var(--line);color:#b9c7d6;border-radius:20px;padding:6px 14px;font-size:12.5px;cursor:pointer;text-align:left}
+.fchip:hover{border-color:var(--red)}
+.ptitle+section,.ptitle+.cards{margin-top:22px}
+.ptitle+section>h2{display:none}
+.upd2{color:#5d6d7e;font-size:12px;white-space:nowrap}
+/* filters en sheets */
+.shade{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:40;display:none}
+body.sheet-more .shade,body.sheet-filter .shade{display:block}
+.sheet{position:fixed;z-index:41;background:#0f1822;border:1px solid var(--line);display:none}
+body.sheet-filter .sheet.filt,body.sheet-more .sheet.more{display:block}
+.sheet.filt{top:70px;right:max(22px,calc((100vw - 1220px)/2 + 22px));width:min(560px,calc(100vw - 44px));border-radius:6px;padding:18px;max-height:calc(100vh - 90px);overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.sheet.more{top:70px;right:max(22px,calc((100vw - 1220px)/2 + 22px));width:300px;border-radius:6px;padding:14px}
+.sh-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.sh-h b{font-family:Anton,Impact,sans-serif;font-weight:400;font-size:22px;text-transform:uppercase}
+.sh-h button{background:none;border:1px solid var(--line);color:var(--mute);border-radius:3px;width:32px;height:32px;font-size:18px;cursor:pointer}
+.filters .frow{margin:10px 0}
+.fdone{margin-top:14px;width:100%;padding:11px}
+.morelist a{display:flex;gap:12px;align-items:center;padding:12px 10px;color:var(--txt);text-decoration:none;border-radius:4px;font-weight:600}
+.morelist a i{font-style:normal;width:22px;text-align:center;color:var(--mute)}
+.morelist a.on{background:rgba(255,70,85,.12);color:#fff}
+.bnav{display:none}
+.mob-only{display:none}
+body.inmatch #fToggle{display:none}
+/* recente matches */
+.mlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:12px}
+.mcard{display:grid;grid-template-columns:1fr auto;gap:4px 12px;padding:14px 16px;border-radius:4px;background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-left:4px solid var(--mute);text-decoration:none;color:var(--txt)}
+.mcard.W{border-left-color:var(--win)}.mcard.L{border-left-color:var(--loss)}
+.mcard b{font-family:Anton,Impact,sans-serif;font-weight:400;font-size:22px;display:block;line-height:1.1}
+.mcard span{color:var(--mute);font-size:12.5px}
+.mcard .ms{font-family:Anton,Impact,sans-serif;font-size:26px;align-self:center}
+.mcard.W .ms{color:var(--win)}.mcard.L .ms{color:var(--loss)}
+.mcard .mp{grid-column:1/-1;display:flex;gap:14px;flex-wrap:wrap;font-family:Rajdhani,'Arial Narrow',sans-serif;font-weight:700;font-size:14px}
+.mcard .mp span{font-size:14px}
+.mcard:hover{border-color:#3a4a5c}
+.cards{grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+.card .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ---------- MOBIEL ---------- */
+@media (max-width:820px){
+  .tabs,.upd{display:none}
+  .tb-in{height:54px;padding:0 14px;justify-content:space-between}
+  .brand{font-size:21px}
+  .wrap{padding:6px 14px 110px}
+  .ptitle{margin:18px 0 4px}.ptitle h1{font-size:34px}.ptitle p{font-size:14px}
+  section{margin-top:34px}
+  section>h2{font-size:24px}
+  section>p.lead{font-size:14px}
+  .panel{padding:14px}
+  .g2,.g3,.cards,.hero2{grid-template-columns:1fr !important}
+  .g2>*,.g3>*{min-width:0}
+  .card .nm{font-size:28px}
+  .kv{grid-template-columns:repeat(4,1fr);gap:8px}
+  .kv div b{font-size:19px}
+  .kv div span{font-size:10px}
+  h3{font-size:17px}
+  table{font-size:13px}
+  td,th{padding:7px 6px}
+  .btn{padding:7px 10px;font-size:12px}
+  .gbtn{display:none}
+  .mob-only{display:block}.desk-only{display:none}
+  /* bottom navigation */
+  .bnav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:45;background:rgba(13,21,31,.97);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+  .bnav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--mute);text-decoration:none;font-size:10.5px;font-weight:600;padding:4px 0}
+  .bnav a i{font-style:normal;font-size:19px;line-height:1.1}
+  .bnav a.on{color:#fff}.bnav a.on i{color:var(--red)}
+  /* sheets onderaan */
+  .sheet.filt,.sheet.more{top:auto;bottom:0;left:0;right:0;width:auto;border-radius:14px 14px 0 0;max-height:82vh;overflow:auto;padding:16px 16px calc(80px + env(safe-area-inset-bottom))}
+  .filters .frow .label{width:100%}
+  .filters select{flex:1;min-width:0}
+  /* head-to-head gestapeld */
+  .cmp thead{display:none}
+  .cmp,.cmp tbody{display:block}
+  .cmp tr{display:block;padding:10px 0;border-bottom:1px solid #1b2633}
+  .cmp td{display:block;border:0 !important;padding:2px 0 !important;width:auto !important;background:none !important}
+  .cmp td.stat{padding-bottom:6px !important;color:#c7d2dd}
+  .cmp .cv{display:grid;grid-template-columns:96px 70px 1fr;gap:8px;align-items:center}
+  .cmp .cv::before{content:attr(data-p);font-size:12.5px;color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cmp .cv b{min-width:0;text-align:right;font-size:17px}
+  /* heatmaps en grafieken */
+  .mcard b{font-size:20px}
+  .hp{cursor:pointer}
+  .frow{gap:6px}
+  .tip{max-width:80vw}
+}
 </style>
 </head>
 <body>
 <div class="tip" id="tip"></div>
-<div class="wrap">
-  <header>
-    <div>
-      <div class="label">Valorant · Competitive · automatisch bijgewerkt</div>
-      <h1>Squad <span>Tracker</span></h1>
-      <div class="label" id="updated" style="margin-top:6px"></div>
-    </div>
-  </header>
-  <div class="panel filters">
+<header class="topbar"><div class="tb-in">
+  <a class="brand" href="#/overzicht" onclick="event.preventDefault();go('overzicht')">SQUAD <span>TRACKER</span></a>
+  <nav class="tabs" id="navTabs" aria-label="Pagina's"></nav>
+  <div class="tb-r"><button class="tbtn" id="fToggle" onclick="document.body.classList.toggle('sheet-filter');document.body.classList.remove('sheet-more')">⚙ Filters</button><button class="tbtn qbtn" onclick="openGloss()" aria-label="Legenda">?</button></div>
+</div></header>
+<div class="shade" onclick="closeSheets()"></div>
+<div class="sheet more" id="moreSheet"><div class="sh-h"><b>Alle pagina's</b><button onclick="closeSheets()" aria-label="Sluiten">×</button></div><div class="morelist" id="moreList"></div></div>
+<div class="sheet filt panel filters" id="filterSheet">
+    <div class="sh-h"><b>Filters</b><button onclick="closeSheets()" aria-label="Sluiten">×</button></div>
     <div class="frow"><span class="label">Spelers</span><div id="fPlayers" class="frow"></div></div>
     <div class="frow"><span class="label">Matches</span>
       <button class="btn on" data-t="all">Alle matches</button>
-      <button class="btn" data-t="together" title="Alleen matches waarin alle gekozen spelers samen in één team zaten">Samen met de gekozen spelers</button>
+      <button class="btn" data-t="together" title="Alleen matches waarin alle gekozen spelers samen in één team zaten">Samen gespeeld</button>
       <button class="btn" data-t="solo" title="Alleen matches zonder een van de andere vrienden in je team">Zonder de anderen</button>
     </div>
     <div class="frow"><span class="label">Aantal</span>
-      <button class="btn" data-n="5">Laatste 5</button><button class="btn on" data-n="10">10</button><button class="btn" data-n="20">20</button><button class="btn" data-n="50">50</button><button class="btn" data-n="0">Alles</button>
-      <span style="color:var(--mute);font-size:13px;margin-left:6px">of laatste</span><input type="number" id="fN" min="1" placeholder="aantal">
+      <button class="btn" data-n="5">5</button><button class="btn on" data-n="10">10</button><button class="btn" data-n="20">20</button><button class="btn" data-n="50">50</button><button class="btn" data-n="0">Alles</button>
+      <input type="number" id="fN" min="1" placeholder="anders">
     </div>
     <div class="frow"><span class="label">Filter</span>
       <select id="fMode"></select><select id="fSeason"></select><select id="fMap"></select>
     </div>
     <div class="fsum" id="fSum"></div>
-  </div>
-
+    <button class="btn on fdone" onclick="closeSheets()">Toepassen</button>
+</div>
+<nav class="bnav" id="bnav" aria-label="Navigatie"></nav>
+<div class="wrap">
   <div id="app"></div>
 
   <div class="foot">
@@ -143,7 +247,7 @@ function initFilters(){
     if(SEL.has(k)){if(SEL.size>1)SEL.delete(k)}else SEL.add(k);
     c.classList.toggle('on',SEL.has(k));render()});
 }
-fetch('data/stats.json?'+Date.now()).then(r=>{if(!r.ok)throw 0;return r.json()}).then(d=>{DATA=d;initFilters();const m=location.hash.match(/^#m=(.+)$/);if(m)CUR=m[1];render()}).catch(()=>{
+fetch('data/stats.json?'+Date.now()).then(r=>{if(!r.ok)throw 0;return r.json()}).then(d=>{DATA=d;initFilters();parseRoute();render()}).catch(()=>{
   $('#app').innerHTML=`<div class="panel empty" style="margin-top:30px"><b>Nog geen data</b>Draai eerst de GitHub Action "Matches bijwerken" (zie README). Open je deze pagina als los bestand, dan kan de browser de data niet laden: bekijk hem via GitHub Pages.</div>`;
 });
 document.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>{N=+b.dataset.n;$('#fN').value='';document.querySelectorAll('[data-n]').forEach(x=>x.classList.toggle('on',x===b));render()});
@@ -176,58 +280,69 @@ function agg(rows){
     loadout:s('loadout_sum')/R, util:s('util')/R, ultpm:s('ults')/m, buy, wpn};
 }
 
+const PAGES=[
+ ['overzicht','Overzicht','⌂'],['vergelijk','Vergelijken','⇆'],['speelstijl','Speelstijl','◎'],['samen','Samen','👥'],
+ ['heatmap','Heatmap','▦'],['maps','Maps & agents','◈'],['economie','Economie','¤'],['tilt','Tilt-check','↯'],['matches','Matches','≡']];
+const PAGE_INTRO={
+ overzicht:'Jullie belangrijkste cijfers in één oogopslag.',vergelijk:'Alle statistieken naast elkaar, met een kroon voor wie het best scoort.',
+ speelstijl:'Wat jullie statistieken zeggen over hoe jullie spelen.',samen:'Spelen jullie beter samen? En welke potjes speelden jullie samen.',
+ heatmap:'Waar jullie kills maken en doodgaan, per map.',maps:'Winrate per map, jullie agents en advies welke agent je waar beter kunt spelen.',
+ economie:'Rondewinst per kooptype en kills per wapen.',tilt:'Hoe jullie presteren naarmate de avond vordert en na winst of verlies.',
+ matches:'Alle matches. Tik of klik op een match voor het volledige verslag.'};
+let PAGE='overzicht';
+function go(p){PAGE=p;CUR=null;if(location.hash!=='#/'+p)history.pushState(null,'','#/'+p);closeSheets();render();window.scrollTo({top:0})}
+function closeSheets(){document.body.classList.remove('sheet-more','sheet-filter')}
+function parseRoute(){const h=location.hash;let m;
+  if((m=h.match(/^#\/match\/(.+)$/))||(m=h.match(/^#m=(.+)$/))){CUR=m[1];return}
+  CUR=null;const p=h.replace('#/','');PAGE=PAGES.some(x=>x[0]===p)?p:'overzicht'}
+window.addEventListener('popstate',()=>{parseRoute();closeSheets();render()});
+function buildNav(){
+  const SHORT={maps:'Maps',tilt:'Tilt',vergelijk:'Vergelijk'};
+  $('#navTabs').innerHTML=PAGES.map(([k,l])=>`<a href="#/${k}" data-p="${k}" class="${!CUR&&PAGE===k?'on':''}">${SHORT[k]||l}</a>`).join('');
+  const main=['overzicht','vergelijk','speelstijl','matches'];
+  $('#bnav').innerHTML=main.map(k=>{const p=PAGES.find(x=>x[0]===k);return `<a href="#/${k}" data-p="${k}" class="${!CUR&&PAGE===k?'on':''}"><i>${p[2]}</i><span>${p[1]==='Vergelijken'?'Vergelijk':p[1]}</span></a>`}).join('')+
+    `<a href="#" id="bMore" class="${!CUR&&!main.includes(PAGE)?'on':''}"><i>⋯</i><span>Meer</span></a>`;
+  $('#moreList').innerHTML=PAGES.map(([k,l,ic])=>`<a href="#/${k}" data-p="${k}" class="${!CUR&&PAGE===k?'on':''}"><i>${ic}</i>${l}</a>`).join('')+`<a href="#" id="mGloss"><i>?</i>Legenda</a>`;
+  document.querySelectorAll('[data-p]').forEach(a=>a.onclick=e=>{e.preventDefault();go(a.dataset.p)});
+  $('#bMore').onclick=e=>{e.preventDefault();document.body.classList.toggle('sheet-more');document.body.classList.remove('sheet-filter')};
+  $('#mGloss').onclick=e=>{e.preventDefault();closeSheets();openGloss()};
+}
 function render(){
-  if(CUR) return renderMatch(CUR);
-  document.querySelector('.filters').style.display='';
+  buildNav();
+  if(CUR){document.body.classList.add('inmatch');return renderMatch(CUR)}
+  document.body.classList.remove('inmatch');
   const P=DATA.players.filter(p=>SEL.has(p.key)), A={};
   P.forEach(p=>A[p.key]=agg(rowsFor(p)));
-  $('#updated').textContent='Laatst bijgewerkt: '+new Date(DATA.generated_at).toLocaleString('nl-NL',{dateStyle:'medium',timeStyle:'short'});
   const app=$('#app'); app.innerHTML='';
   const names=P.map(p=>`<b style="color:${p.color}">${p.name}</b>`);
-  const tTxt=TOG==='together'?(P.length>1?`alleen matches waarin ${names.join(' en ')} samen speelden`:'alle matches (kies minstens 2 spelers voor "samen")'):TOG==='solo'?'alleen matches zonder een van de andere vrienden in het team':'alle matches per speler';
-  $('#fSum').innerHTML=`Je ziet: ${tTxt} · ${N?'laatste '+N:'alle'} · ${MODE||'alle modi'}${SEASON?' · '+SEASON:''}${MAP?' · '+MAP:''}`;
-  // cards
-  const cards=document.createElement('div'); cards.className='cards'; cards.style.gridTemplateColumns=`repeat(${P.length},1fr)`;
-  P.forEach(p=>{
-    const a=A[p.key], rows=rowsFor(p), last=(DATA.matches[p.key]||[])[0];
-    cards.insertAdjacentHTML('beforeend',`<div class="panel card" style="--c:${p.color}">
-      <div class="nm">${p.name}<span class="tag"> #${p.tag}</span></div>
-      <div class="rank">${last&&last.tier?'Rank: '+last.tier+' · ':''}${a.m} matches · ${a.w}W ${a.m-a.w}L</div>
-      ${a.m?`<div class="kv">
-        <div><b>${fmt.pct(a.wr)}</b><span>Winrate</span></div><div><b>${fmt.f2(a.kd)}</b><span>K/D</span></div>
-        <div><b>${fmt.f0(a.acs)}</b><span>ACS</span></div><div><b>${fmt.f0(a.adr)}</b><span>ADR</span></div>
-        <div><b>${fmt.pct(a.hsp)}</b><span>HS%</span></div><div><b>${fmt.pct(a.kast)}</b><span>KAST</span></div>
-        <div><b>${a.k}/${a.d}/${a.a}</b><span>K/D/A</span></div><div><b>${a.clw}/${a.cla}</b><span>Clutches</span></div></div>
-      <div class="form">${rows.slice(0,20).reverse().map(r=>`<i class="${r.result}" title="${r.map} ${r.score}"></i>`).join('')}</div>`:'<div class="rank" style="margin-top:14px">Geen matches in deze selectie.</div>'}
-    </div>`);
-  });
-  app.appendChild(cards);
+  const tTxt=TOG==='together'?(P.length>1?`samen gespeeld`:'alle matches'):TOG==='solo'?'zonder de anderen':'alle matches';
+  const sum=`${P.length} speler${P.length>1?'s':''} · ${tTxt} · ${N?'laatste '+N:'alles'} · ${MODE||'alle modi'}${SEASON?' · '+SEASON:''}${MAP?' · '+MAP:''}`;
+  $('#fSum').innerHTML='Je ziet: '+sum;
+  const pg=PAGES.find(x=>x[0]===PAGE);
+  app.insertAdjacentHTML('beforeend',`<div class="ptitle"><h1>${pg[1]}</h1><p>${PAGE_INTRO[PAGE]} <span class="upd2">Bijgewerkt ${new Date(DATA.generated_at).toLocaleString('nl-NL',{dateStyle:'medium',timeStyle:'short'})}.</span></p><button class="fchip" onclick="document.body.classList.toggle('sheet-filter');document.body.classList.remove('sheet-more')">⚙ ${sum}</button></div>`);
   const act=P.filter(p=>A[p.key].m);
-  if(!act.length) return;
-
-  // comparison
-  const stats=[
-   ['Winrate','wr',fmt.pct,1],['K/D','kd',fmt.f2,1],['KDA','kda',fmt.f2,1,'(kills + assists) / deaths'],['ACS','acs',fmt.f0,1],['ADR','adr',fmt.f0,1],
-   ['Headshot %','hsp',fmt.pct,1],['KAST','kast',fmt.pct,1],['First bloods / match','fb',fmt.f2,1],['First deaths / match','fd',fmt.f2,-1],
-   ['Entry-saldo / match','fbdiff',fmt.f2,1,'first bloods min first deaths'],['Multikills / match','mk',fmt.f2,1,'rondes met 2+ kills'],['3K of meer','big',fmt.int,1],
-   ['Clutch %','clp',fmt.pct,1,'1vX gewonnen'],['Trade-kills / match','tk',fmt.f2,1],['Deaths getraded','tradedp',fmt.pct,1],
-   ['Vroege deaths','earlyp',fmt.pct,-1,'death in de eerste 20 s'],['Alleen gestorven','alonep',fmt.pct,-1,'geen teamgenoot in de buurt'],
-   ['Gem. moment van death','dtime',v=>fmt.f0(v)+' s',1,'seconden in de ronde'],['K/D aanval','atkkd',fmt.f2,1],['K/D verdediging','defkd',fmt.f2,1],
-   ['Plants / match','plants',fmt.f2,1],['Abilities / ronde','util',fmt.f2,1,'utility, zonder ultimate'],['Ults / match','ultpm',fmt.f1,1]];
-  let h=`<section><h2>Head-to-head</h2><p class="lead">De kroon gaat naar wie op dat punt het best scoort binnen de gekozen periode.</p><div class="panel scroll"><table class="cmp"><thead><tr><th></th>${act.map(p=>`<th style="color:${p.color}">${p.name}</th>`).join('')}</tr></thead><tbody>`;
-  stats.forEach(([lab,k,f,dir,hint])=>{
-    const vals=act.map(p=>A[p.key][k]), fin=vals.filter(isFinite), mx=Math.max(...fin.map(Math.abs))||1;
-    const best=fin.length>1?(dir>0?Math.max(...fin):Math.min(...fin)):null;
-    h+=`<tr><td class="stat">${lab}${hint?`<span class="hint">${hint}</span>`:''}</td>`+act.map((p,i)=>{const v=vals[i];
-      return `<td class="val"><div class="cv"><b style="color:${p.color}">${f(v)}${v===best&&fin.filter(x=>x===best).length===1?'<span class="crown">♛</span>':''}</b><div class="bar"><i style="width:${isFinite(v)?Math.max(0,v)/mx*100:0}%;background:${p.color}"></i></div></div></td>`}).join('')+'</tr>';
-  });
-  app.insertAdjacentHTML('beforeend',h+'</tbody></table></div></section>');
-  renderStyle(app,act);
-  renderSynergy(app,act);
-  renderTilt(app,act);
-  renderAgentAdvice(app,act);
-  renderHeatOverview(app,act);
-
+  const heat=(w,n)=>{if(!n)return '<td class="heat" style="color:#3a4756">–</td>';const v=w/n;const c=v>=.5?`rgba(62,230,160,${.12+v*.4})`:`rgba(255,70,85,${.12+(1-v)*.4})`;return `<td><div class="heat" style="background:${c}">${Math.round(v*100)}%<span style="font-weight:500;color:#c7d2dd;font-size:11px"> (${w}/${n})</span></div></td>`};
+  if(PAGE==='overzicht'){
+  // cards
+    const cards=document.createElement('div'); cards.className='cards';
+    P.forEach(p=>{
+      const a=A[p.key], rows=rowsFor(p), last=(DATA.matches[p.key]||[])[0];
+      cards.insertAdjacentHTML('beforeend',`<div class="panel card" style="--c:${p.color}">
+        <div class="nm">${p.name}<span class="tag"> #${p.tag}</span></div>
+        <div class="rank">${last&&last.tier?'Rank: '+last.tier+' · ':''}${a.m} matches · ${a.w}W ${a.m-a.w}L</div>
+        ${a.m?`<div class="kv">
+          <div><b>${fmt.pct(a.wr)}</b><span>Winrate</span></div><div><b>${fmt.f2(a.kd)}</b><span>K/D</span></div>
+          <div><b>${fmt.f0(a.acs)}</b><span>ACS</span></div><div><b>${fmt.f0(a.adr)}</b><span>ADR</span></div>
+          <div><b>${fmt.pct(a.hsp)}</b><span>HS%</span></div><div><b>${fmt.pct(a.kast)}</b><span>KAST</span></div>
+          <div><b>${a.k}/${a.d}/${a.a}</b><span>K/D/A</span></div><div><b>${a.clw}/${a.cla}</b><span>Clutches</span></div></div>
+        <div class="form">${rows.slice(0,20).reverse().map(r=>`<i class="${r.result}" title="${r.map} ${r.score}"></i>`).join('')}</div>`:'<div class="rank" style="margin-top:14px">Geen matches in deze selectie.</div>'}
+      </div>`);
+    });
+    app.appendChild(cards);
+  
+  }
+  if(!act.length){if(PAGE!=='overzicht')app.insertAdjacentHTML('beforeend','<div class="panel empty"><b>Geen matches</b>Er zijn geen matches binnen deze filters.</div>');return}
+  if(PAGE==='overzicht'){
   // trend
   const sec=document.createElement('section');
   sec.innerHTML=`<h2>Vorm</h2><p class="lead">ACS per match, van oud naar nieuw. Beweeg over een punt voor de details.</p><div class="panel"><svg id="trend" viewBox="0 0 1120 300" width="100%"></svg><div class="legend">${act.map(p=>`<span><i class="dot" style="background:${p.color}"></i>${p.name}</span>`).join('')}</div></div>`;
@@ -249,32 +364,36 @@ function render(){
     svg.querySelectorAll('.tp').forEach(c=>bindTip(c,c.dataset.h));
   })();
 
-  // maps + agents
-  const mapSet=[...new Set(act.flatMap(p=>rowsFor(p).map(r=>r.map)))].sort();
-  const heat=(w,n)=>{if(!n)return '<td class="heat" style="color:#3a4756">–</td>';const v=w/n;const c=v>=.5?`rgba(62,230,160,${.12+v*.4})`:`rgba(255,70,85,${.12+(1-v)*.4})`;return `<td><div class="heat" style="background:${c}">${Math.round(v*100)}%<span style="font-weight:500;color:#c7d2dd;font-size:11px"> (${w}/${n})</span></div></td>`};
-  let mh=`<table><thead><tr><th>Map</th>${act.map(p=>`<th style="color:${p.color}">${p.name}</th>`).join('')}</tr></thead><tbody>`;
-  mapSet.forEach(m=>{mh+=`<tr><td>${m}</td>`+act.map(p=>{const r=rowsFor(p).filter(x=>x.map===m);return heat(r.filter(x=>x.result==='W').length,r.length)}).join('')+'</tr>'});
-  mh+='</tbody></table>';
-  let ah='';
-  act.forEach(p=>{
-    const by={};rowsFor(p).forEach(r=>{(by[r.agent]=by[r.agent]||[]).push(r)});
-    const list=Object.entries(by).sort((a,b)=>b[1].length-a[1].length).slice(0,4);
-    ah+=`<div style="margin-bottom:14px"><div class="label" style="color:${p.color};margin-bottom:4px">${p.name}</div><table><tbody>`+list.map(([ag,rs])=>{const a=agg(rs);return `<tr><td style="width:34%">${ag}</td><td>${rs.length}x</td><td>${fmt.pct(a.wr)} win</td><td>K/D ${fmt.f2(a.kd)}</td><td>ACS ${fmt.f0(a.acs)}</td></tr>`}).join('')+'</tbody></table></div>';
-  });
-  app.insertAdjacentHTML('beforeend',`<section><h2>Maps en agents</h2><p class="lead">Winrate per map en jullie meest gespeelde agents.</p><div class="g2"><div class="panel scroll"><h3>Winrate per map</h3>${mh}</div><div class="panel"><h3>Agents</h3>${ah}</div></div></section>`);
 
-  // economy + weapons
-  const types=[['pistol','Pistol'],['eco','Eco'],['force','Force'],['full','Full buy']];
-  let eh=`<table><thead><tr><th>Kooptype</th>${act.map(p=>`<th style="color:${p.color}">${p.name}</th>`).join('')}</tr></thead><tbody>`;
-  types.forEach(([t,l])=>{eh+=`<tr><td>${l}</td>`+act.map(p=>{const [w,n]=A[p.key].buy[t];return heat(w,n)}).join('')+'</tr>'});
-  eh+=`<tr><td>Gem. loadout</td>${act.map(p=>`<td style="font-family:Rajdhani,'Arial Narrow',sans-serif;font-weight:700;font-size:17px;text-align:center">¤ ${isFinite(A[p.key].loadout)?Math.round(A[p.key].loadout).toLocaleString('nl-NL'):'–'}</td>`).join('')}</tr></tbody></table>`;
-  let wh='';
-  act.forEach(p=>{
-    const w=Object.entries(A[p.key].wpn).sort((a,b)=>b[1]-a[1]).slice(0,5), mx=w.length?w[0][1]:1;
-    wh+=`<div style="margin-bottom:12px"><div class="label" style="color:${p.color};margin-bottom:6px">${p.name}</div>`+w.map(([n,v])=>`<div style="display:grid;grid-template-columns:120px 1fr 36px;gap:10px;align-items:center;margin:4px 0;font-size:13px"><span>${n}</span><div style="height:10px;background:#0d151e;border-radius:2px"><i style="display:block;height:100%;width:${v/mx*100}%;background:${p.color};border-radius:2px"></i></div><b style="font-family:Rajdhani,'Arial Narrow',sans-serif;text-align:right">${v}</b></div>`).join('')+'</div>';
+    // recente matches
+    const seen=new Set(),rec=[];act.forEach(p=>rowsFor(p).forEach(r=>{if(!seen.has(r.match)){seen.add(r.match);rec.push(r)}}));
+    rec.sort((a,b)=>new Date(b.date)-new Date(a.date));
+    app.insertAdjacentHTML('beforeend',`<section><h2>Laatste potjes</h2><div class="mlist">${rec.slice(0,6).map(r=>{const d=DATA.details[r.match];const fr=d?d.players.filter(q=>q.fk&&SEL.has(q.fk)):[];
+      return `<a class="mcard ${r.result}" href="#/match/${r.match}" onclick="event.preventDefault();openMatch('${r.match}')"><div><b>${r.map}</b><span>${new Date(r.date).toLocaleDateString('nl-NL',{day:'numeric',month:'short'})} · ${r.mode||''}</span></div><div class="ms">${r.score}</div><div class="mp">${fr.map(q=>`<span style="color:${colorOf(q.fk)}">${q.n} ${q.k}/${q.d}/${q.a}</span>`).join('')}</div></a>`}).join('')}</div>
+      <div style="margin-top:12px"><button class="btn" onclick="go('matches')">Alle matches →</button></div></section>`);
+  }
+  if(PAGE==='vergelijk'){
+  // comparison
+  const stats=[
+   ['Winrate','wr',fmt.pct,1],['K/D','kd',fmt.f2,1],['KDA','kda',fmt.f2,1,'(kills + assists) / deaths'],['ACS','acs',fmt.f0,1],['ADR','adr',fmt.f0,1],
+   ['Headshot %','hsp',fmt.pct,1],['KAST','kast',fmt.pct,1],['First bloods / match','fb',fmt.f2,1],['First deaths / match','fd',fmt.f2,-1],
+   ['Entry-saldo / match','fbdiff',fmt.f2,1,'first bloods min first deaths'],['Multikills / match','mk',fmt.f2,1,'rondes met 2+ kills'],['3K of meer','big',fmt.int,1],
+   ['Clutch %','clp',fmt.pct,1,'1vX gewonnen'],['Trade-kills / match','tk',fmt.f2,1],['Deaths getraded','tradedp',fmt.pct,1],
+   ['Vroege deaths','earlyp',fmt.pct,-1,'death in de eerste 20 s'],['Alleen gestorven','alonep',fmt.pct,-1,'geen teamgenoot in de buurt'],
+   ['Gem. moment van death','dtime',v=>fmt.f0(v)+' s',1,'seconden in de ronde'],['K/D aanval','atkkd',fmt.f2,1],['K/D verdediging','defkd',fmt.f2,1],
+   ['Plants / match','plants',fmt.f2,1],['Abilities / ronde','util',fmt.f2,1,'utility, zonder ultimate'],['Ults / match','ultpm',fmt.f1,1]];
+  let h=`<section><h2>Head-to-head</h2><p class="lead">De kroon gaat naar wie op dat punt het best scoort binnen de gekozen periode.</p><div class="panel scroll"><table class="cmp"><thead><tr><th></th>${act.map(p=>`<th style="color:${p.color}">${p.name}</th>`).join('')}</tr></thead><tbody>`;
+  stats.forEach(([lab,k,f,dir,hint])=>{
+    const vals=act.map(p=>A[p.key][k]), fin=vals.filter(isFinite), mx=Math.max(...fin.map(Math.abs))||1;
+    const best=fin.length>1?(dir>0?Math.max(...fin):Math.min(...fin)):null;
+    h+=`<tr><td class="stat">${lab}${hint?`<span class="hint">${hint}</span>`:''}</td>`+act.map((p,i)=>{const v=vals[i];
+      return `<td class="val"><div class="cv" data-p="${p.name}"><b style="color:${p.color}">${f(v)}${v===best&&fin.filter(x=>x===best).length===1?'<span class="crown">♛</span>':''}</b><div class="bar"><i style="width:${isFinite(v)?Math.max(0,v)/mx*100:0}%;background:${p.color}"></i></div></div></td>`}).join('')+'</tr>';
   });
-  app.insertAdjacentHTML('beforeend',`<section><h2>Economie en wapens</h2><p class="lead">Rondewinst per type koop, en met welke wapens jullie de meeste kills maken.</p><div class="g2"><div class="panel scroll"><h3>Rondewinst per kooptype</h3>${eh}</div><div class="panel"><h3>Kills per wapen <small>top 5</small></h3>${wh}</div></div></section>`);
+  app.insertAdjacentHTML('beforeend',h+'</tbody></table></div></section>');
 
+  }
+  if(PAGE==='speelstijl') renderStyle(app,act);
+  if(PAGE==='samen'){ renderSynergy(app,act);
   // together
   if(P.length>=2){
     const ks=P.map(p=>p.key);
@@ -289,19 +408,61 @@ function render(){
     }
   }
 
+
+    if(act.length<2) app.insertAdjacentHTML('beforeend','<div class="panel empty"><b>Kies minstens 2 spelers</b>Zet bij de filters minstens twee spelers aan om te zien hoe jullie samen spelen.</div>');
+  }
+  if(PAGE==='heatmap') renderHeatOverview(app,act);
+  if(PAGE==='maps'){
+  // maps + agents
+  const mapSet=[...new Set(act.flatMap(p=>rowsFor(p).map(r=>r.map)))].sort();
+  const heat=(w,n)=>{if(!n)return '<td class="heat" style="color:#3a4756">–</td>';const v=w/n;const c=v>=.5?`rgba(62,230,160,${.12+v*.4})`:`rgba(255,70,85,${.12+(1-v)*.4})`;return `<td><div class="heat" style="background:${c}">${Math.round(v*100)}%<span style="font-weight:500;color:#c7d2dd;font-size:11px"> (${w}/${n})</span></div></td>`};
+  let mh=`<table><thead><tr><th>Map</th>${act.map(p=>`<th style="color:${p.color}">${p.name}</th>`).join('')}</tr></thead><tbody>`;
+  mapSet.forEach(m=>{mh+=`<tr><td>${m}</td>`+act.map(p=>{const r=rowsFor(p).filter(x=>x.map===m);return heat(r.filter(x=>x.result==='W').length,r.length)}).join('')+'</tr>'});
+  mh+='</tbody></table>';
+  let ah='';
+  act.forEach(p=>{
+    const by={};rowsFor(p).forEach(r=>{(by[r.agent]=by[r.agent]||[]).push(r)});
+    const list=Object.entries(by).sort((a,b)=>b[1].length-a[1].length).slice(0,4);
+    ah+=`<div style="margin-bottom:14px"><div class="label" style="color:${p.color};margin-bottom:4px">${p.name}</div><table><tbody>`+list.map(([ag,rs])=>{const a=agg(rs);return `<tr><td style="width:34%">${ag}</td><td>${rs.length}x</td><td>${fmt.pct(a.wr)} win</td><td>K/D ${fmt.f2(a.kd)}</td><td>ACS ${fmt.f0(a.acs)}</td></tr>`}).join('')+'</tbody></table></div>';
+  });
+  app.insertAdjacentHTML('beforeend',`<section><h2>Maps en agents</h2><p class="lead">Winrate per map en jullie meest gespeelde agents.</p><div class="g2"><div class="panel scroll"><h3>Winrate per map</h3>${mh}</div><div class="panel"><h3>Agents</h3>${ah}</div></div></section>`);
+
+
+    renderAgentAdvice(app,act);
+  }
+  if(PAGE==='economie'){
+  // economy + weapons
+  const types=[['pistol','Pistol'],['eco','Eco'],['force','Force'],['full','Full buy']];
+  let eh=`<table><thead><tr><th>Kooptype</th>${act.map(p=>`<th style="color:${p.color}">${p.name}</th>`).join('')}</tr></thead><tbody>`;
+  types.forEach(([t,l])=>{eh+=`<tr><td>${l}</td>`+act.map(p=>{const [w,n]=A[p.key].buy[t];return heat(w,n)}).join('')+'</tr>'});
+  eh+=`<tr><td>Gem. loadout</td>${act.map(p=>`<td style="font-family:Rajdhani,'Arial Narrow',sans-serif;font-weight:700;font-size:17px;text-align:center">¤ ${isFinite(A[p.key].loadout)?Math.round(A[p.key].loadout).toLocaleString('nl-NL'):'–'}</td>`).join('')}</tr></tbody></table>`;
+  let wh='';
+  act.forEach(p=>{
+    const w=Object.entries(A[p.key].wpn).sort((a,b)=>b[1]-a[1]).slice(0,5), mx=w.length?w[0][1]:1;
+    wh+=`<div style="margin-bottom:12px"><div class="label" style="color:${p.color};margin-bottom:6px">${p.name}</div>`+w.map(([n,v])=>`<div style="display:grid;grid-template-columns:120px 1fr 36px;gap:10px;align-items:center;margin:4px 0;font-size:13px"><span>${n}</span><div style="height:10px;background:#0d151e;border-radius:2px"><i style="display:block;height:100%;width:${v/mx*100}%;background:${p.color};border-radius:2px"></i></div><b style="font-family:Rajdhani,'Arial Narrow',sans-serif;text-align:right">${v}</b></div>`).join('')+'</div>';
+  });
+  app.insertAdjacentHTML('beforeend',`<section><h2>Economie en wapens</h2><p class="lead">Rondewinst per type koop, en met welke wapens jullie de meeste kills maken.</p><div class="g2"><div class="panel scroll"><h3>Rondewinst per kooptype</h3>${eh}</div><div class="panel"><h3>Kills per wapen <small>top 5</small></h3>${wh}</div></div></section>`);
+
+
+  }
+  if(PAGE==='tilt') renderTilt(app,act);
+  if(PAGE==='matches'){
   // match list
   let ml='<section><h2>Laatste matches</h2><p class="lead">Klik op een match voor het volledige verslag: ronde voor ronde, timing, duels, economie en positionering.</p><div class="g2" style="grid-template-columns:1fr">';
   act.forEach(p=>{
-    ml+=`<div class="panel scroll"><h3 style="color:${p.color}">${p.name}</h3><table><thead><tr><th>Datum</th><th>Map</th><th>Agent</th><th>Uitslag</th><th>K/D/A</th><th>ACS</th><th>ADR</th><th>HS%</th><th>KAST</th><th>FB/FD</th></tr></thead><tbody>`+
+    ml+=`<div class="panel scroll desk-only"><h3 style="color:${p.color}">${p.name}</h3><table><thead><tr><th>Datum</th><th>Map</th><th>Agent</th><th>Uitslag</th><th>K/D/A</th><th>ACS</th><th>ADR</th><th>HS%</th><th>KAST</th><th>FB/FD</th></tr></thead><tbody>`+
     rowsFor(p).map(r=>`<tr class="click" onclick="openMatch('${r.match}')"><td>${new Date(r.date).toLocaleDateString('nl-NL')}</td><td>${r.map}</td><td>${r.agent}</td><td><span class="pill p-${r.result}">${r.result==='W'?'Win':r.result==='L'?'Loss':'Gelijk'} ${r.score}</span></td><td><b>${r.k}/${r.d}/${r.a}</b></td><td>${Math.round(r.acs_sum/r.rounds)}</td><td>${Math.round(r.dmg/r.rounds)}</td><td>${fmt.pct(r.hs/(r.hs+r.bs+r.ls))}</td><td>${fmt.pct(r.kast/r.rounds)}</td><td>${r.fb}/${r.fd}</td></tr>`).join('')+'</tbody></table></div>';
+    ml+=`<div class="mob-only"><div class="label" style="color:${p.color};margin:6px 0 10px">${p.name}</div><div class="mlist">${rowsFor(p).map(r=>`<a class="mcard ${r.result}" href="#/match/${r.match}" onclick="event.preventDefault();openMatch('${r.match}')"><div><b>${r.map}</b><span>${new Date(r.date).toLocaleDateString('nl-NL',{day:'numeric',month:'short',year:'2-digit'})} · ${r.agent}</span></div><div class="ms">${r.score}</div><div class="mp"><span>${r.k}/${r.d}/${r.a}</span><span style="color:var(--mute)">ACS ${Math.round(r.acs_sum/r.rounds)}</span><span style="color:var(--mute)">ADR ${Math.round(r.dmg/r.rounds)}</span><span style="color:var(--mute)">HS ${fmt.pct(r.hs/(r.hs+r.bs+r.ls))}</span></div></a>`).join('')}</div></div>`;
   });
   app.insertAdjacentHTML('beforeend',ml+'</div></section>');
+
+  }
 }
 
 // ================= MATCHVERSLAG =================
 let CUR=null;
-function openMatch(id){CUR=id;MH={show:{K:1,D:1,P:1},round:'all',off:{}};history.replaceState(null,'','#m='+id);render();window.scrollTo({top:0,behavior:'smooth'})}
-function closeMatch(){CUR=null;history.replaceState(null,'',location.pathname);render()}
+function openMatch(id){CUR=id;MH={show:{K:1,D:1,P:1},round:'all',off:{}};history.pushState(null,'','#/match/'+id);closeSheets();render();window.scrollTo({top:0})}
+function closeMatch(){CUR=null;history.pushState(null,'','#/'+PAGE);render();window.scrollTo({top:0})}
 const isAtk=(team,i,fha)=>{const first=i<12||(i>=24&&(i-24)%2===0);return (team===fha)===first};
 const colorOf=k=>(DATA.players.find(p=>p.key===k)||{}).color||'#ff4655';
 const nameOf=(d,i)=>i==null?'?':d.players[i].n;
@@ -309,7 +470,6 @@ const nameOf=(d,i)=>i==null?'?':d.players[i].n;
 function renderMatch(id){
   const d=DATA.details&&DATA.details[id];
   const app=$('#app');
-  document.querySelector('.filters').style.display='none';
   if(!d){app.innerHTML=`<div class="panel empty" style="margin-top:30px"><b>Geen verslag</b>Van deze match is geen verslag beschikbaar.<br><br><button class="btn" onclick="closeMatch()">← Terug</button></div>`;return}
   const F=d.players.map((p,i)=>({...p,i})).filter(p=>p.fk);           // vrienden in deze match
   const myTeam=F[0].tm, other=Object.keys(d.teams).find(t=>t!==myTeam);
@@ -372,7 +532,7 @@ function renderMatch(id){
     ['KAST','kast',v=>Math.round(v*100)+'%',1],['Trade-kills','tradeK',v=>v,1],['Deaths getraded','traded',v=>v,1],['Vroege deaths (≤20 s)','early',v=>v,-1],['Alleen gestorven','alone',v=>v,-1]];
   h+=`<section><h2>${F.length>1?'Head-to-head':'Jouw cijfers'}</h2><div class="panel scroll"><table class="cmp"><thead><tr><th></th>${F.map(f=>`<th style="color:${col(f)}">${f.n}</th>`).join('')}</tr></thead><tbody>`+
     rowsH.map(([lab,k,fm,dir])=>{const vals=F.map(f=>ST[f.i][k]),fin=vals.filter(isFinite),mx=Math.max(...fin,0.0001),best=F.length>1?(dir>0?Math.max(...fin):Math.min(...fin)):null,uniq=fin.filter(x=>x===best).length===1;
-      return `<tr><td class="stat">${lab}</td>`+F.map((f,j)=>`<td class="val"><div class="cv"><b style="color:${col(f)}">${fm(vals[j])}${uniq&&vals[j]===best?'<span class="crown">♛</span>':''}</b><div class="bar"><i style="width:${isFinite(vals[j])?vals[j]/mx*100:0}%;background:${col(f)}"></i></div></div></td>`).join('')+'</tr>'}).join('')+'</tbody></table></div></section>';
+      return `<tr><td class="stat">${lab}</td>`+F.map((f,j)=>`<td class="val"><div class="cv" data-p="${f.n}"><b style="color:${col(f)}">${fm(vals[j])}${uniq&&vals[j]===best?'<span class="crown">♛</span>':''}</b><div class="bar"><i style="width:${isFinite(vals[j])?vals[j]/mx*100:0}%;background:${col(f)}"></i></div></div></td>`).join('')+'</tr>'}).join('')+'</tbody></table></div></section>';
 
   // ---- ronde voor ronde
   let tl=`<div class="tl2" style="display:grid;grid-template-columns:130px repeat(${n},minmax(26px,1fr));gap:4px;font-family:Rajdhani,'Arial Narrow',sans-serif;font-weight:700">`;

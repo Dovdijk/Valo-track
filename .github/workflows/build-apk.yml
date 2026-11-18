@@ -21,13 +21,11 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Wachtwoord controleren
+        id: pw
         env:
           PW: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
         run: |
-          if [ -z "$PW" ]; then
-            echo "::error::Het secret ANDROID_KEYSTORE_PASSWORD ontbreekt. Zie de README, kopje Android-app."
-            exit 1
-          fi
+          if [ -z "$PW" ]; then echo "ok=false" >> "$GITHUB_OUTPUT"; else echo "ok=true" >> "$GITHUB_OUTPUT"; fi
 
       - uses: actions/setup-java@v4
         with:
@@ -42,6 +40,18 @@ jobs:
         run: |
           pip install --quiet pillow
           python android/make_icons.py app-icon.png
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.7"
+
+      - name: Testbouw zonder wachtwoord
+        if: steps.pw.outputs.ok != 'true'
+        working-directory: android
+        run: |
+          gradle --no-daemon assembleDebug
+          echo "::error::De app bouwt, maar het secret ANDROID_KEYSTORE_PASSWORD ontbreekt nog. Zie de README, kopje Android-app."
+          exit 1
 
       - name: Ondertekeningssleutel klaarzetten
         env:
@@ -59,10 +69,6 @@ jobs:
             git commit -m "Versleutelde ondertekeningssleutel voor de Android-app"
             git pull --rebase origin main && git push
           fi
-
-      - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: "8.7"
 
       - name: APK bouwen
         working-directory: android

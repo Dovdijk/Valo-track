@@ -11,7 +11,7 @@ on:
         default: false
   push:
     branches: [main]
-    paths: ["index.html", "config.json", "scripts/**", "sw.js", "manifest.webmanifest", "icons/**"]
+    paths: ["index.html", "test.html", ".github/workflows/update.yml", "config.json", "scripts/**", "sw.js", "manifest.webmanifest", "icons/**"]
 
 permissions:
   contents: write

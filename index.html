@@ -63,6 +63,8 @@ h3 small{font-family:Inter;font-size:12px;color:var(--mute);text-transform:none;
 .foot li{margin:5px 0 5px 18px}
 svg text{font-family:Rajdhani,'Arial Narrow',sans-serif;font-weight:600}
 .scroll{overflow-x:auto}
+.traits td:first-child{color:var(--mute);font-family:Rajdhani,'Arial Narrow',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:1px;font-size:12px;width:42%;vertical-align:top}
+.traits .tm{color:var(--mute);font-size:12px;margin-left:4px}
 .rc{min-height:38px;border-radius:3px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0e1620;border:1px solid #1a2532;line-height:1.1}
 .rc.W{background:rgba(62,230,160,.16);border-color:rgba(62,230,160,.45);color:var(--win)}
 .rc.L{background:rgba(255,70,85,.13);border-color:rgba(255,70,85,.4);color:var(--loss)}
@@ -640,17 +642,6 @@ function callout(m,x,y){if(!m||x==null||!m.callouts||!m.callouts.length)return n
 const pctile=(arr,v)=>arr.length?arr.filter(x=>x<v).length/arr.length*100+arr.filter(x=>x===v).length/arr.length*50:50;
 const esc=s=>String(s).replace(/"/g,'&quot;');
 
-// ---------- lobbydistributie (alle niet-vrienden in de gekozen matches) ----------
-function fbfdFor(d){const fb=new Array(d.players.length).fill(0),fd=new Array(d.players.length).fill(0);
-  d.rounds.forEach(r=>{if(r.ev[0]){if(r.ev[0][1]!=null)fb[r.ev[0][1]]++;fd[r.ev[0][2]]++}});return {fb,fd}}
-function lobbyRef(matchIds){
-  const ref={acs:[],adr:[],hs:[],kd:[],apr:[],fbr:[],fdr:[],dpr:[]};
-  matchIds.forEach(id=>{const d=DATA.details[id];if(!d)return;const n=d.rounds.length||1,{fb,fd}=fbfdFor(d);
-    d.players.forEach((p,i)=>{if(p.fk)return;ref.acs.push(p.acs);ref.adr.push(p.adr);ref.hs.push(p.hs);ref.kd.push(p.k/Math.max(1,p.d));
-      ref.apr.push(p.a/n);ref.fbr.push(fb[i]/n);ref.fdr.push(fd[i]/n);ref.dpr.push(p.d/n)})});
-  return ref;
-}
-
 // ---------- posities van een speler over meerdere matches ----------
 function eventsFor(pkey,matchIds,sideFilter){
   const out=[];
@@ -663,79 +654,117 @@ function eventsFor(pkey,matchIds,sideFilter){
   return out;
 }
 
-// ---------- SPEELSTIJL (overzicht) ----------
+// ---------- lobbydistributie (alle niet-vrienden in de gekozen matches) ----------
+function fbfdFor(d){const fb=new Array(d.players.length).fill(0),fd=new Array(d.players.length).fill(0);
+  d.rounds.forEach(r=>{if(r.ev[0]){if(r.ev[0][1]!=null)fb[r.ev[0][1]]++;fd[r.ev[0][2]]++}});return {fb,fd}}
+function lobbyRef(matchIds){
+  const ref={acs:[],adr:[],hs:[],kd:[],apr:[],fbr:[],fdr:[],dpr:[],trk:[],trd:[],iso:[],site:[]};
+  matchIds.forEach(id=>{const d=DATA.details[id];if(!d)return;const n=d.rounds.length||1,{fb,fd}=fbfdFor(d);
+    d.players.forEach((p,i)=>{if(p.fk)return;ref.acs.push(p.acs);ref.adr.push(p.adr);ref.hs.push(p.hs);ref.kd.push(p.k/Math.max(1,p.d));
+      ref.apr.push(p.a/n);ref.fbr.push(fb[i]/n);ref.fdr.push(fd[i]/n);ref.dpr.push(p.d/n);
+      if(p.trk!=null)ref.trk.push(p.trk/n);
+      if(p.trd!=null&&p.d)ref.trd.push(p.trd/p.d);
+      if(p.iso_t>=8)ref.iso.push(p.iso_a/p.iso_t);
+      if((p.site_w||0)+(p.site_a||0)>=3)ref.site.push(p.site_w/(p.site_w+p.site_a))})});
+  return ref;
+}
+
+// ---------- SPEELSTIJL ----------
 function styleFor(p,rows,ref){
   const a=agg(rows); if(!a.m) return null;
-  const R=a.R, sum=k=>rows.reduce((s,r)=>s+(r[k]||0),0);
-  const v={acs:a.acs,adr:a.adr,hs:a.hsp*100,kd:a.kd,apr:a.a/R,fbr:sum('fb')/R,fdr:sum('fd')/R,dpr:a.d/R};
-  const P={}; Object.keys(v).forEach(k=>P[k]=pctile(ref[k],v[k]));
-  const radar=[['Aim',P.hs],['Impact',P.acs],['Entry',P.fbr],['Overleven',100-P.dpr],['Teamplay',P.apr],['Duels',P.kd]];
+  const R=a.R, sum=k=>rows.reduce((s,r)=>s+(r[k]||0),0), pr=x=>Math.round(x);
+  const siteN=sum('site_w')+sum('site_a');
+  const v={acs:a.acs,adr:a.adr,hs:a.hsp*100,kd:a.kd,apr:a.a/R,fbr:sum('fb')/R,fdr:sum('fd')/R,dpr:a.d/R,
+    trk:sum('trk')/R,trd:a.d?sum('trd')/a.d:NaN,iso:sum('iso_t')?sum('iso_a')/sum('iso_t'):NaN,site:siteN?sum('site_w')/siteN:NaN};
+  const P={}; Object.keys(v).forEach(k=>P[k]=isFinite(v[k])&&ref[k]&&ref[k].length?pctile(ref[k],v[k]):50);
+  const avgOf=xs=>xs.reduce((s,x)=>s+x,0)/xs.length;
+  const teamplay=avgOf([P.apr,P.trk,P.trd]);
+  const withTeam=avgOf([100-P.iso,P.site]);
+  const radar=[['Aim',P.hs],['Impact',P.acs],['Entry',P.fbr],['Overleven',100-P.dpr],['Teamplay',teamplay],['Bij het team',withTeam],['Duels',P.kd]];
   const evs=eventsFor(p.key,rows.map(r=>r.match),'all');
-  // kandidaten voor de 5 punten
-  const C=[];
-  const add=(score,kind,title,text)=>C.push({score,kind,title,text});
-  const pr=x=>Math.round(x);
-  // rol / entry
-  if(P.fbr>=65) add(P.fbr-50+(P.fdr>=65?5:0),'neutral','Je opent de rondes',`${(v.fbr*100/100).toFixed(2)} first bloods per ronde, meer dan ${pr(P.fbr)}% van de spelers in jullie potjes. ${P.fdr>=65?`Maar je gaat ook vaak als eerste neer (${v.fdr.toFixed(2)} per ronde): je speelt het entry-risico.`:'En je gaat zelden als eerste neer. Sterk.'}`);
-  else if(P.fdr>=65) add(P.fdr-45,'bad','Vaak als eerste neer',`Je hebt ${v.fdr.toFixed(2)} first deaths per ronde, meer dan ${pr(P.fdr)}% van de lobby, zonder veel first bloods terug. Laat de eerste duel vaker aan je entry over of speel met utility.`);
-  else if(P.fbr<=30&&P.fdr<=35) add(55-(P.fbr+P.fdr)/2,'neutral','Je wacht de opening af',`Weinig first bloods en weinig first deaths: je laat anderen de ronde openen en komt daarna in actie.`);
-  // aim
-  add(Math.abs(P.hs-50),P.hs>=55?'good':P.hs<=40?'bad':'neutral',P.hs>=55?'Sterke aim':'Aim op het hoofd kan beter',`Je headshotpercentage is ${pr(v.hs)}%, hoger dan ${pr(P.hs)}% van de spelers in jullie lobbies.${P.hs<45?' Let op je crosshair-plaatsing op hoofdhoogte.':''}`);
-  // impact
-  add(Math.abs(P.acs-50)+3,P.acs>=55?'good':P.acs<=40?'bad':'neutral',P.acs>=70?'Je draagt het team':P.acs>=55?'Bovengemiddelde impact':'Impact per ronde kan omhoog',`ACS ${pr(v.acs)} en ADR ${pr(v.adr)}. Daarmee scoor je beter dan ${pr(P.acs)}% van de lobby.`);
-  // positionering
-  if(sum('deaths_known_team')>=8){const al=sum('alone_d')/sum('deaths_known_team')*100;
-    if(al>=60) add((al-50)*0.9,'bad','Je speelt veel alleen',`Bij ${pr(al)}% van je deaths stond er geen teamgenoot binnen ongeveer 15 meter. Dat past bij een lurker, maar je wordt dan zelden getrade (${pr(a.tradedp*100)}% van je deaths).`);
-    else if(al<=40) add((50-al)*0.9,'good','Je speelt dicht bij je team',`Maar ${pr(al)}% van je deaths was zonder teamgenoot in de buurt. ${pr(a.tradedp*100)}% van je deaths werd getrade.`)}
+  const C=[]; const add=(score,kind,title,text)=>C.push({score,kind,title,text});
+
+  // met het team mee of niet
+  if(siteN>=10){const sp=v.site*100,ref50=ref.site.length?avgOf(ref.site)*100:85;
+    if(P.site<=35&&ref50-sp>=7)add((50-P.site)*0.9+5,'bad','Gaat vaak ergens anders heen',`Op het moment dat jullie team de spike plant, stond je in ${pr(100-sp)}% van de rondes niet bij die site (lobby gemiddeld ${pr(100-ref50)}%). Je lurkt of roteert later dan je team.`);
+    else if(P.site>=65&&sp-ref50>=3)add((P.site-50)*0.8,'good','Gaat mee met het team',`Bij een plant stond je in ${pr(sp)}% van de rondes bij de site waar jullie team plantte. Je speelt de execute mee.`);}
+  if(isFinite(v.iso)){const ip=v.iso*100;
+    if(P.iso>=70)add((P.iso-50)*0.8,'bad','Je speelt veel alleen',`Op de momenten dat er iemand doodgaat, sta je in ${pr(ip)}% van de gevallen verder dan 15 meter van je dichtstbijzijnde teamgenoot. Meer dan ${pr(P.iso)}% van de lobby. Je wordt daardoor minder vaak getrade.`);
+    else if(P.iso<=30)add((50-P.iso)*0.8,'good','Speelt dicht bij het team',`Maar ${pr(ip)}% van de tijd sta je zonder teamgenoot in de buurt. Minder dan ${pr(100-P.iso)}% van de lobby.`);}
+  // teamplay
+  if(teamplay>=68)add(teamplay-45,'good','Teamspeler',`Je combineert assists (${v.apr.toFixed(2)} per ronde), trade-kills (${v.trk.toFixed(2)} per ronde) en getradede deaths (${pr(v.trd*100)}%). Samen beter dan ${pr(teamplay)}% van de lobby.`);
+  else if(teamplay<=32)add(55-teamplay,'bad','Weinig samenspel',`Weinig assists, trade-kills en getradede deaths vergeleken met de lobby. Je acties staan vaak los van die van je team.`);
+  // entry
+  if(P.fbr>=65) add(P.fbr-50+(P.fdr>=65?5:0),'neutral','Je opent de rondes',`${v.fbr.toFixed(2)} first bloods per ronde, meer dan ${pr(P.fbr)}% van de spelers in jullie potjes. ${P.fdr>=65?`Maar je gaat ook vaak als eerste neer (${v.fdr.toFixed(2)} per ronde).`:'En je gaat zelden als eerste neer. Sterk.'}`);
+  else if(P.fdr>=65) add(P.fdr-45,'bad','Vaak als eerste neer',`${v.fdr.toFixed(2)} first deaths per ronde, meer dan ${pr(P.fdr)}% van de lobby, zonder veel first bloods terug.`);
+  // aim, impact
+  add(Math.abs(P.hs-50),P.hs>=55?'good':P.hs<=40?'bad':'neutral',P.hs>=55?'Sterke aim':'Aim op het hoofd kan beter',`Je headshotpercentage is ${pr(v.hs)}%, hoger dan ${pr(P.hs)}% van de spelers in jullie lobbies.`);
+  add(Math.abs(P.acs-50)+3,P.acs>=55?'good':P.acs<=40?'bad':'neutral',P.acs>=70?'Je draagt het team':P.acs>=55?'Bovengemiddelde impact':'Impact per ronde kan omhoog',`ACS ${pr(v.acs)} en ADR ${pr(v.adr)}. Beter dan ${pr(P.acs)}% van de lobby.`);
   // timing
   if(a.d>=10){const ep=a.earlyp*100;
-    if(ep>=25) add(ep-12,'bad','Vroeg in de ronde neer',`${pr(ep)}% van je deaths valt in de eerste 20 seconden van een ronde. Gemiddeld ga je na ${pr(a.dtime)} seconden dood. Rustiger openen kan rondes redden.`);
-    else if(a.dtime>=45) add((a.dtime-40)*0.8,'good','Geduldig speler',`Je gaat gemiddeld pas na ${pr(a.dtime)} seconden dood en maar ${pr(ep)}% van je deaths is in de eerste 20 seconden.`)}
+    if(ep>=25) add(ep-12,'bad','Vroeg in de ronde neer',`${pr(ep)}% van je deaths valt in de eerste 20 seconden van een ronde.`);
+    else if(a.dtime>=45) add((a.dtime-40)*0.8,'good','Geduldig speler',`Je gaat gemiddeld pas na ${pr(a.dtime)} seconden dood.`)}
+  // hero buys
+  const hn=sum('hero_n'),hw=sum('hero_w');
+  if(hn>=5){const hb=a.buy.full,fullwr=hb[1]?hb[0]/hb[1]:NaN;add(8+hn*0.6,hw/hn<0.3?'bad':'neutral','Koopt alleen als het team spaart',`${hn} keer kocht je iets terwijl hoogstens één teamgenoot kocht. Die rondes won jullie team ${hw} keer (${pc(hw/hn)}).`)}
   // kant
   if(isFinite(a.atkkd)&&isFinite(a.defkd)){const df=a.atkkd-a.defkd;if(Math.abs(df)>=0.2)add(Math.abs(df)*50,'neutral',df>0?'Sterker in de aanval':'Sterker in de verdediging',`K/D in de aanval ${a.atkkd.toFixed(2)}, in de verdediging ${a.defkd.toFixed(2)}.`)}
-  // clutch
-  if(a.cla>=6){const cp=a.clw/a.cla*100;add(Math.abs(cp-20)*0.9,cp>=30?'good':cp<=12?'bad':'neutral',cp>=30?'Clutch-speler':cp<=12?'Clutches lukken weinig':'Als laatste overgebleven',`Je won ${a.clw} van de ${a.cla} rondes waarin je als laatste van je team overbleef (${pr(cp)}%), vaak tegen meerdere tegenstanders.`)}
-  // economie
-  const f=a.buy.force,fu=a.buy.full;if(f[1]>=5&&fu[1]>=5){const fw=f[0]/f[1]*100,fuw=fu[0]/fu[1]*100;if(fuw-fw>=20)add((fuw-fw)*0.6,'bad','Force buys kosten rondes',`Met een full buy wint je team ${pr(fuw)}% van de rondes, met een force buy maar ${pr(fw)}%. Vaker samen sparen loont.`)}
-  // callouts
-  const byC={};evs.forEach(e=>{const c=callout(e.m,e.type==='D'?e.x:e.x,e.type==='D'?e.y:e.y);if(!c)return;byC[c]=byC[c]||{k:0,d:0};byC[c][e.type==='K'?'k':'d']++});
-  const cl=Object.entries(byC);
-  if(cl.length){const worst=cl.filter(([c,s])=>s.d>=5).sort((x,y)=>(y[1].d-y[1].k)-(x[1].d-x[1].k))[0];
-    const best=cl.filter(([c,s])=>s.k>=5).sort((x,y)=>(y[1].k-y[1].d)-(x[1].k-x[1].d))[0];
-    if(worst&&worst[1].d>worst[1].k)add(12+(worst[1].d-worst[1].k)*2,'bad',`Lastige plek: ${worst[0]}`,`Daar ging je ${worst[1].d} keer dood en maakte je ${worst[1].k} kills. Kijk in de heatmap hoe je daar binnenkomt.`);
-    if(best&&best[1].k>best[1].d)add(10+(best[1].k-best[1].d)*2,'good',`Jouw plek: ${best[0]}`,`Daar maakte je ${best[1].k} kills tegenover ${best[1].d} deaths.`)}
-  // consistentie
-  if(rows.length>=8){const xs=rows.map(r=>r.acs_sum/r.rounds),mu=xs.reduce((s,x)=>s+x,0)/xs.length,sd=Math.sqrt(xs.reduce((s,x)=>s+(x-mu)**2,0)/xs.length),cv=sd/mu;
-    if(cv>=0.38)add((cv-0.3)*90,'neutral','Wisselvallig',`Je ACS schommelt sterk per match (tussen ${pr(Math.min(...xs))} en ${pr(Math.max(...xs))}). Je goede potjes zijn heel goed, je slechte potjes trekken het gemiddelde omlaag.`);
-    else if(cv<=0.22)add((0.3-cv)*90,'good','Constant',`Je ACS is per match heel stabiel, rond de ${pr(mu)}.`);
-    // vorm
-    if(rows.length>=10){const last=xs.slice(0,5).reduce((s,x)=>s+x,0)/5,rest=xs.slice(5).reduce((s,x)=>s+x,0)/(xs.length-5),df=(last-rest)/rest*100;
-      if(Math.abs(df)>=12)add(Math.abs(df)*0.7,df>0?'good':'bad',df>0?'In vorm':'Uit vorm',`Je laatste 5 matches had je een ACS van ${pr(last)}, tegenover ${pr(rest)} daarvoor (${df>0?'+':''}${pr(df)}%).`)}}
-  // utility t.o.v. dezelfde agent
+  // plekken, per map
+  const byC={};evs.forEach(e=>{const c=callout(e.m,e.x,e.y);if(!c)return;const kk=`${c}|${e.map}`;byC[kk]=byC[kk]||{k:0,d:0,c,map:e.map};byC[kk][e.type==='K'?'k':'d']++});
+  const cl=Object.values(byC);
+  const worst=cl.filter(s=>s.d>=4&&s.d>s.k).sort((x,y)=>(y.d-y.k)-(x.d-x.k))[0];
+  const best=cl.filter(s=>s.k>=4&&s.k>s.d).sort((x,y)=>(y.k-y.d)-(x.k-x.d))[0];
+  if(worst)add(10+(worst.d-worst.k)*2,'bad',`Lastige plek: ${worst.c} op ${worst.map}`,`Daar ging je ${worst.d} keer dood en maakte je ${worst.k} kills. Bekijk op de pagina Heatmap hoe je daar binnenkomt.`);
+  if(best)add(9+(best.k-best.d)*2,'good',`Jouw plek: ${best.c} op ${best.map}`,`Daar maakte je ${best.k} kills tegenover ${best.d} deaths.`);
+  // consistentie en vorm
+  if(rows.length>=8){const xs=rows.map(r=>r.acs_sum/r.rounds),mu=avgOf(xs),sd=Math.sqrt(xs.reduce((s,x)=>s+(x-mu)**2,0)/xs.length),cv=sd/mu;
+    if(cv>=0.38)add((cv-0.3)*90,'neutral','Wisselvallig',`Je ACS schommelt sterk per match (tussen ${pr(Math.min(...xs))} en ${pr(Math.max(...xs))}).`);
+    if(rows.length>=10){const last=avgOf(xs.slice(0,5)),rest=avgOf(xs.slice(5)),df=(last-rest)/rest*100;
+      if(Math.abs(df)>=12)add(Math.abs(df)*0.7,df>0?'good':'bad',df>0?'In vorm':'Uit vorm',`Je laatste 5 matches had je een ACS van ${pr(last)}, tegenover ${pr(rest)} daarvoor.`)}}
+  // utility
   const up=utilityPct(p,rows);
-  if(up){if(up.pct<=35)add((50-up.pct)*0.9,'bad','Weinig utility gebruikt',`Je gebruikt ${up.avg.toFixed(1)} abilities per ronde. Andere spelers op dezelfde agents gebruiken er meer: je zit op ${Math.round(up.pct)}% van de lobby. Ongebruikte utility is weggegooid geld.`);
-    else if(up.pct>=65)add((up.pct-50)*0.9,'good','Veel utility',`Je gebruikt ${up.avg.toFixed(1)} abilities per ronde, meer dan ${Math.round(up.pct)}% van de spelers op dezelfde agents.`)}
-  // teamplay
-  if(P.apr>=70)add(P.apr-50,'good','Teamspeler',`${v.apr.toFixed(2)} assists per ronde, meer dan ${pr(P.apr)}% van de lobby. Je utility helpt je team.`);
+  if(up){if(up.pct<=35)add((50-up.pct)*0.9,'bad','Weinig utility gebruikt',`${up.avg.toFixed(1)} abilities per ronde, minder dan ${pr(100-up.pct)}% van de spelers op dezelfde agents.`);
+    else if(up.pct>=65)add((up.pct-50)*0.9,'good','Veel utility',`${up.avg.toFixed(1)} abilities per ronde, meer dan ${pr(up.pct)}% van de spelers op dezelfde agents.`)}
   // archetype
-  const al=sum('deaths_known_team')>=8?sum('alone_d')/sum('deaths_known_team'):0.5;
   let arche='Allrounder';
   if(P.acs>=75)arche='Carry';
   if(P.fbr>=65&&P.fdr>=55)arche='Entry fragger';
-  else if(al>=0.62&&P.fbr<55)arche='Lurker';
-  else if(P.apr>=70&&P.acs<70)arche='Support';
+  else if(P.iso>=65&&P.site<=45&&P.fbr<55)arche='Lurker';
+  else if(teamplay>=68&&P.acs<70)arche='Support';
   else if(100-P.dpr>=65&&P.fbr<45)arche='Anchor';
   C.sort((x,y)=>y.score-x.score);
-  // zorg voor minstens 1 verbeterpunt als dat er is
   let top=C.slice(0,5);if(!top.some(c=>c.kind==='bad')){const b=C.find(c=>c.kind==='bad');if(b)top[4]=b}
-  return {arche,radar,points:top,v,P,n:rows.length};
+  // ---- profielkaart: kenmerken
+  const ag={};rows.forEach(r=>ag[r.agent]=(ag[r.agent]||0)+1);const agL=Object.entries(ag).sort((x,y)=>y[1]-x[1]);
+  const agTxt=agL[0][1]/rows.length>=0.7?`One-trick: ${agL[0][0]} (${pr(agL[0][1]/rows.length*100)}%)`:agL.length>=4?`Flexibel: ${agL.length} agents`:agL.slice(0,2).map(x=>x[0]).join(' en ');
+  const wk=Object.entries(a.wpn).sort((x,y)=>y[1]-x[1]);const kt=wk.reduce((s,x)=>s+x[1],0)||1;
+  const snip=(a.wpn.Operator||0)+(a.wpn.Marshal||0)+(a.wpn.Outlaw||0);
+  const wTxt=snip/kt>=0.2?`Sniper (${pr(snip/kt*100)}% van je kills)`:wk[0]?`${wk[0][0]} (${pr(wk[0][1]/kt*100)}% van je kills)`:'–';
+  const mp={};rows.forEach(r=>(mp[r.map]=mp[r.map]||[]).push(r));const mL=Object.entries(mp).filter(([m,l])=>l.length>=3).map(([m,l])=>({m,n:l.length,wr:wr(l)})).sort((x,y)=>y.wr-x.wr);
+  const aggr=a.dtime<=35?'Agressief':a.dtime>=48?'Afwachtend':'Gemiddeld';
+  const traits=[
+    ['Speltype',arche],
+    ['Agents',agTxt],
+    ['Wapenvoorkeur',wTxt],
+    ['Mee met het team',siteN>=5?`${pr(v.site*100)}% bij de plant-site`+` <span class="tm">lobby ${pr(avgOf(ref.site)*100)}%</span>`:'te weinig data'],
+    ['Alleen op de kaart',isFinite(v.iso)?`${pr(v.iso*100)}% van de tijd <span class="tm">lobby ${pr(avgOf(ref.iso)*100)}%</span>`:'–'],
+    ['Trades',`${v.trk.toFixed(2)} trade-kills per ronde · ${pr((v.trd||0)*100)}% van je deaths getraded`],
+    ['Speeltempo',`${aggr} · gem. death na ${pr(a.dtime)} s`],
+    ['Openingsduels',`${v.fbr.toFixed(2)} FB en ${v.fdr.toFixed(2)} FD per ronde`],
+    ['Sterkste kant',isFinite(a.atkkd)&&isFinite(a.defkd)?(a.atkkd>a.defkd?`Aanval (K/D ${a.atkkd.toFixed(2)})`:`Verdediging (K/D ${a.defkd.toFixed(2)})`):'–'],
+    ['Beste map',mL[0]?`${mL[0].m} (${pc(mL[0].wr)} van ${mL[0].n})`:'min. 3 matches per map nodig'],
+    ['Lastigste map',mL.length>1?`${mL[mL.length-1].m} (${pc(mL[mL.length-1].wr)} van ${mL[mL.length-1].n})`:'–'],
+    ['Clutches',a.cla?`${a.clw} van ${a.cla} gewonnen (${pc(a.clw/a.cla)})`:'–'],
+    ['Hero buys',hn?`${hn}x gekocht terwijl het team spaarde, ${pc(hw/hn)} gewonnen`:'nooit'],
+  ];
+  return {arche,radar,points:top,v,P,n:rows.length,traits};
 }
 function radarSVG(series){
-  const cx=150,cy=140,R=105,N=6;const ang=i=>-Math.PI/2+i*2*Math.PI/N;const pt=(i,r)=>[cx+Math.cos(ang(i))*r,cy+Math.sin(ang(i))*r];
+  const N=series[0].radar.length,cx=160,cy=150,R=105;const ang=i=>-Math.PI/2+i*2*Math.PI/N;const pt=(i,r)=>[cx+Math.cos(ang(i))*r,cy+Math.sin(ang(i))*r];
   let g='';[25,50,75,100].forEach(l=>g+=`<polygon points="${[...Array(N)].map((_,i)=>pt(i,R*l/100).join(',')).join(' ')}" fill="none" stroke="#22303f"/>`);
-  series[0].radar.forEach(([lab],i)=>{const [x,y]=pt(i,R+18);g+=`<line x1="${cx}" y1="${cy}" x2="${pt(i,R)[0]}" y2="${pt(i,R)[1]}" stroke="#1b2633"/><text x="${x}" y="${y+4}" fill="#8696a7" font-size="12" text-anchor="middle">${lab}</text>`});
+  series[0].radar.forEach(([lab],i)=>{const [x,y]=pt(i,R+20);g+=`<line x1="${cx}" y1="${cy}" x2="${pt(i,R)[0]}" y2="${pt(i,R)[1]}" stroke="#1b2633"/><text x="${x}" y="${y+4}" fill="#8696a7" font-size="12" text-anchor="middle">${lab}</text>`});
   series.forEach(s=>{g+=`<polygon points="${s.radar.map(([,v],i)=>pt(i,R*Math.max(4,v)/100).join(',')).join(' ')}" fill="${s.color}" fill-opacity=".18" stroke="${s.color}" stroke-width="2"/>`});
-  return `<svg viewBox="0 0 300 285" width="100%" style="max-width:340px">${g}</svg>`;
+  return `<svg viewBox="0 0 320 300" width="100%" style="max-width:360px">${g}</svg>`;
 }
 function renderStyle(app,act){
   const ids=[...new Set(act.flatMap(p=>rowsFor(p).map(r=>r.match)))];
@@ -743,15 +772,22 @@ function renderStyle(app,act){
   const S=act.map(p=>({p,s:styleFor(p,rowsFor(p),ref)})).filter(x=>x.s);
   if(!S.length)return;
   const icon=k=>k==='good'?'<span style="color:var(--win)">▲</span>':k==='bad'?'<span style="color:var(--loss)">▼</span>':'<span style="color:var(--gold)">●</span>';
-  let h=`<section><h2>Speelstijl</h2><p class="lead">Vijf dingen die opvallen aan hoe jullie spelen, binnen de gekozen matches. Vergeleken met alle andere spelers in jullie potjes (${ref.acs.length} spelerprestaties). ▲ sterk punt · ▼ verbeterpunt · ● kenmerk.</p>
-   <div class="g2" style="grid-template-columns:minmax(260px,340px) 1fr;align-items:start"><div class="panel"><h3>Profiel <small>percentiel t.o.v. de lobby</small></h3>${radarSVG(S.map(x=>({radar:x.s.radar,color:x.p.color})))}
-   <div class="legend">${S.map(x=>`<span><i class="dot" style="background:${x.p.color}"></i>${x.p.name}</span>`).join('')}</div></div><div style="display:grid;gap:18px">`;
+  const axes=[['Aim','headshotpercentage'],['Impact','ACS'],['Entry','first bloods per ronde'],['Overleven','hoe weinig je per ronde doodgaat'],['Teamplay','assists, trade-kills en getradede deaths samen'],['Bij het team','mee naar de plant-site en niet alleen op de kaart'],['Duels','K/D']];
+  let h=`<section><h2>Speelstijl</h2><p class="lead">Wat jullie statistieken zeggen over hoe jullie spelen, binnen de gekozen matches. Alles is vergeleken met de andere spelers in jullie potjes (${ref.acs.length} spelerprestaties). ▲ sterk punt · ▼ verbeterpunt · ● kenmerk.</p>
+   <div class="g2" style="grid-template-columns:minmax(260px,360px) 1fr;align-items:start"><div class="panel"><h3>Profiel <small>percentiel t.o.v. de lobby</small></h3>${radarSVG(S.map(x=>({radar:x.s.radar,color:x.p.color})))}
+   <div class="legend">${S.map(x=>`<span><i class="dot" style="background:${x.p.color}"></i>${x.p.name}</span>`).join('')}</div>
+   <details style="margin-top:12px"><summary style="cursor:pointer;color:var(--mute);font-size:13px">Waar zijn de assen op gebaseerd?</summary><table style="margin-top:6px"><tbody>${axes.map(([a,b])=>`<tr><td><b>${a}</b></td><td style="color:#b9c7d6">${b}</td></tr>`).join('')}</tbody></table>
+   <div style="color:var(--mute);font-size:12px;margin-top:6px">Buitenste ring = beter dan bijna iedereen in de lobby, midden = slechter dan bijna iedereen.</div></details></div><div style="display:grid;gap:18px">`;
   S.forEach(({p,s})=>{
     h+=`<div class="panel" style="border-top:3px solid ${p.color}"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap"><h3 style="color:${p.color};margin:0">${p.name}</h3>
       <span class="pill" style="background:color-mix(in srgb,${p.color} 18%,transparent);color:${p.color};font-size:14px">${s.arche}</span></div>
       <ol style="list-style:none;margin-top:10px">${s.points.map(c=>`<li style="display:grid;grid-template-columns:22px 1fr;gap:6px;padding:9px 0;border-bottom:1px solid #18232f">${icon(c.kind)}<div><b>${c.title}</b><div style="color:#b9c7d6;font-size:14px">${c.text}</div></div></li>`).join('')}</ol></div>`;
   });
-  app.insertAdjacentHTML('beforeend',h+'</div></div></section>');
+  h+='</div></div></section>';
+  // profielkaart
+  h+=`<section><h2>Profielkaart</h2><p class="lead">Alle kenmerken die we uit jullie potjes kunnen halen, op een rij.</p><div class="g2" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr))">`+
+    S.map(({p,s})=>`<div class="panel" style="border-top:3px solid ${p.color}"><h3 style="color:${p.color}">${p.name}</h3><table class="traits"><tbody>${s.traits.map(([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`).join('')}</tbody></table></div>`).join('')+'</div></section>';
+  app.insertAdjacentHTML('beforeend',h);
 }
 
 // ---------- HEATMAP (overzicht, over meerdere matches) ----------
@@ -1034,7 +1070,10 @@ const GLOSS=[
  ['Utility','ult','Ultimate (ult)','De sterkste vaardigheid van je agent, die je oplaadt met kills, deaths en orbs. "Ults / match" telt hoe vaak je hem gebruikte.'],
  ['Utility','roles','Rollen: Duelist, Initiator, Controller, Sentinel','Duelist: maakt ruimte en zoekt gevechten (bijv. Phoenix, Jett). Initiator: verzamelt info en helpt anderen binnenkomen (Sova, Skye). Controller: blokkeert zicht met smokes (Brimstone, Omen). Sentinel: verdedigt en houdt flanken in de gaten (Sage, Killjoy).'],
  ['Speelstijl','percentile','Percentiel / t.o.v. de lobby','"Hoger dan 70% van de lobby" betekent dat je beter scoort dan 70% van alle andere spelers in jullie potjes, teamgenoten en tegenstanders samen.'],
- ['Speelstijl','radar','Profiel (radar)','Zes eigenschappen als percentiel tegenover de lobby. Aim = headshot %. Impact = ACS. Entry = first bloods. Overleven = hoe weinig je doodgaat. Teamplay = assists. Duels = K/D.'],
+ ['Speelstijl','radar','Profiel (radar)','Zeven eigenschappen als percentiel tegenover de lobby. Aim = headshot %. Impact = ACS. Entry = first bloods per ronde. Overleven = hoe weinig je doodgaat. Teamplay = assists, trade-kills en getradede deaths samen. Bij het team = of je bij de plant-site staat en hoe vaak je zonder teamgenoot in de buurt bent. Duels = K/D.'],
+ ['Speelstijl','withteam','Mee met het team','Op het moment dat jullie team de spike plant: stond je bij die site, of ergens anders op de kaart? Rondes waarin je al dood was tellen niet mee. Gemeten met de posities die de game vastlegt.'],
+ ['Speelstijl','iso','Alleen op de kaart','Hoe vaak je verder dan ongeveer 15 meter van je dichtstbijzijnde teamgenoot stond, gemeten op elk moment dat er iemand doodging.'],
+ ['Economie','hero','Hero buy','Een wapen kopen terwijl hoogstens één teamgenoot ook koopt, buiten de pistolrondes. Bijvoorbeeld een Marshal in een eco-ronde.'],
  ['Speelstijl','arche','Speltypes','Entry fragger: opent rondes en zoekt het eerste gevecht. Lurker: speelt vaak alleen en flankt. Support: veel assists en utility voor het team. Anchor: houdt een plek vast en overleeft. Carry: maakt het verschil met hoge impact. Allrounder: geen duidelijke uitschieter.'],
  ['Speelstijl','tilt','Tilt / tilt-check','Tilt is slechter gaan spelen door frustratie, bijvoorbeeld na een paar verloren potjes. De tilt-check vergelijkt je prestaties na winst en verlies, en per potje van de avond.'],
  ['Speelstijl','session','Sessie','Een reeks potjes met minder dan 3 uur ertussen, zoals een gameavond.'],

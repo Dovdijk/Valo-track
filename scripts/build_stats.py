@@ -104,7 +104,7 @@ def analyse(m):
             buy={t: [0, 0] for t in ("pistol", "eco", "force", "full")},
             util=sum((p.get("ability_casts") or {}).get(k) or 0 for k in ("ability1", "ability2", "grenade")),
             ults=(p.get("ability_casts") or {}).get("ultimate") or 0,
-            weapons={}, loadout_sum=0,
+            weapons={}, loadout_sum=0, hero_n=0, hero_w=0,
         )
         weapons = Counter()
 
@@ -124,6 +124,16 @@ def analyse(m):
                 bt = buy_type(idx, lv)
                 row["buy"][bt][1] += 1
                 row["buy"][bt][0] += int(round_won)
+                def buys(st2):
+                    e2 = st2.get("economy") or {}
+                    wn = (e2.get("weapon") or {}).get("name")
+                    return bool((e2.get("loadout_value") or 0) >= 2000 or (wn and wn not in PISTOLS))
+                if idx not in (0, 12) and buys(ps):
+                    mates = [buys(s2) for s2 in r.get("stats", [])
+                             if s2["player"]["puuid"] != pu and team_of.get(s2["player"]["puuid"]) == team]
+                    if mates and sum(mates) <= 1:
+                        row["hero_n"] += 1
+                        row["hero_w"] += int(round_won)
 
             if (r.get("plant") or {}).get("player", {}).get("puuid") == pu:
                 row["plants"] += 1
@@ -271,12 +281,92 @@ def after_pistol(m):
     return out
 
 
+def region_of(mp, x, y):
+    """Dichtstbijzijnde callout: (superregio, naam)."""
+    if not mp or x is None or not mp.get("callouts"):
+        return None
+    best = min(mp["callouts"], key=lambda c: (c[2] - x) ** 2 + (c[3] - y) ** 2)
+    return best[0], best[1]
+
+
+def team_behaviour(m, mp):
+    """Per speler (alle 10): hoe vaak alleen, mee naar de site, trades. Voor vergelijking met de lobby."""
+    players = m["players"]
+    team_of = {p["puuid"]: p["team_id"] for p in players}
+    rounds = m["rounds"]
+    kills = m.get("kills") or []
+    offset = 0 if (any(k["round"] == 0 for k in kills) or (rounds and rounds[0].get("id") == 0)) else 1
+    by_round = defaultdict(list)
+    for k in kills:
+        by_round[k["round"] - offset].append(k)
+    fha = first_half_attacker(m)
+    out = {p["puuid"]: dict(iso_a=0, iso_t=0, site_w=0, site_a=0, site_d=0, trk=0, trd=0) for p in players}
+    for i, r in enumerate(rounds):
+        rk = sorted(by_round.get(i, []), key=lambda k: k["time_in_round_in_ms"])
+        # alleen of bij het team, op elk moment dat iemand sterft
+        for k in rk:
+            locs = {q["player"]["puuid"]: q["location"] for q in k.get("player_locations", [])}
+            for pu, loc in locs.items():
+                mates = [l for q, l in locs.items() if q != pu and team_of.get(q) == team_of.get(pu)]
+                if not mates or pu not in out:
+                    continue
+                out[pu]["iso_t"] += 1
+                if min(dist(loc, l) for l in mates) > ALONE_UNITS:
+                    out[pu]["iso_a"] += 1
+        # trades
+        for k in rk:
+            v, kl, t = k["victim"]["puuid"], k["killer"]["puuid"], k["time_in_round_in_ms"]
+            if team_of.get(v) == team_of.get(kl):
+                continue
+            for e in rk:
+                if e["victim"]["puuid"] == kl and team_of.get(e["killer"]["puuid"]) == team_of.get(v) and 0 <= e["time_in_round_in_ms"] - t <= TRADE_MS:
+                    if v in out:
+                        out[v]["trd"] += 1
+                    if e["killer"]["puuid"] in out:
+                        out[e["killer"]["puuid"]]["trk"] += 1
+                    break
+        # mee naar de site: aanvallers op het moment van de plant
+        pt = r.get("plant") or {}
+        site, t_pl = pt.get("site"), pt.get("round_time_in_ms")
+        if not site or t_pl is None or not mp:
+            continue
+        att = (pt.get("player") or {}).get("team")
+        if not att:
+            continue
+        died_before = {k["victim"]["puuid"] for k in rk if k["time_in_round_in_ms"] <= t_pl}
+        for p in players:
+            pu = p["puuid"]
+            if team_of[pu] != att:
+                continue
+            if pu in died_before:
+                out[pu]["site_d"] += 1
+                continue
+            snap = None
+            for k in rk:  # positie zo dicht mogelijk bij het plantmoment (max 15 s ervoor of erna)
+                if abs(k["time_in_round_in_ms"] - t_pl) > 15000:
+                    continue
+                loc = next((q["location"] for q in k.get("player_locations", []) if q["player"]["puuid"] == pu), None)
+                if loc and (snap is None or abs(k["time_in_round_in_ms"] - t_pl) < snap[0]):
+                    snap = (abs(k["time_in_round_in_ms"] - t_pl), loc)
+            if pu == (pt.get("player") or {}).get("puuid"):
+                out[pu]["site_w"] += 1
+                continue
+            if not snap:
+                continue
+            reg = region_of(mp, snap[1]["x"], snap[1]["y"])
+            if reg and reg[0] == site:
+                out[pu]["site_w"] += 1
+            else:
+                out[pu]["site_a"] += 1
+    return out
+
+
 def short_weapon(w):
     n = (w or {}).get("name")
     return n or "Ability"
 
 
-def detail(m):
+def detail(m, maps=None):
     """Compacte versie van één match voor het matchverslag op de site."""
     md = m["metadata"]
     players = m["players"]
@@ -290,6 +380,8 @@ def detail(m):
     for k in kills:
         by_round[k["round"] - offset].append(k)
     friend_idx = [i for i, p in enumerate(players) if key(p["name"], p["tag"]) in FRIENDS]
+    mp = (maps or {}).get((md.get("map") or {}).get("id")) or next((v for v in (maps or {}).values() if v.get("name") == (md.get("map") or {}).get("name")), None)
+    tb = team_behaviour(m, mp)
     pl = []
     for p in players:
         st = p["stats"]
@@ -301,7 +393,7 @@ def detail(m):
                        acs=round(st["score"] / n), adr=round(st["damage"]["dealt"] / n),
                        hs=round(100 * st["headshots"] / shots) if shots else 0,
                        ut=round(sum((p.get("ability_casts") or {}).get(k) or 0 for k in ("ability1", "ability2", "grenade")) / n, 2),
-                       ult=(p.get("ability_casts") or {}).get("ultimate") or 0))
+                       ult=(p.get("ability_casts") or {}).get("ultimate") or 0, **tb.get(p["puuid"], {})))
     rr = []
     for i, r in enumerate(rounds):
         ev = []
@@ -350,6 +442,7 @@ def main():
     details = {}
     pistol_loss = {k: [] for k in FRIENDS}
     files = sorted(MATCH_DIR.glob("*.json"))
+    maps = load_maps()
     for f in files:
         try:
             m = json.loads(f.read_text(encoding="utf-8"))
@@ -366,7 +459,12 @@ def main():
             print(f"Pistolanalyse overgeslagen voor {f.name}: {e}")
         if rows:
             try:
-                details[m["metadata"]["match_id"]] = detail(m)
+                det = detail(m, maps)
+                details[m["metadata"]["match_id"]] = det
+                for q in det["players"]:
+                    if q.get("fk") in rows:
+                        for kk in ("iso_a", "iso_t", "site_w", "site_a", "site_d", "trk", "trd"):
+                            rows[q["fk"]][kk] = q.get(kk, 0)
             except Exception as e:
                 print(f"Geen matchverslag voor {f.name}: {e}")
         teams_of_friends = Counter(r_team for r_team in (
@@ -382,7 +480,7 @@ def main():
         generated_at=datetime.now(timezone.utc).isoformat(timespec="seconds"),
         players=[dict(key=key(p["name"], p["tag"]), name=p["name"], tag=p["tag"],
                       label=p.get("label", p["name"]), color=p.get("color", "#ff4655")) for p in CONFIG["players"]],
-        matches=per_player, shared=shared, details=details, maps=load_maps(), pistol_loss=pistol_loss,
+        matches=per_player, shared=shared, details=details, maps=maps, pistol_loss=pistol_loss,
         settings=dict(trade_ms=TRADE_MS, early_s=EARLY_S, alone_units=ALONE_UNITS),
     )
     OUT.write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")

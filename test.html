@@ -1,0 +1,1691 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1118">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Squad">
+<title>TEST · Squad Tracker · Valorant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Inter+Tight:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b1118;--panel:#111a24;--panel2:#152130;--line:#22303f;--txt:#e9eef3;--mute:#8696a7;--red:#ff4655;--win:#3ee6a0;--loss:#ff4655;--gold:#f5c451}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:Inter,system-ui,sans-serif;line-height:1.5;
+ background-image:radial-gradient(1200px 600px at 85% -10%,rgba(255,70,85,.14),transparent 60%),radial-gradient(900px 500px at -10% 30%,rgba(62,230,194,.07),transparent 60%)}
+.wrap{max-width:1220px;margin:0 auto;padding:30px 22px 80px}
+h1,h2,h3,.big{font-family:var(--fd);font-weight:400;letter-spacing:.5px}
+.label{font-family:var(--fs);text-transform:uppercase;letter-spacing:2px;font-weight:700;font-size:12px;color:var(--mute)}
+
+
+.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{background:#0e1620;border:1px solid var(--line);color:var(--mute);font-family:var(--fs);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:7px 14px;border-radius:3px;cursor:pointer;font-size:13px}
+.btn.on{color:#fff;border-color:var(--red);background:rgba(255,70,85,.14)}
+section{margin-top:52px}
+section>h2{font-size:32px;text-transform:uppercase;display:flex;align-items:center;gap:14px}
+section>h2:before{content:"";width:10px;height:28px;background:var(--red);clip-path:polygon(0 0,100% 12%,100% 100%,0 88%)}
+section>p.lead{color:var(--mute);margin:6px 0 18px;max-width:780px}
+.panel{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:4px;padding:20px;position:relative;overflow:hidden}
+.panel:after{content:"";position:absolute;right:0;top:0;width:26px;height:26px;background:linear-gradient(135deg,transparent 50%,rgba(255,70,85,.5) 50%)}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:26px}
+.card{border-top:3px solid var(--c)}
+.card .nm{font-family:var(--fd);font-size:34px;line-height:1.05;color:var(--c);word-break:break-word}
+.card .tag{color:var(--mute);font-family:var(--fs);font-weight:700;font-size:18px}
+.card .rank{margin-top:4px;color:var(--mute);font-size:13px}
+.kv{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}
+.kv div b{display:block;font-family:var(--fs);font-size:24px;font-weight:700;line-height:1.1}
+.kv div span{font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:1px}
+.form{display:flex;gap:4px;margin-top:14px}
+.form i{width:16px;height:6px;border-radius:2px;background:#2a3644}
+.form i.W{background:var(--win)}.form i.L{background:var(--loss)}.form i.D{background:var(--mute)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-family:var(--fs);text-transform:uppercase;letter-spacing:1.5px;font-size:12px;color:var(--mute);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid #18232f;vertical-align:middle}
+tr:hover td{background:rgba(255,255,255,.02)}
+.cmp td.stat{font-family:var(--fs);font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mute);font-size:13px;white-space:nowrap}
+.cmp td.val{width:27%}
+.cv{display:flex;align-items:center;gap:10px}
+.cv b{font-family:var(--fs);font-size:20px;min-width:66px;text-align:right}
+.cv .bar{flex:1;height:10px;background:#0d151e;border-radius:2px;overflow:hidden}
+.cv .bar i{display:block;height:100%;border-radius:2px}
+.crown{color:var(--gold);margin-left:4px;font-size:13px}
+.hint{font-size:11px;color:var(--mute);font-weight:400;text-transform:none;letter-spacing:0;display:block}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+h3{font-size:19px;text-transform:uppercase;margin-bottom:12px}
+h3 small{font-family:var(--fs);font-size:12px;color:var(--mute);text-transform:none;letter-spacing:0;margin-left:8px}
+.pill{display:inline-block;padding:2px 9px;border-radius:20px;font-family:var(--fs);font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase}
+.p-W{background:rgba(62,230,160,.15);color:var(--win)}.p-L{background:rgba(255,70,85,.15);color:var(--loss)}.p-D{background:#1b2939;color:#b9c7d6}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;vertical-align:middle}
+.legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:10px;color:var(--mute);font-size:13px}
+.heat{font-family:var(--fs);font-weight:700;text-align:center;border-radius:3px;padding:6px 4px}
+.empty{padding:60px 20px;text-align:center;color:var(--mute)}
+.empty b{display:block;font-family:var(--fd);font-size:30px;color:var(--txt);margin-bottom:8px;font-weight:400}
+.tip{position:fixed;pointer-events:none;background:#06090d;border:1px solid var(--line);padding:6px 10px;border-radius:3px;font-size:13px;display:none;z-index:9}
+.foot{color:var(--mute);font-size:13px;margin-top:40px}
+.foot li{margin:5px 0 5px 18px}
+svg text{font-family:var(--fs);font-weight:600}
+.scroll{overflow-x:auto}
+.traits td:first-child{color:var(--mute);font-family:var(--fs);font-weight:700;text-transform:uppercase;letter-spacing:1px;font-size:12px;width:42%;vertical-align:top}
+.traits .tm{color:var(--mute);font-size:12px;margin-left:4px}
+.rc{min-height:38px;border-radius:3px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0e1620;border:1px solid #1a2532;line-height:1.1}
+.rc.W{background:rgba(62,230,160,.16);border-color:rgba(62,230,160,.45);color:var(--win)}
+.rc.L{background:rgba(255,70,85,.13);border-color:rgba(255,70,85,.4);color:var(--loss)}
+tr.click{cursor:pointer} tr.click:hover td{background:rgba(255,70,85,.06)}
+.filters{margin-top:22px;display:grid;gap:12px}
+.frow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.frow .label{width:92px;flex:none}
+.chip{border:1px solid var(--line);background:#0e1620;color:var(--mute);padding:6px 14px;border-radius:20px;cursor:pointer;font-family:var(--fs);font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px}
+.chip .dot{margin:0}
+.chip.on{color:#fff;border-color:var(--c);background:color-mix(in srgb,var(--c) 16%,transparent)}
+select,input[type=number]{background:#0e1620;border:1px solid var(--line);color:var(--txt);padding:6px 10px;border-radius:3px;font-family:Inter,sans-serif;font-size:13px}
+input[type=number]{width:74px}
+.fsum{color:var(--mute);font-size:13px;margin-top:2px}
+.fsum b{color:var(--txt)}
+@media(max-width:900px){.cards,.g2{grid-template-columns:1fr}.kv{grid-template-columns:repeat(4,1fr)}}
+
+/* ---------- navigatie ---------- */
+.topbar{position:sticky;top:0;z-index:15;background:rgba(11,17,24,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.tb-in{max-width:1220px;margin:0 auto;padding:0 22px;display:flex;align-items:center;gap:12px;height:60px}
+.brand{font-family:var(--fd);font-size:24px;color:var(--txt);text-decoration:none;white-space:nowrap;letter-spacing:.5px}
+.brand span{color:var(--red)}
+.tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1;height:100%}
+.tabs::-webkit-scrollbar{display:none}
+.tabs a{display:flex;align-items:center;padding:0 8px;color:var(--mute);text-decoration:none;font-family:var(--fs);font-weight:700;letter-spacing:1px;text-transform:uppercase;font-size:12.5px;white-space:nowrap;border-bottom:3px solid transparent}
+.tabs a:hover{color:var(--txt)}
+.tabs a.on{color:#fff;border-bottom-color:var(--red)}
+.tb-r{display:flex;align-items:center;gap:8px}
+.upd{color:var(--mute);font-size:12px;white-space:nowrap}
+.tbtn{background:#0e1620;border:1px solid var(--line);color:var(--txt);border-radius:3px;padding:7px 12px;cursor:pointer;font-family:var(--fs);font-weight:700;letter-spacing:1px;text-transform:uppercase;font-size:13px;white-space:nowrap}
+.tbtn:hover{border-color:var(--red)}
+.qbtn{width:34px;padding:7px 0}
+.ptitle{margin:28px 0 6px}
+.ptitle h1{font-family:var(--fd);font-weight:400;font-size:46px;line-height:1;text-transform:uppercase}
+.ptitle p{color:var(--mute);margin-top:6px}
+.fchip{margin-top:12px;background:#0e1620;border:1px solid var(--line);color:#b9c7d6;border-radius:20px;padding:6px 14px;font-size:12.5px;cursor:pointer;text-align:left}
+.fchip:hover{border-color:var(--red)}
+.ptitle+section,.ptitle+.cards{margin-top:22px}
+.ptitle+section>h2{display:none}
+.upd2{color:#5d6d7e;font-size:12px;white-space:nowrap}
+/* filters en sheets */
+.shade{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:40;display:none}
+body.sheet-more .shade,body.sheet-filter .shade{display:block}
+.sheet{position:fixed;z-index:41;background:#0f1822;border:1px solid var(--line);display:none}
+body.sheet-filter .sheet.filt,body.sheet-more .sheet.more{display:block}
+.sheet.filt{top:70px;right:max(22px,calc((100vw - 1220px)/2 + 22px));width:min(560px,calc(100vw - 44px));border-radius:6px;padding:18px;max-height:calc(100vh - 90px);overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.sheet.more{top:70px;right:max(22px,calc((100vw - 1220px)/2 + 22px));width:300px;border-radius:6px;padding:14px}
+.sh-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.sh-h b{font-family:var(--fd);font-weight:400;font-size:22px;text-transform:uppercase}
+.sh-h button{background:none;border:1px solid var(--line);color:var(--mute);border-radius:3px;width:32px;height:32px;font-size:18px;cursor:pointer}
+.filters .frow{margin:10px 0}
+.fdone{margin-top:14px;width:100%;padding:11px}
+.morelist a{display:flex;gap:12px;align-items:center;padding:12px 10px;color:var(--txt);text-decoration:none;border-radius:4px;font-weight:600}
+.morelist a i{font-style:normal;width:22px;text-align:center;color:var(--mute)}
+.morelist a.on{background:rgba(255,70,85,.12);color:#fff}
+.bnav{display:none}
+.mob-only{display:none}
+body.inmatch #fToggle{display:none}
+/* recente matches */
+.mlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:12px}
+.mcard{display:grid;grid-template-columns:1fr auto;gap:4px 12px;padding:14px 16px;border-radius:4px;background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-left:4px solid var(--mute);text-decoration:none;color:var(--txt)}
+.mcard.W{border-left-color:var(--win)}.mcard.L{border-left-color:var(--loss)}
+.mcard b{font-family:var(--fd);font-weight:400;font-size:22px;display:block;line-height:1.1}
+.mcard span{color:var(--mute);font-size:12.5px}
+.mcard .ms{font-family:var(--fd);font-size:26px;align-self:center}
+.mcard.W .ms{color:var(--win)}.mcard.L .ms{color:var(--loss)}
+.mcard .mp{grid-column:1/-1;display:flex;gap:14px;flex-wrap:wrap;font-family:var(--fs);font-weight:700;font-size:14px}
+.mcard .mp span{font-size:14px}
+.mcard:hover{border-color:#3a4a5c}
+.cards{grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+.card .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ---------- MOBIEL ---------- */
+@media (max-width:820px){
+  .tabs,.upd{display:none}
+  .tb-in{height:54px;padding:0 14px;justify-content:space-between}
+  .brand{font-size:21px}
+  .wrap{padding:6px 14px 110px}
+  .ptitle{margin:18px 0 4px}.ptitle h1{font-size:34px}.ptitle p{font-size:14px}
+  section{margin-top:34px}
+  section>h2{font-size:24px}
+  section>p.lead{font-size:14px}
+  .panel{padding:14px}
+  .g2,.g3,.cards,.hero2{grid-template-columns:1fr !important}
+  .g2>*,.g3>*{min-width:0}
+  .card .nm{font-size:28px}
+  .kv{grid-template-columns:repeat(4,1fr);gap:8px}
+  .kv div b{font-size:19px}
+  .kv div span{font-size:10px}
+  h3{font-size:17px}
+  table{font-size:13px}
+  td,th{padding:7px 6px}
+  .btn{padding:7px 10px;font-size:12px}
+  .gbtn{display:none}
+  .mob-only{display:block}.desk-only{display:none}
+  /* bottom navigation */
+  .bnav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:45;background:rgba(13,21,31,.97);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+  .bnav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--mute);text-decoration:none;font-size:10.5px;font-weight:600;padding:4px 0}
+  .bnav a i{font-style:normal;font-size:19px;line-height:1.1}
+  .bnav a.on{color:#fff}.bnav a.on i{color:var(--red)}
+  /* sheets onderaan */
+  .sheet.filt,.sheet.more{top:auto;bottom:0;left:0;right:0;width:auto;border-radius:14px 14px 0 0;max-height:82vh;overflow:auto;padding:16px 16px calc(80px + env(safe-area-inset-bottom))}
+  .filters .frow .label{width:100%}
+  .filters select{flex:1;min-width:0}
+  /* head-to-head gestapeld */
+  .cmp thead{display:none}
+  .cmp,.cmp tbody{display:block}
+  .cmp tr{display:block;padding:10px 0;border-bottom:1px solid #1b2633}
+  .cmp td{display:block;border:0 !important;padding:2px 0 !important;width:auto !important;background:none !important}
+  .cmp td.stat{padding-bottom:6px !important;color:#c7d2dd}
+  .cmp .cv{display:grid;grid-template-columns:96px 70px 1fr;gap:8px;align-items:center}
+  .cmp .cv::before{content:attr(data-p);font-size:12.5px;color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cmp .cv b{min-width:0;text-align:right;font-size:17px}
+  .cmp .cv.nb{grid-template-columns:96px 1fr}.cmp .cv.nb b{text-align:left !important}
+  /* heatmaps en grafieken */
+  .mcard b{font-size:20px}
+  .hp{cursor:pointer}
+  .frow{gap:6px}
+  .tip{max-width:80vw}
+}
+
+.inst{position:fixed;left:12px;right:12px;bottom:calc(76px + env(safe-area-inset-bottom));z-index:44;background:#152130;border:1px solid var(--red);border-radius:10px;padding:12px 14px;display:flex;gap:12px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.inst div{flex:1;font-size:13px;color:#c7d2dd}.inst div b{color:#fff}.inst div>b{display:block;font-size:15px;margin-bottom:2px}
+.inst .ios{display:inline-block;border:1px solid #3a4a5c;border-radius:4px;padding:0 4px;font-size:11px}
+.inst .ix{background:none;border:0;color:var(--mute);font-size:22px;cursor:pointer}
+@media(min-width:821px){.inst{left:auto;right:22px;bottom:80px;width:380px}}
+body.is-app .topbar{padding-top:env(safe-area-inset-top)}
+
+/* ---------- moderne strakke look ---------- */
+:root{--fd:'Inter Tight',Inter,system-ui,sans-serif;--fs:Inter,system-ui,sans-serif;--bg:#09090b;--panel:#121215;--panel2:#121215;--line:rgba(255,255,255,.08);--txt:#fafafa;--mute:#a1a1aa;--win:#34d399;--loss:#fb7185;--red:#ff4655}
+body{background:var(--bg);background-image:none;font-family:var(--fs);-webkit-font-smoothing:antialiased;font-feature-settings:"tnum","cv11"}
+h1,h2,h3,.big{font-weight:700;letter-spacing:-.02em}
+.label,th,.btn,.chip,.tabs a,.tbtn,.pill,.cmp td.stat,.traits td:first-child,.kv div span,.sh-h b,h3,section>h2,.ptitle h1,.brand,.card .tag{text-transform:none !important;letter-spacing:0 !important}
+.label,th,.cmp td.stat,.traits td:first-child{font-weight:500;font-size:12.5px;color:var(--mute)}
+section{margin-top:40px}
+section>h2{font-size:22px;font-weight:700;letter-spacing:-.02em !important}
+section>h2:before{display:none}
+.ptitle h1{font-size:40px;font-weight:800;letter-spacing:-.035em !important}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px}
+.panel:after{display:none}
+.card{border-top:0}
+.card .nm{font-weight:800;letter-spacing:-.03em;font-size:30px}
+.card .tag{font-weight:500;font-size:14px}
+.kv div b{font-weight:700;font-size:22px;letter-spacing:-.02em}
+.kv div span{font-size:11.5px}
+.btn,.tbtn{border-radius:10px;font-weight:500;font-size:13px;background:rgba(255,255,255,.04);border-color:var(--line);color:#d4d4d8}
+.btn.on{background:var(--txt);color:#09090b;border-color:var(--txt)}
+.tbtn:hover,.fchip:hover{border-color:rgba(255,255,255,.25)}
+.chip{border-radius:999px;font-weight:500;font-size:13.5px;background:rgba(255,255,255,.04);border-color:var(--line)}
+.chip.on{background:color-mix(in srgb,var(--c) 14%,transparent);border-color:color-mix(in srgb,var(--c) 60%,transparent)}
+select,input[type=number]{border-radius:10px;background:rgba(255,255,255,.04);border-color:var(--line)}
+.pill{font-weight:600;font-size:11.5px}
+.p-D{background:rgba(255,255,255,.07);color:#d4d4d8}
+td{border-bottom:1px solid rgba(255,255,255,.05)}
+tr:hover td,tr.click:hover td{background:rgba(255,255,255,.03)}
+.cv .bar,.form i{background:rgba(255,255,255,.07)}
+.cv .bar,.cv .bar i{border-radius:99px}
+.cv b{font-weight:700;font-size:17px}
+.form i{border-radius:99px}
+.topbar{background:rgba(9,9,11,.8);backdrop-filter:saturate(180%) blur(16px);-webkit-backdrop-filter:saturate(180%) blur(16px)}
+.brand{font-family:var(--fd);font-weight:800;font-size:19px;letter-spacing:-.03em !important}
+.brand span{color:var(--red)}
+.tabs{gap:4px;align-items:center}
+.tabs a{height:34px;padding:0 12px;border-radius:10px;border-bottom:0;font-weight:500;font-size:13.5px}
+.tabs a.on{background:rgba(255,255,255,.08);color:#fff}
+.fchip{border-radius:999px;background:rgba(255,255,255,.04);border-color:var(--line);color:#d4d4d8}
+.mcard{border-radius:16px;background:var(--panel);border:1px solid var(--line);position:relative;overflow:hidden}
+.mcard:before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:3px;border-radius:0 3px 3px 0;background:var(--mute)}
+.mcard.W:before{background:var(--win)}.mcard.L:before{background:var(--loss)}
+.mcard b{font-weight:700;font-size:18px;letter-spacing:-.02em}
+.mcard .ms{font-weight:800;font-size:24px;letter-spacing:-.03em}
+.mcard .mp{font-weight:500;font-size:13px}
+.mcard:hover{border-color:rgba(255,255,255,.18)}
+.rc{border-radius:8px;background:rgba(255,255,255,.03);border-color:var(--line)}
+.heat{border-radius:8px;font-weight:600}
+.sheet{background:#111114;border-color:var(--line)}
+.sheet.filt,.sheet.more{border-radius:18px}
+.sh-h b{font-weight:700;font-size:20px}
+.sh-h button{border-radius:10px}
+.morelist a{border-radius:10px;font-weight:500}
+.morelist a.on{background:rgba(255,255,255,.08)}
+.empty b{font-weight:800;letter-spacing:-.03em}
+.tip{background:#18181b;border-radius:10px}
+svg text{font-family:var(--fs);font-weight:500}
+.inst{background:#18181b;border-color:var(--line);border-radius:16px}
+@media (max-width:820px){
+  .ptitle h1{font-size:30px}
+  .panel{padding:16px;border-radius:16px}
+  .bnav{background:rgba(9,9,11,.85);backdrop-filter:saturate(180%) blur(16px)}
+  .bnav a{font-weight:500}
+  .bnav a.on i{color:#fff}
+  .sheet.filt,.sheet.more{border-radius:22px 22px 0 0}
+}
+</style>
+</head>
+<body>
+<div class="tip" id="tip"></div>
+<header class="topbar"><div class="tb-in">
+  <a class="brand" href="#/overzicht" onclick="event.preventDefault();go('overzicht')">SQUAD <span>TRACKER</span></a>
+  <nav class="tabs" id="navTabs" aria-label="Pagina's"></nav>
+  <div class="tb-r"><button class="tbtn" id="fToggle" onclick="document.body.classList.toggle('sheet-filter');document.body.classList.remove('sheet-more')">⚙ Filters</button><button class="tbtn qbtn" onclick="openGloss()" aria-label="Legenda">?</button></div>
+</div></header>
+<div class="shade" onclick="closeSheets()"></div>
+<div class="sheet more" id="moreSheet"><div class="sh-h"><b>Alle pagina's</b><button onclick="closeSheets()" aria-label="Sluiten">×</button></div><div class="morelist" id="moreList"></div></div>
+<div class="sheet filt panel filters" id="filterSheet">
+    <div class="sh-h"><b>Filters</b><button onclick="closeSheets()" aria-label="Sluiten">×</button></div>
+    <div class="frow"><span class="label">Spelers</span><div id="fPlayers" class="frow"></div></div>
+    <div class="frow"><span class="label">Matches</span>
+      <button class="btn on" data-t="all">Alle matches</button>
+      <button class="btn" data-t="together" title="Alleen matches waarin alle gekozen spelers samen in één team zaten">Samen gespeeld</button>
+      <button class="btn" data-t="solo" title="Alleen matches zonder een van de andere vrienden in je team">Zonder de anderen</button>
+    </div>
+    <div class="frow"><span class="label">Aantal</span>
+      <button class="btn" data-n="5">5</button><button class="btn on" data-n="10">10</button><button class="btn" data-n="20">20</button><button class="btn" data-n="50">50</button><button class="btn" data-n="0">Alles</button>
+      <input type="number" id="fN" min="1" placeholder="anders">
+    </div>
+    <div class="frow"><span class="label">Filter</span>
+      <select id="fMode"></select><select id="fSeason"></select><select id="fMap"></select>
+    </div>
+    <div class="fsum" id="fSum"></div>
+    <button class="btn on fdone" onclick="closeSheets()">Toepassen</button>
+</div>
+<nav class="bnav" id="bnav" aria-label="Navigatie"></nav>
+<div class="wrap">
+  <div id="app"></div>
+
+  <div class="foot">
+    <ul>
+      <li>Data via de onofficiële HenrikDev API. Niet gemaakt of goedgekeurd door Riot Games.</li>
+      <li>ACS = gemiddelde combat score per ronde. ADR = gemiddelde schade per ronde. KAST = rondes met een kill, assist, overleefd of getraded.</li>
+      <li>Een death telt als getraded als je killer binnen 5 seconden door een teamgenoot werd uitgeschakeld. "Alleen gestorven" = geen teamgenoot binnen ongeveer 15 meter op het moment van je death.</li>
+      <li>Kooptype per ronde op basis van de waarde van je loadout: eco onder ¤1.500, force onder ¤3.600, daarboven full buy. Ronde 1 en 13 zijn pistolrondes.</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const tip=$('#tip');
+function bindTip(el,html){el.addEventListener('mousemove',e=>{tip.innerHTML=html;tip.style.display='block';tip.style.left=Math.min(e.clientX+14,innerWidth-260)+'px';tip.style.top=(e.clientY+14)+'px'});el.addEventListener('mouseleave',()=>tip.style.display='none')}
+const fmt={pct:v=>isFinite(v)?Math.round(v*100)+'%':'–',f2:v=>isFinite(v)?v.toFixed(2):'–',f1:v=>isFinite(v)?v.toFixed(1):'–',f0:v=>isFinite(v)?Math.round(v):'–',int:v=>v};
+let DATA=null, N=10, TOG='all', SEL=null, MODE='', SEASON='', MAP='';
+const opts=(el,list,label,cur)=>{el.innerHTML=`<option value="">${label}</option>`+list.map(v=>`<option ${v===cur?'selected':''}>${v}</option>`).join('')};
+function initFilters(){
+  const all=Object.values(DATA.matches).flat();
+  const uniq=k=>[...new Set(all.map(r=>r[k]).filter(Boolean))];
+  const modes=uniq('mode'); MODE=modes.find(m=>/competitive/i.test(m))||'';
+  opts($('#fMode'),modes.sort(),'Alle modi',MODE);
+  opts($('#fSeason'),uniq('season').sort().reverse(),'Alle seizoenen',SEASON);
+  opts($('#fMap'),uniq('map').sort(),'Alle maps',MAP);
+  $('#fMode').onchange=e=>{MODE=e.target.value;render()};
+  $('#fSeason').onchange=e=>{SEASON=e.target.value;render()};
+  $('#fMap').onchange=e=>{MAP=e.target.value;render()};
+  SEL=new Set(DATA.players.map(p=>p.key));
+  $('#fPlayers').innerHTML=DATA.players.map(p=>`<button class="chip on" style="--c:${p.color}" data-k="${p.key}"><i class="dot" style="background:${p.color}"></i>${p.name}</button>`).join('');
+  document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{const k=c.dataset.k;
+    if(SEL.has(k)){if(SEL.size>1)SEL.delete(k)}else SEL.add(k);
+    c.classList.toggle('on',SEL.has(k));render()});
+}
+fetch('data/stats.json?'+Date.now()).then(r=>{if(!r.ok)throw 0;return r.json()}).then(d=>{DATA=d;initFilters();parseRoute();render();showCrowning()}).catch(()=>{
+  $('#app').innerHTML=`<div class="panel empty" style="margin-top:30px"><b>Nog geen data</b>Draai eerst de GitHub Action "Matches bijwerken" (zie README). Open je deze pagina als los bestand, dan kan de browser de data niet laden: bekijk hem via GitHub Pages.</div>`;
+});
+document.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>{N=+b.dataset.n;$('#fN').value='';document.querySelectorAll('[data-n]').forEach(x=>x.classList.toggle('on',x===b));render()});
+$('#fN').oninput=e=>{const v=parseInt(e.target.value);if(v>0){N=v;document.querySelectorAll('[data-n]').forEach(x=>x.classList.remove('on'));render()}};
+document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{TOG=b.dataset.t;document.querySelectorAll('[data-t]').forEach(x=>x.classList.toggle('on',x===b));render()});
+
+function baseFilter(r){return (!MODE||r.mode===MODE)&&(!SEASON||r.season===SEASON)&&(!MAP||r.map===MAP)}
+function rowsFor(p){
+  let rows=(DATA.matches[p.key]||[]).filter(baseFilter);
+  const others=[...SEL].filter(k=>k!==p.key);
+  if(TOG==='together') rows=rows.filter(r=>others.every(k=>(r.with||[]).includes(k)));
+  if(TOG==='solo') rows=rows.filter(r=>!(r.with||[]).length);
+  return N?rows.slice(0,N):rows;
+}
+function agg(rows){
+  const s=k=>rows.reduce((a,r)=>a+(r[k]||0),0);
+  const R=s('rounds'), shots=s('hs')+s('bs')+s('ls');
+  const buy={pistol:[0,0],eco:[0,0],force:[0,0],full:[0,0]};
+  rows.forEach(r=>Object.entries(r.buy||{}).forEach(([t,[w,n]])=>{buy[t][0]+=w;buy[t][1]+=n}));
+  const wpn={}; rows.forEach(r=>Object.entries(r.weapons||{}).forEach(([w,n])=>wpn[w]=(wpn[w]||0)+n));
+  const m=rows.length;
+  return {m,w:rows.filter(r=>r.result==='W').length,R,k:s('k'),d:s('d'),a:s('a'),
+    wr:rows.filter(r=>r.result==='W').length/m, kd:s('k')/s('d'), kda:(s('k')+s('a'))/s('d'),
+    acs:s('acs_sum')/R, adr:s('dmg')/R, hsp:s('hs')/shots, kast:s('kast')/R,
+    fb:s('fb')/m, fd:s('fd')/m, fbdiff:(s('fb')-s('fd'))/m, mk:(s('mk2')+s('mk3')+s('mk4')+s('mk5'))/m, aces:s('mk5'), big:s('mk3')+s('mk4')+s('mk5'),
+    clw:s('clutch_w'), cla:s('clutch_a'), clp:s('clutch_w')/s('clutch_a'),
+    tk:s('trade_k')/m, tradedp:s('traded_d')/s('d'), earlyp:s('early_d')/s('d'), alonep:s('alone_d')/s('deaths_known_team'),
+    dtime:s('death_time_sum')/s('d'), plants:s('plants')/m, defuses:s('defuses'),
+    atkkd:s('atk_k')/s('atk_d'), defkd:s('def_k')/s('def_d'), atkwr:s('atk_won')/s('atk_rounds'), defwr:s('def_won')/s('def_rounds'),
+    loadout:s('loadout_sum')/R, util:s('util')/R, ultpm:s('ults')/m, buy, wpn};
+}
+
+const PAGES=[
+ ['overzicht','Overzicht','⌂'],['vergelijk','Vergelijken','⇆'],['speelstijl','Speelstijl','◎'],['samen','Samen','👥'],
+ ['heatmap','Heatmap','▦'],['maps','Maps & agents','◈'],['economie','Economie','¤'],['tilt','Tilt-check','↯'],['rank','Rank','▲'],['matches','Matches','≡']];
+const PAGE_INTRO={
+ overzicht:'Jullie belangrijkste cijfers in één oogopslag.',vergelijk:'Alle statistieken naast elkaar, met een kroon voor wie het best scoort.',
+ speelstijl:'Wat jullie statistieken zeggen over hoe jullie spelen.',samen:'Spelen jullie beter samen? En welke potjes speelden jullie samen.',
+ heatmap:'Waar jullie kills maken en doodgaan, per map.',maps:'Winrate per map, jullie agents en advies welke agent je waar beter kunt spelen.',
+ economie:'Rondewinst per kooptype en kills per wapen.',tilt:'Hoe jullie presteren naarmate de avond vordert en na winst of verlies.',
+ matches:'Alle matches. Tik of klik op een match voor het volledige verslag.',rank:'Jullie rank, het RR-verloop per potje en per act. Alleen competitive.'};
+let PAGE='overzicht';
+function go(p){PAGE=p;CUR=null;if(location.hash!=='#/'+p)history.pushState(null,'','#/'+p);closeSheets();render();window.scrollTo({top:0})}
+function closeSheets(){document.body.classList.remove('sheet-more','sheet-filter')}
+function parseRoute(){const h=location.hash;let m;
+  if((m=h.match(/^#\/match\/(.+)$/))||(m=h.match(/^#m=(.+)$/))){CUR=m[1];return}
+  CUR=null;const p=h.replace('#/','');PAGE=PAGES.some(x=>x[0]===p)?p:'overzicht'}
+window.addEventListener('popstate',()=>{parseRoute();closeSheets();render()});
+function buildNav(){
+  const SHORT={maps:'Maps',tilt:'Tilt',vergelijk:'Vergelijk'};
+  $('#navTabs').innerHTML=PAGES.map(([k,l])=>`<a href="#/${k}" data-p="${k}" class="${!CUR&&PAGE===k?'on':''}">${SHORT[k]||l}</a>`).join('');
+  const main=['overzicht','vergelijk','rank','matches'];
+  $('#bnav').innerHTML=main.map(k=>{const p=PAGES.find(x=>x[0]===k);return `<a href="#/${k}" data-p="${k}" class="${!CUR&&PAGE===k?'on':''}"><i>${p[2]}</i><span>${p[1]==='Vergelijken'?'Vergelijk':p[1]}</span></a>`}).join('')+
+    `<a href="#" id="bMore" class="${!CUR&&!main.includes(PAGE)?'on':''}"><i>⋯</i><span>Meer</span></a>`;
+  $('#moreList').innerHTML=PAGES.map(([k,l,ic])=>`<a href="#/${k}" data-p="${k}" class="${!CUR&&PAGE===k?'on':''}"><i>${ic}</i>${l}</a>`).join('')+`<a href="#" id="mGloss"><i>?</i>Legenda</a>`+(navigator.userAgent.includes('SquadTrackerApp')?'':`<a href="https://github.com/Dovdijk/Valo-track/releases/download/app/SquadTracker.apk"><i>⤓</i>Android-app downloaden</a>`);
+  document.querySelectorAll('[data-p]').forEach(a=>a.onclick=e=>{e.preventDefault();go(a.dataset.p)});
+  $('#bMore').onclick=e=>{e.preventDefault();document.body.classList.toggle('sheet-more');document.body.classList.remove('sheet-filter')};
+  $('#mGloss').onclick=e=>{e.preventDefault();closeSheets();openGloss()};
+}
+function render(){
+  buildNav();
+  if(CUR){document.body.classList.add('inmatch');return renderMatch(CUR)}
+  document.body.classList.remove('inmatch');
+  const P=DATA.players.filter(p=>SEL.has(p.key)), A={};
+  P.forEach(p=>A[p.key]=agg(rowsFor(p)));
+  const app=$('#app'); app.innerHTML='';
+  const names=P.map(p=>`<b style="color:${p.color}">${p.name}</b>`);
+  const tTxt=TOG==='together'?(P.length>1?`samen gespeeld`:'alle matches'):TOG==='solo'?'zonder de anderen':'alle matches';
+  const sum=`${P.length} speler${P.length>1?'s':''} · ${tTxt} · ${N?'laatste '+N:'alles'} · ${MODE||'alle modi'}${SEASON?' · '+SEASON:''}${MAP?' · '+MAP:''}`;
+  $('#fSum').innerHTML='Je ziet: '+sum;
+  const pg=PAGES.find(x=>x[0]===PAGE);
+  app.insertAdjacentHTML('beforeend',`<div class="ptitle"><h1>${pg[1]}</h1><p>${PAGE_INTRO[PAGE]} <span class="upd2">Bijgewerkt ${new Date(DATA.generated_at).toLocaleString('nl-NL',{dateStyle:'medium',timeStyle:'short'})}.</span></p><button class="fchip" onclick="document.body.classList.toggle('sheet-filter');document.body.classList.remove('sheet-more')">⚙ ${sum}</button></div>`);
+  const act=P.filter(p=>A[p.key].m);
+  const heat=(w,n)=>{if(!n)return '<td class="heat" style="color:#3a4756">–</td>';const v=w/n;const c=v>=.5?`rgba(62,230,160,${.12+v*.4})`:`rgba(255,70,85,${.12+(1-v)*.4})`;return `<td><div class="heat" style="background:${c}">${Math.round(v*100)}%<span style="font-weight:500;color:#c7d2dd;font-size:11px"> (${w}/${n})</span></div></td>`};
+  if(PAGE==='overzicht'){
+  // cards
+    const cards=document.createElement('div'); cards.className='cards';
+    P.forEach(p=>{
+      const a=A[p.key], rows=rowsFor(p), last=(DATA.matches[p.key]||[])[0];
+      cards.insertAdjacentHTML('beforeend',`<div class="panel card" style="--c:${p.color}">
+        <div class="nm">${p.name}<span class="tag"> #${p.tag}</span></div>
+        <div class="rank">${last&&last.tier?'Rank: '+last.tier+' · ':''}${a.m} matches · ${a.w}W ${a.m-a.w}L</div>
+        ${a.m?`<div class="kv">
+          <div><b>${fmt.pct(a.wr)}</b><span>Winrate</span></div><div><b>${fmt.f2(a.kd)}</b><span>K/D</span></div>
+          <div><b>${fmt.f0(a.acs)}</b><span>ACS</span></div><div><b>${fmt.f0(a.adr)}</b><span>ADR</span></div>
+          <div><b>${fmt.pct(a.hsp)}</b><span>HS%</span></div><div><b>${fmt.pct(a.kast)}</b><span>KAST</span></div>
+          <div><b>${a.k}/${a.d}/${a.a}</b><span>K/D/A</span></div><div><b>${a.clw}/${a.cla}</b><span>Clutches</span></div></div>
+        <div class="form">${rows.slice(0,20).reverse().map(r=>`<i class="${r.result}" title="${r.map} ${r.score}"></i>`).join('')}</div>`:'<div class="rank" style="margin-top:14px">Geen matches in deze selectie.</div>'}
+      </div>`);
+    });
+    app.appendChild(cards);
+  
+  }
+  if(PAGE==='rank'){renderRank(app,P);return}
+  if(!act.length){if(PAGE!=='overzicht')app.insertAdjacentHTML('beforeend','<div class="panel empty"><b>Geen matches</b>Er zijn geen matches binnen deze filters.</div>');return}
+  if(PAGE==='overzicht'){
+  // trend
+  const sec=document.createElement('section');
+  sec.innerHTML=`<h2>Vorm</h2><p class="lead">ACS per match, van oud naar nieuw. Beweeg over een punt voor de details.</p><div class="panel"><svg id="trend" viewBox="0 0 1120 300" width="100%"></svg><div class="legend">${act.map(p=>`<span><i class="dot" style="background:${p.color}"></i>${p.name}</span>`).join('')}</div></div>`;
+  app.appendChild(sec);
+  (function(){
+    const svg=$('#trend'),x0=50,x1=1100,y0=260,y1=20;
+    const series=act.map(p=>({p,r:rowsFor(p).slice().reverse()}));
+    const maxLen=Math.max(...series.map(s=>s.r.length)), vals=series.flatMap(s=>s.r.map(r=>r.acs_sum/r.rounds));
+    const top=Math.ceil(Math.max(...vals,300)/50)*50;
+    const X=i=>x0+(maxLen<2?0.5:i/(maxLen-1))*(x1-x0), Y=v=>y0-v/top*(y0-y1);
+    let g='';
+    for(let v=0;v<=top;v+=100)g+=`<line x1="${x0}" x2="${x1}" y1="${Y(v)}" y2="${Y(v)}" stroke="#1f2b38"/><text x="${x0-8}" y="${Y(v)+4}" fill="#8696a7" font-size="12" text-anchor="end">${v}</text>`;
+    series.forEach(({p,r})=>{
+      const off=maxLen-r.length, pts=r.map((m,i)=>[X(i+off),Y(m.acs_sum/m.rounds),m]);
+      g+=`<polyline points="${pts.map(q=>q[0]+','+q[1]).join(' ')}" fill="none" stroke="${p.color}" stroke-width="2.5" opacity=".9"/>`;
+      pts.forEach(([x,y,m])=>g+=`<circle class="tp" cx="${x}" cy="${y}" r="5" fill="${m.result==='W'?p.color:'#0b1118'}" stroke="${p.color}" stroke-width="2" data-h="<b style='color:${p.color}'>${p.name}</b><br>${new Date(m.date).toLocaleDateString('nl-NL')} · ${m.map} · ${m.agent}<br>${m.result==='W'?'Gewonnen':m.result==='L'?'Verloren':'Gelijk'} ${m.score} · ${m.k}/${m.d}/${m.a} · ACS ${Math.round(m.acs_sum/m.rounds)}"/>`);
+    });
+    svg.innerHTML=g+`<text x="${x1}" y="${y0+28}" fill="#8696a7" font-size="12" text-anchor="end">gevuld = gewonnen · leeg = verloren</text>`;
+    svg.querySelectorAll('.tp').forEach(c=>bindTip(c,c.dataset.h));
+  })();
+
+
+    // recente matches
+    const seen=new Set(),rec=[];act.forEach(p=>rowsFor(p).forEach(r=>{if(!seen.has(r.match)){seen.add(r.match);rec.push(r)}}));
+    rec.sort((a,b)=>new Date(b.date)-new Date(a.date));
+    app.insertAdjacentHTML('beforeend',`<section><h2>Laatste potjes</h2><div class="mlist">${rec.slice(0,6).map(r=>{const d=DATA.details[r.match];const fr=d?d.players.filter(q=>q.fk&&SEL.has(q.fk)):[];
+      return `<a class="mcard ${r.result}" href="#/match/${r.match}" onclick="event.preventDefault();openMatch('${r.match}')"><div><b>${r.map}</b><span>${new Date(r.date).toLocaleDateString('nl-NL',{day:'numeric',month:'short'})} · ${r.mode||''}</span></div><div class="ms">${r.score}</div><div class="mp">${fr.map(q=>`<span style="color:${colorOf(q.fk)}">${q.n} ${q.k}/${q.d}/${q.a}</span>`).join('')}</div></a>`}).join('')}</div>
+      <div style="margin-top:12px"><button class="btn" onclick="go('matches')">Alle matches →</button></div></section>`);
+  }
+  if(PAGE==='vergelijk'){
+  // comparison
+  const stats=[
+   ['Winrate','wr',fmt.pct,1],['K/D','kd',fmt.f2,1],['KDA','kda',fmt.f2,1,'(kills + assists) / deaths'],['ACS','acs',fmt.f0,1],['ADR','adr',fmt.f0,1],
+   ['Headshot %','hsp',fmt.pct,1],['KAST','kast',fmt.pct,1],['First bloods / match','fb',fmt.f2,1],['First deaths / match','fd',fmt.f2,-1],
+   ['Entry-saldo / match','fbdiff',fmt.f2,1,'first bloods min first deaths'],['Multikills / match','mk',fmt.f2,1,'rondes met 2+ kills'],['3K of meer','big',fmt.int,1],
+   ['Clutch %','clp',fmt.pct,1,'1vX gewonnen'],['Trade-kills / match','tk',fmt.f2,1],['Deaths getraded','tradedp',fmt.pct,1],
+   ['Vroege deaths','earlyp',fmt.pct,-1,'death in de eerste 20 s'],['Alleen gestorven','alonep',fmt.pct,-1,'geen teamgenoot in de buurt'],
+   ['Gem. moment van death','dtime',v=>fmt.f0(v)+' s',1,'seconden in de ronde'],['K/D aanval','atkkd',fmt.f2,1],['K/D verdediging','defkd',fmt.f2,1],
+   ['Plants / match','plants',fmt.f2,1],['Abilities / ronde','util',fmt.f2,1,'utility, zonder ultimate'],['Ults / match','ultpm',fmt.f1,1]];
+  let h=`<section><h2>Head-to-head</h2><p class="lead">De kroon gaat naar wie op dat punt het best scoort binnen de gekozen periode.</p><div class="panel scroll"><table class="cmp"><thead><tr><th></th>${act.map(p=>`<th style="color:${p.color}">${p.name}</th>`).join('')}</tr></thead><tbody>`;
+  stats.forEach(([lab,k,f,dir,hint])=>{
+    const vals=act.map(p=>A[p.key][k]), fin=vals.filter(isFinite), mx=Math.max(...fin.map(Math.abs))||1;
+    const best=fin.length>1?(dir>0?Math.max(...fin):Math.min(...fin)):null;
+    h+=`<tr><td class="stat">${lab}${hint?`<span class="hint">${hint}</span>`:''}</td>`+act.map((p,i)=>{const v=vals[i];
+      return `<td class="val"><div class="cv" data-p="${p.name}"><b style="color:${p.color}">${f(v)}${v===best&&fin.filter(x=>x===best).length===1?'<span class="crown">♛</span>':''}</b><div class="bar"><i style="width:${isFinite(v)?Math.max(0,v)/mx*100:0}%;background:${p.color}"></i></div></div></td>`}).join('')+'</tr>';
+  });
+  app.insertAdjacentHTML('beforeend',h+'</tbody></table></div></section>');
+
+  }
+  if(PAGE==='speelstijl') renderStyle(app,act);
+  if(PAGE==='samen'){ renderSynergy(app,act);
+  // together
+  if(P.length>=2){
+    const ks=P.map(p=>p.key);
+    let sh=DATA.shared.filter(x=>ks.every(k=>x.rows[k]) && ks.slice(1).every(k=>(x.rows[ks[0]].with||[]).includes(k)) && baseFilter(x.rows[ks[0]]));
+    const all=sh; if(N) sh=sh.slice(0,N);
+    if(all.length){
+      let th=`<table><thead><tr><th>Datum</th><th>Map</th>${P.map(p=>`<th style="color:${p.color}">${p.name}</th>`).join('')}</tr></thead><tbody>`;
+      sh.forEach(x=>{const any=x.rows[ks[0]];
+        th+=`<tr class="click" onclick="openMatch('${x.match}')"><td>${new Date(x.date).toLocaleDateString('nl-NL')}</td><td>${x.map} <span class="pill p-${any.result}">${any.score}</span></td>`+P.map(p=>{const r=x.rows[p.key];return `<td><b>${r.k}/${r.d}/${r.a}</b> <span style="color:var(--mute)">· ${r.agent} · ACS ${Math.round(r.acs_sum/r.rounds)}</span></td>`}).join('')+'</tr>'});
+      const wins=all.filter(x=>x.rows[ks[0]].result==='W').length;
+      app.insertAdjacentHTML('beforeend',`<section><h2>Samen gespeeld</h2><p class="lead">Matches waarin ${names.join(' en ')} in hetzelfde team zaten. Samen wonnen jullie <b style="color:#fff">${wins} van de ${all.length}</b> (${fmt.pct(wins/all.length)}).</p><div class="panel scroll">${th}</tbody></table></div></section>`);
+    }
+  }
+
+
+    if(act.length<2) app.insertAdjacentHTML('beforeend','<div class="panel empty"><b>Kies minstens 2 spelers</b>Zet bij de filters minstens twee spelers aan om te zien hoe jullie samen spelen.</div>');
+  }
+  if(PAGE==='heatmap') renderHeatOverview(app,act);
+  if(PAGE==='maps'){
+  // maps + agents
+  const mapSet=[...new Set(act.flatMap(p=>rowsFor(p).map(r=>r.map)))].sort();
+  const heat=(w,n)=>{if(!n)return '<td class="heat" style="color:#3a4756">–</td>';const v=w/n;const c=v>=.5?`rgba(62,230,160,${.12+v*.4})`:`rgba(255,70,85,${.12+(1-v)*.4})`;return `<td><div class="heat" style="background:${c}">${Math.round(v*100)}%<span style="font-weight:500;color:#c7d2dd;font-size:11px"> (${w}/${n})</span></div></td>`};
+  let mh=`<table><thead><tr><th>Map</th>${act.map(p=>`<th style="color:${p.color}">${p.name}</th>`).join('')}</tr></thead><tbody>`;
+  mapSet.forEach(m=>{mh+=`<tr><td>${m}</td>`+act.map(p=>{const r=rowsFor(p).filter(x=>x.map===m);return heat(r.filter(x=>x.result==='W').length,r.length)}).join('')+'</tr>'});
+  mh+='</tbody></table>';
+  let ah='';
+  act.forEach(p=>{
+    const by={};rowsFor(p).forEach(r=>{(by[r.agent]=by[r.agent]||[]).push(r)});
+    const list=Object.entries(by).sort((a,b)=>b[1].length-a[1].length).slice(0,4);
+    ah+=`<div style="margin-bottom:14px"><div class="label" style="color:${p.color};margin-bottom:4px">${p.name}</div><table><tbody>`+list.map(([ag,rs])=>{const a=agg(rs);return `<tr><td style="width:34%">${ag}</td><td>${rs.length}x</td><td>${fmt.pct(a.wr)} win</td><td>K/D ${fmt.f2(a.kd)}</td><td>ACS ${fmt.f0(a.acs)}</td></tr>`}).join('')+'</tbody></table></div>';
+  });
+  app.insertAdjacentHTML('beforeend',`<section><h2>Maps en agents</h2><p class="lead">Winrate per map en jullie meest gespeelde agents.</p><div class="g2"><div class="panel scroll"><h3>Winrate per map</h3>${mh}</div><div class="panel"><h3>Agents</h3>${ah}</div></div></section>`);
+
+
+    renderAgentAdvice(app,act);
+  }
+  if(PAGE==='economie'){
+  // economy + weapons
+  const types=[['pistol','Pistol'],['eco','Eco'],['force','Force'],['full','Full buy']];
+  let eh=`<table><thead><tr><th>Kooptype</th>${act.map(p=>`<th style="color:${p.color}">${p.name}</th>`).join('')}</tr></thead><tbody>`;
+  types.forEach(([t,l])=>{eh+=`<tr><td>${l}</td>`+act.map(p=>{const [w,n]=A[p.key].buy[t];return heat(w,n)}).join('')+'</tr>'});
+  eh+=`<tr><td>Gem. loadout</td>${act.map(p=>`<td style="font-family:var(--fs);font-weight:700;font-size:17px;text-align:center">¤ ${isFinite(A[p.key].loadout)?Math.round(A[p.key].loadout).toLocaleString('nl-NL'):'–'}</td>`).join('')}</tr></tbody></table>`;
+  let wh='';
+  act.forEach(p=>{
+    const w=Object.entries(A[p.key].wpn).sort((a,b)=>b[1]-a[1]).slice(0,5), mx=w.length?w[0][1]:1;
+    wh+=`<div style="margin-bottom:12px"><div class="label" style="color:${p.color};margin-bottom:6px">${p.name}</div>`+w.map(([n,v])=>`<div style="display:grid;grid-template-columns:120px 1fr 36px;gap:10px;align-items:center;margin:4px 0;font-size:13px"><span>${n}</span><div style="height:10px;background:#0d151e;border-radius:2px"><i style="display:block;height:100%;width:${v/mx*100}%;background:${p.color};border-radius:2px"></i></div><b style="font-family:var(--fs);text-align:right">${v}</b></div>`).join('')+'</div>';
+  });
+  app.insertAdjacentHTML('beforeend',`<section><h2>Economie en wapens</h2><p class="lead">Rondewinst per type koop, en met welke wapens jullie de meeste kills maken.</p><div class="g2"><div class="panel scroll"><h3>Rondewinst per kooptype</h3>${eh}</div><div class="panel"><h3>Kills per wapen <small>top 5</small></h3>${wh}</div></div></section>`);
+
+
+      renderPistolLoss(app,act);
+  }
+  if(PAGE==='tilt') renderTilt(app,act);
+  if(PAGE==='rank'){renderRank(app,P);return}
+  if(PAGE==='matches'){
+  // match list
+  let ml='<section><h2>Laatste matches</h2><p class="lead">Klik op een match voor het volledige verslag: ronde voor ronde, timing, duels, economie en positionering.</p><div class="g2" style="grid-template-columns:1fr">';
+  act.forEach(p=>{
+    ml+=`<div class="panel scroll desk-only"><h3 style="color:${p.color}">${p.name}</h3><table><thead><tr><th>Datum</th><th>Map</th><th>Agent</th><th>Uitslag</th><th>K/D/A</th><th>ACS</th><th>ADR</th><th>HS%</th><th>KAST</th><th>FB/FD</th></tr></thead><tbody>`+
+    rowsFor(p).map(r=>`<tr class="click" onclick="openMatch('${r.match}')"><td>${new Date(r.date).toLocaleDateString('nl-NL')}</td><td>${r.map}</td><td>${r.agent}</td><td><span class="pill p-${r.result}">${r.result==='W'?'Win':r.result==='L'?'Loss':'Gelijk'} ${r.score}</span></td><td><b>${r.k}/${r.d}/${r.a}</b></td><td>${Math.round(r.acs_sum/r.rounds)}</td><td>${Math.round(r.dmg/r.rounds)}</td><td>${fmt.pct(r.hs/(r.hs+r.bs+r.ls))}</td><td>${fmt.pct(r.kast/r.rounds)}</td><td>${r.fb}/${r.fd}</td></tr>`).join('')+'</tbody></table></div>';
+    ml+=`<div class="mob-only"><div class="label" style="color:${p.color};margin:6px 0 10px">${p.name}</div><div class="mlist">${rowsFor(p).map(r=>`<a class="mcard ${r.result}" href="#/match/${r.match}" onclick="event.preventDefault();openMatch('${r.match}')"><div><b>${r.map}</b><span>${new Date(r.date).toLocaleDateString('nl-NL',{day:'numeric',month:'short',year:'2-digit'})} · ${r.agent}</span></div><div class="ms">${r.score}</div><div class="mp"><span>${r.k}/${r.d}/${r.a}</span><span style="color:var(--mute)">ACS ${Math.round(r.acs_sum/r.rounds)}</span><span style="color:var(--mute)">ADR ${Math.round(r.dmg/r.rounds)}</span><span style="color:var(--mute)">HS ${fmt.pct(r.hs/(r.hs+r.bs+r.ls))}</span></div></a>`).join('')}</div></div>`;
+  });
+  app.insertAdjacentHTML('beforeend',ml+'</div></section>');
+
+  }
+}
+
+// ================= MATCHVERSLAG =================
+let CUR=null;
+function openMatch(id){CUR=id;MH={show:{K:1,D:1,P:1},round:'all',off:{}};history.pushState(null,'','#/match/'+id);closeSheets();render();window.scrollTo({top:0})}
+function closeMatch(){CUR=null;history.pushState(null,'','#/'+PAGE);render();window.scrollTo({top:0})}
+const isAtk=(team,i,fha)=>{const first=i<12||(i>=24&&(i-24)%2===0);return (team===fha)===first};
+const colorOf=k=>(DATA.players.find(p=>p.key===k)||{}).color||'#ff4655';
+const nameOf=(d,i)=>i==null?'?':d.players[i].n;
+
+function renderMatch(id){
+  const d=DATA.details&&DATA.details[id];
+  const app=$('#app');
+  if(!d){app.innerHTML=`<div class="panel empty" style="margin-top:30px"><b>Geen verslag</b>Van deze match is geen verslag beschikbaar.<br><br><button class="btn" onclick="closeMatch()">← Terug</button></div>`;return}
+  const F=d.players.map((p,i)=>({...p,i})).filter(p=>p.fk);           // vrienden in deze match
+  const myTeam=F[0].tm, other=Object.keys(d.teams).find(t=>t!==myTeam);
+  const [won,lost,isWin]=d.teams[myTeam], res=isWin?'W':(d.teams[other]&&d.teams[other][2]?'L':'D');
+  const R=d.rounds, n=R.length;
+  // ---- per vriend per ronde
+  const per={};
+  F.forEach(f=>{
+    per[f.i]=R.map((r,ri)=>{
+      const kills=r.ev.filter(e=>e[1]===f.i&&d.players[e[2]].tm!==f.tm);
+      const death=r.ev.find(e=>e[2]===f.i);
+      const assist=r.ev.some(e=>e[4].includes(f.i));
+      let traded=false;
+      if(death){traded=r.ev.some(e=>e[2]===death[1]&&e[1]!=null&&d.players[e[1]].tm===f.tm&&e[0]>=death[0]&&e[0]-death[0]<=5)}
+      const tradeK=kills.filter(k=>r.ev.some(e=>e[1]===k[2]&&d.players[e[2]].tm===f.tm&&k[0]>=e[0]&&k[0]-e[0]<=5)).length;
+      const fb=r.ev[0]&&r.ev[0][1]===f.i, fd=r.ev[0]&&r.ev[0][2]===f.i;
+      const atk=isAtk(f.tm,ri,d.fha), win=r.w===f.tm;
+      const eco=r.eco[f.i]||[0,null,null,0];
+      return {kills,death,assist,traded,tradeK,fb,fd,atk,win,eco,kast:kills.length>0||assist||!death||traded};
+    });
+  });
+  const S=f=>{const a=per[f.i];const ds=a.filter(x=>x.death);
+    const alone=ds.filter(x=>x.death[5]!=null), early=ds.filter(x=>x.death[0]<=20);
+    const mk=a.filter(x=>x.kills.length>=2).length, best=Math.max(0,...a.map(x=>x.kills.length));
+    const at=a.filter(x=>x.atk), df=a.filter(x=>!x.atk);
+    const sum=(arr,fn)=>arr.reduce((s,x)=>s+fn(x),0);
+    return {k:f.k,d:f.d,a:f.a,acs:f.acs,adr:f.adr,hs:f.hs,kd:f.k/f.d,
+      fb:a.filter(x=>x.fb).length,fd:a.filter(x=>x.fd).length,mk,best,
+      surv:a.filter(x=>!x.death).length,kast:a.filter(x=>x.kast).length/n,
+      tradeK:sum(a,x=>x.tradeK),traded:ds.filter(x=>x.traded).length,
+      early:early.length,alone:alone.filter(x=>x.death[5]>DATA.settings.alone_units).length,aloneKnown:alone.length,
+      avgDist:alone.length?Math.round(sum(alone,x=>x.death[5])/alone.length):null,
+      atkK:sum(at,x=>x.kills.length),atkD:at.filter(x=>x.death).length,atkW:at.filter(x=>x.win).length,atkN:at.length,
+      defK:sum(df,x=>x.kills.length),defD:df.filter(x=>x.death).length,defW:df.filter(x=>x.win).length,defN:df.length,
+      avgK:sum(a,x=>sum(x.kills,k=>k[0]))/Math.max(1,sum(a,x=>x.kills.length)),avgD:sum(ds,x=>x.death[0])/Math.max(1,ds.length)}};
+  const ST={};F.forEach(f=>ST[f.i]=S(f));
+  const col=f=>colorOf(f.fk);
+  let h=`<div style="margin-top:22px"><button class="btn" onclick="closeMatch()">← Terug naar overzicht</button></div>`;
+
+  // ---- hero
+  h+=`<div class="hero2 panel" style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;
+      background:linear-gradient(120deg,${res==='W'?'rgba(62,230,160,.14)':'rgba(255,70,85,.14)'},transparent 55%),var(--panel)">
+    <div><div class="label">${d.mode||''} · ${d.season||''} · ${new Date(d.date).toLocaleString('nl-NL',{dateStyle:'full',timeStyle:'short'})}</div>
+      <div style="font-family:var(--fd);font-size:56px;line-height:1.05">${d.map}</div>
+      <div style="margin-top:6px">${F.map(f=>`<span style="color:${col(f)};font-family:var(--fs);font-weight:700;font-size:18px;margin-right:16px">${f.n} <span style="color:var(--mute)">· ${f.ag}</span></span>`).join('')}</div></div>
+    <div style="text-align:center"><div style="font-family:var(--fd);font-size:20px;letter-spacing:4px;color:${res==='W'?'var(--win)':res==='L'?'var(--loss)':'var(--mute)'}">${res==='W'?'VICTORY':res==='L'?'DEFEAT':'DRAW'}</div>
+      <div style="font-family:var(--fd);font-size:80px;line-height:1">${won}<span style="color:var(--mute);font-size:46px;margin:0 8px">:</span>${lost}</div>
+      <div class="label">${n} rondes</div></div></div>`;
+
+  h+=matchFeedbackHTML(d,F,per,ST);
+  // ---- scoreboard
+  const sb=team=>{const ps=d.players.map((p,i)=>({...p,i})).filter(p=>p.tm===team).sort((a,b)=>b.acs-a.acs);
+    return `<table><thead><tr><th>Speler</th><th>Agent</th><th>ACS</th><th>K</th><th>D</th><th>A</th><th>K/D</th><th>ADR</th><th>HS%</th><th>Rank</th></tr></thead><tbody>`+
+      ps.map(p=>`<tr style="${p.fk?`background:color-mix(in srgb,${colorOf(p.fk)} 10%,transparent)`:''}"><td style="${p.fk?`color:${colorOf(p.fk)};font-weight:700`:''}">${p.n}<span style="color:var(--mute)">#${p.t}</span></td><td>${p.ag}</td><td><b>${p.acs}</b></td><td>${p.k}</td><td>${p.d}</td><td>${p.a}</td><td>${(p.k/Math.max(1,p.d)).toFixed(2)}</td><td>${p.adr}</td><td>${p.hs}%</td><td style="color:var(--mute)">${p.tier||''}</td></tr>`).join('')+'</tbody></table>'};
+  h+=`<section><h2>Scorebord</h2><div class="g2"><div class="panel scroll"><h3 style="color:var(--win)">Jullie team <small>${won} rondes</small></h3>${sb(myTeam)}</div><div class="panel scroll"><h3 style="color:var(--loss)">Tegenstanders <small>${lost} rondes</small></h3>${sb(other)}</div></div></section>`;
+
+  // ---- head to head (alleen bij 2+ vrienden)
+  const rowsH=[['Kills','k',v=>v,1],['Deaths','d',v=>v,-1],['Assists','a',v=>v,1],['K/D','kd',v=>isFinite(v)?v.toFixed(2):'–',1],['ACS','acs',v=>v,1],['ADR','adr',v=>v,1],['Headshot %','hs',v=>v+'%',1],
+    ['First bloods','fb',v=>v,1],['First deaths','fd',v=>v,-1],['Multikill-rondes','mk',v=>v,1],['Beste ronde','best',v=>v+'K',1],['Rondes overleefd','surv',v=>v+' / '+n,1],
+    ['KAST','kast',v=>Math.round(v*100)+'%',1],['Trade-kills','tradeK',v=>v,1],['Deaths getraded','traded',v=>v,1],['Vroege deaths (≤20 s)','early',v=>v,-1],['Alleen gestorven','alone',v=>v,-1]];
+  h+=`<section><h2>${F.length>1?'Head-to-head':'Jouw cijfers'}</h2><div class="panel scroll"><table class="cmp"><thead><tr><th></th>${F.map(f=>`<th style="color:${col(f)}">${f.n}</th>`).join('')}</tr></thead><tbody>`+
+    rowsH.map(([lab,k,fm,dir])=>{const vals=F.map(f=>ST[f.i][k]),fin=vals.filter(isFinite),mx=Math.max(...fin,0.0001),best=F.length>1?(dir>0?Math.max(...fin):Math.min(...fin)):null,uniq=fin.filter(x=>x===best).length===1;
+      return `<tr><td class="stat">${lab}</td>`+F.map((f,j)=>`<td class="val"><div class="cv" data-p="${f.n}"><b style="color:${col(f)}">${fm(vals[j])}${uniq&&vals[j]===best?'<span class="crown">♛</span>':''}</b><div class="bar"><i style="width:${isFinite(vals[j])?vals[j]/mx*100:0}%;background:${col(f)}"></i></div></div></td>`).join('')+'</tr>'}).join('')+'</tbody></table></div></section>';
+
+  // ---- ronde voor ronde
+  let tl=`<div class="tl2" style="display:grid;grid-template-columns:130px repeat(${n},minmax(26px,1fr));gap:4px;font-family:var(--fs);font-weight:700">`;
+  tl+='<div></div>'+R.map((_,i)=>`<div style="text-align:center;font-size:12px;color:var(--mute)">${i+1}</div>`).join('');
+  tl+='<div style="font-size:13px;color:var(--mute);display:flex;align-items:center">UITSLAG</div>'+R.map((r,i)=>{const w=r.w===myTeam,atk=isAtk(myTeam,i,d.fha);
+    return `<div class="rc ${w?'W':'L'}" data-h="<b>Ronde ${i+1}</b> · ${w?'gewonnen':'verloren'} · ${atk?'aanval':'verdediging'}${r.pl?'<br>Spike geplant op '+r.pl+(r.plt?' ('+r.plt+' s)':''):''}${r.df?'<br>Spike gedefused':''}<br>${r.res||''}"><span style="font-size:14px">${w?'W':'L'}</span><span style="font-size:9px;color:var(--mute)">${atk?'AANV':'VERD'}${r.pl?' · '+r.pl:''}</span></div>`}).join('');
+  F.forEach(f=>{
+    tl+=`<div style="font-size:13px;color:${col(f)};display:flex;align-items:center;overflow:hidden;white-space:nowrap">${f.n}</div>`;
+    per[f.i].forEach((x,i)=>{
+      let tipH=`<b style='color:${col(f)}'>${f.n}</b> · ronde ${i+1}<br>`;
+      const MMp=mapOf(d);const where=(x,y)=>MMp&&x!=null?' · '+callout(MMp,x,y):'';
+      x.kills.forEach(k=>tipH+=`Kill op ${nameOf(d,k[2])} · ${k[3]} · ${k[0]} s${where(k[8]!=null?k[8]:k[6],k[9]!=null?k[9]:k[7])}<br>`);
+      tipH+=x.death?`Dood door ${nameOf(d,x.death[1])} · ${x.death[3]} · ${x.death[0]} s${where(x.death[6],x.death[7])}${x.traded?' · getraded':''}${x.death[5]!=null?' · teamgenoot op '+Math.round(x.death[5]/100)+' m':''}`:'Overleefd';
+      if(x.assist)tipH+='<br>Assist';
+      tipH+=`<br>Loadout ¤${x.eco[0]}${x.eco[1]?' · '+x.eco[1]:''}${x.eco[2]?' · '+x.eco[2]:''}`;
+      if(x.fb)tipH+='<br><span style=\'color:#f5c451\'>First blood</span>'; if(x.fd)tipH+='<br><span style=\'color:#b98bff\'>First death</span>';
+      tl+=`<div class="rc" style="${x.fb?'box-shadow:inset 0 -3px 0 #f5c451;':''}${x.fd?'box-shadow:inset 0 -3px 0 #9a5bff;':''}" data-h="${tipH}"><span style="font-size:15px;color:${x.kills.length?col(f):'#4a5868'}">${x.kills.length}</span><span style="font-size:10px;color:var(--mute)">${x.death?'✕':'●'}</span></div>`;
+    });
+  });
+  tl+='</div>';
+  h+=`<section><h2>Ronde voor ronde</h2><p class="lead">Per ronde de uitslag, het aantal kills (groot) en of de speler dood ging (✕) of overleefde (●). Beweeg over een vakje voor de details.</p>
+    <div class="panel scroll">${tl}<div class="legend"><span><b style="display:inline-block;width:14px;height:10px;background:var(--gold);margin-right:6px"></b>First blood</span><span><b style="display:inline-block;width:14px;height:10px;background:#9a5bff;margin-right:6px"></b>First death</span><span>AANV = aanval · VERD = verdediging · A/B/C = plant</span></div></div></section>`;
+
+  h+=matchHeatHTML(d);
+  // ---- timing
+  h+=`<section><h2>Wanneer vallen de kills?</h2><p class="lead">Elke stip is een kill (groen) of death (rood), op de seconde in de ronde waarop die gebeurde.</p><div class="panel"><svg id="mTiming" viewBox="0 0 1100 ${70+F.length*110}" width="100%"></svg></div>
+    <div class="g2" style="margin-top:18px;grid-template-columns:repeat(${Math.min(F.length,3)},1fr)">${F.map(f=>{const s=ST[f.i];return `<div class="panel"><div class="label" style="color:${col(f)}">${f.n}</div><div style="display:flex;gap:26px;margin-top:8px;flex-wrap:wrap">
+      <div><div class="big" style="font-size:38px;color:var(--win)">${s.k?Math.round(s.avgK)+' s':'–'}</div><div style="font-size:12px;color:var(--mute)">gem. kill</div></div>
+      <div><div class="big" style="font-size:38px;color:var(--loss)">${s.d?Math.round(s.avgD)+' s':'–'}</div><div style="font-size:12px;color:var(--mute)">gem. death</div></div>
+      <div><div class="big" style="font-size:38px">${s.early}</div><div style="font-size:12px;color:var(--mute)">deaths ≤ 20 s</div></div></div></div>`}).join('')}</div></section>`;
+
+  // ---- aanval vs verdediging + positionering
+  h+=`<section><h2>Aanval vs verdediging</h2><div class="g2"><div class="panel scroll"><h3>Per kant</h3><table><thead><tr><th></th><th>Kant</th><th>Rondes gewonnen</th><th>Kills</th><th>Deaths</th><th>K/D</th></tr></thead><tbody>`+
+    F.map(f=>{const s=ST[f.i];return `<tr><td rowspan="2" style="color:${col(f)};font-weight:700">${f.n}</td><td>Aanval</td><td>${s.atkW} / ${s.atkN}</td><td>${s.atkK}</td><td>${s.atkD}</td><td><b>${(s.atkK/Math.max(1,s.atkD)).toFixed(2)}</b></td></tr><tr><td>Verdediging</td><td>${s.defW} / ${s.defN}</td><td>${s.defK}</td><td>${s.defD}</td><td><b>${(s.defK/Math.max(1,s.defD)).toFixed(2)}</b></td></tr>`}).join('')+
+    `</tbody></table></div><div class="panel"><h3>Positionering <small>bij je deaths</small></h3>`+
+    F.map(f=>{const s=ST[f.i];const pct=s.aloneKnown?s.alone/s.aloneKnown:0;return `<div style="margin:10px 0 16px"><div class="label" style="color:${col(f)}">${f.n}</div>
+      <div style="display:flex;gap:24px;align-items:baseline;margin-top:4px"><div><span class="big" style="font-size:34px">${s.aloneKnown?Math.round(pct*100)+'%':'–'}</span> <span style="color:var(--mute);font-size:13px">alleen gestorven (${s.alone}/${s.aloneKnown})</span></div>
+      <div><span class="big" style="font-size:34px">${s.avgDist!=null?Math.round(s.avgDist/100)+' m':'–'}</span> <span style="color:var(--mute);font-size:13px">gem. afstand tot dichtstbijzijnde teamgenoot</span></div></div>
+      <div style="height:8px;background:#0d151e;border-radius:2px;margin-top:6px"><i style="display:block;height:100%;width:${pct*100}%;background:${col(f)};border-radius:2px"></i></div></div>`}).join('')+
+    `<div style="color:var(--mute);font-size:12px">"Alleen" = geen teamgenoot binnen ongeveer 15 m. Afstand is een benadering op basis van de kaartcoördinaten.</div></div></div></section>`;
+
+  // ---- duels
+  const opp=d.players.map((p,i)=>({...p,i})).filter(p=>p.tm!==myTeam);
+  h+=`<section><h2>Duels per tegenstander</h2><p class="lead">Wie jullie het vaakst uitschakelden, en door wie jullie zelf het vaakst neergingen.</p><div class="g2" style="grid-template-columns:repeat(${Math.min(F.length,3)},1fr)">`+
+    F.map(f=>{const kc=opp.map(o=>[o.n,per[f.i].reduce((s,x)=>s+x.kills.filter(k=>k[2]===o.i).length,0)]);const dc=opp.map(o=>[o.n,per[f.i].filter(x=>x.death&&x.death[1]===o.i).length]);
+      const bar=(arr,c)=>arr.map(([nm,v])=>`<div style="display:grid;grid-template-columns:110px 1fr 26px;gap:8px;align-items:center;margin:5px 0;font-size:13px"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${nm}</span><div style="height:10px;background:#0d151e;border-radius:2px"><i style="display:block;height:100%;width:${v/Math.max(1,...arr.map(a=>a[1]))*100}%;background:${c};border-radius:2px"></i></div><b style="font-family:var(--fs);text-align:right">${v}</b></div>`).join('');
+      const nem=dc.slice().sort((a,b)=>b[1]-a[1])[0], vic=kc.slice().sort((a,b)=>b[1]-a[1])[0];
+      return `<div class="panel"><h3 style="color:${col(f)}">${f.n}</h3><div class="label">Kills op</div>${bar(kc,'#3ee6a0')}<div class="label" style="margin-top:10px">Gedood door</div>${bar(dc,'#ff4655')}
+        <div style="margin-top:12px;padding:10px 12px;border-left:3px solid ${col(f)};background:rgba(255,255,255,.03);font-size:13px">Favoriete doelwit: <b>${vic[1]?vic[0]:'–'}</b>${vic[1]?' ('+vic[1]+'x)':''}. Grootste kwelgeest: <b>${nem[1]?nem[0]:'–'}</b>${nem[1]?' ('+nem[1]+'x)':''}.</div></div>`}).join('')+'</div></section>';
+
+  // ---- economie
+  h+=`<section><h2>Economie</h2><p class="lead">Loadoutwaarde per ronde (wapen + schild + abilities). Bolletje onder de staaf: groen = ronde gewonnen.</p><div class="panel"><svg id="mEco" viewBox="0 0 1100 240" width="100%"></svg><div class="legend">${F.map(f=>`<span><i class="dot" style="background:${col(f)}"></i>${f.n}</span>`).join('')}</div></div>`;
+  const bt=(i,lv)=>i===0||i===12?'Pistol':lv<1500?'Eco':lv<3600?'Force':'Full buy';
+  h+=`<div class="g2" style="margin-top:18px;grid-template-columns:repeat(${Math.min(F.length,3)},1fr)">`+F.map(f=>{const g={};per[f.i].forEach((x,i)=>{const t=bt(i,x.eco[0]);g[t]=g[t]||[0,0];g[t][1]++;if(x.win)g[t][0]++});
+    const wp={};per[f.i].forEach(x=>{if(x.eco[1])wp[x.eco[1]]=(wp[x.eco[1]]||0)+1});const fav=Object.entries(wp).sort((a,b)=>b[1]-a[1])[0];
+    return `<div class="panel"><div class="label" style="color:${col(f)}">${f.n}</div><table style="margin-top:6px"><tbody>${['Pistol','Eco','Force','Full buy'].filter(t=>g[t]).map(t=>`<tr><td>${t}</td><td>${g[t][0]} / ${g[t][1]} gewonnen</td></tr>`).join('')}${fav?`<tr><td>Meest gekocht</td><td><b>${fav[0]}</b> (${fav[1]}x)</td></tr>`:''}</tbody></table></div>`}).join('')+'</div></section>';
+
+  // ---- conclusies
+  const lines=[];
+  const top=F.slice().sort((a,b)=>ST[b.i].acs-ST[a.i].acs)[0];
+  if(F.length>1)lines.push(`<b style="color:${col(top)}">${top.n}</b> was de beste van jullie met een ACS van ${ST[top.i].acs} en ${ST[top.i].k} kills.`);
+  F.forEach(f=>{const s=ST[f.i];
+    if(s.fb-s.fd>=2)lines.push(`<b style="color:${col(f)}">${f.n}</b> won de openingsduels: ${s.fb} first bloods tegenover ${s.fd} first deaths.`);
+    if(s.fd-s.fb>=2)lines.push(`<b style="color:${col(f)}">${f.n}</b> ging vaak als eerste neer: ${s.fd} first deaths tegenover ${s.fb} first bloods.`);
+    if(s.d&&s.early/s.d>=0.3)lines.push(`<b style="color:${col(f)}">${f.n}</b> stierf ${s.early} van de ${s.d} keer in de eerste 20 seconden van een ronde.`);
+    if(s.aloneKnown>=3&&s.alone/s.aloneKnown>=0.6)lines.push(`<b style="color:${col(f)}">${f.n}</b> stond bij ${s.alone} van de ${s.aloneKnown} deaths zonder teamgenoot in de buurt.`);
+    const ak=s.atkK/Math.max(1,s.atkD),dk=s.defK/Math.max(1,s.defD);
+    if(s.atkN&&s.defN&&Math.abs(ak-dk)>=0.5)lines.push(`<b style="color:${col(f)}">${f.n}</b> was veel sterker in de ${ak>dk?'aanval':'verdediging'} (K/D ${Math.max(ak,dk).toFixed(2)} tegen ${Math.min(ak,dk).toFixed(2)}).`);
+    if(s.best>=3)lines.push(`<b style="color:${col(f)}">${f.n}</b> had een ronde met ${s.best} kills.`);
+  });
+  if(lines.length)h+=`<section><h2>Opvallend</h2><div class="panel">${lines.map(l=>`<div style="border-left:3px solid var(--red);padding:10px 14px;margin:8px 0;background:rgba(255,70,85,.05)">${l}</div>`).join('')}</div></section>`;
+
+  app.innerHTML=h;
+  app.querySelectorAll('[data-h]').forEach(e=>bindTip(e,e.dataset.h));
+  drawMatchHeat(d,F,myTeam);
+
+  // timing svg
+  (function(){const svg=$('#mTiming'),x0=130,x1=1080,maxT=Math.max(100,...R.flatMap(r=>r.ev.map(e=>e[0])));const X=s=>x0+Math.min(s,maxT)/maxT*(x1-x0);let g='';
+    const H=70+F.length*110;
+    for(let s=0;s<=maxT;s+=20)g+=`<line x1="${X(s)}" x2="${X(s)}" y1="20" y2="${H-30}" stroke="#1f2b38"/><text x="${X(s)}" y="${H-10}" fill="#8696a7" font-size="13" text-anchor="middle">${s} s</text>`;
+    g+=`<rect x="${X(0)}" y="20" width="${X(20)-X(0)}" height="${H-50}" fill="rgba(255,70,85,.05)"/>`;
+    F.forEach((f,j)=>{const y=80+j*110;g+=`<text x="10" y="${y+5}" fill="${col(f)}" font-size="15">${f.n}</text><line x1="${x0}" x2="${x1}" y1="${y}" y2="${y}" stroke="#22303f" stroke-dasharray="3 4"/>`;
+      const used={};
+      per[f.i].forEach((x,ri)=>{x.kills.forEach(k=>{const kk=Math.round(k[0]/3)+'K';used[kk]=(used[kk]||0)+1;g+=`<circle class="tp" cx="${X(k[0])}" cy="${y-14-(used[kk]-1)*11}" r="5.5" fill="#3ee6a0" data-h="R${ri+1} · kill op ${nameOf(d,k[2])} · ${k[3]} · ${k[0]} s"/>`});
+        if(x.death){const k=x.death,kk=Math.round(k[0]/3)+'D';used[kk]=(used[kk]||0)+1;g+=`<circle class="tp" cx="${X(k[0])}" cy="${y+14+(used[kk]-1)*11}" r="5.5" fill="#ff4655" data-h="R${ri+1} · dood door ${nameOf(d,k[1])} · ${k[3]} · ${k[0]} s"/>`}});});
+    svg.innerHTML=g;svg.querySelectorAll('.tp').forEach(c=>bindTip(c,c.dataset.h));})();
+  // eco svg
+  (function(){const svg=$('#mEco'),x0=50,x1=1085,y0=190,y1=20,mx=Math.max(5000,...F.flatMap(f=>per[f.i].map(x=>x.eco[0])));
+    const slot=(x1-x0)/n,bw=slot*0.8/F.length,Y=v=>y0-v/mx*(y0-y1);let g='';
+    [0,2000,4000].forEach(v=>g+=`<line x1="${x0}" x2="${x1}" y1="${Y(v)}" y2="${Y(v)}" stroke="#1f2b38"/><text x="${x0-8}" y="${Y(v)+4}" fill="#8696a7" font-size="12" text-anchor="end">${v/1000}k</text>`);
+    R.forEach((r,i)=>{const cx=x0+i*slot+slot*0.1;
+      F.forEach((f,j)=>{const x=per[f.i][i];g+=`<rect class="tp" x="${cx+j*bw}" y="${Y(x.eco[0])}" width="${bw-1}" height="${y0-Y(x.eco[0])}" fill="${col(f)}" opacity=".85" rx="1" data-h="<b style='color:${col(f)}'>${f.n}</b> · ronde ${i+1}<br>¤${x.eco[0]}${x.eco[1]?' · '+x.eco[1]:''}${x.eco[2]?' · '+x.eco[2]:''}<br>${x.win?'gewonnen':'verloren'}"/>`});
+      g+=`<text x="${x0+i*slot+slot/2}" y="${y0+16}" fill="#8696a7" font-size="11" text-anchor="middle">${i+1}</text><circle cx="${x0+i*slot+slot/2}" cy="${y0+30}" r="4" fill="${r.w===myTeam?'#3ee6a0':'#ff4655'}"/>`;
+      if(i===11)g+=`<line x1="${x0+12*slot}" x2="${x0+12*slot}" y1="${y1}" y2="${y0}" stroke="#ff4655" stroke-dasharray="4 4"/>`;});
+    svg.innerHTML=g;svg.querySelectorAll('.tp').forEach(c=>bindTip(c,c.dataset.h));})();
+}
+
+// ================= KAARTEN, SPEELSTIJL, HEATMAPS, FEEDBACK =================
+// ev = [t, killer, victim, wapen, assists, afstand-teamgenoot, vx, vy, kx, ky, vriendposities]
+const mapOf=d=>{const M=DATA.maps||{};return M[d.map_id]||Object.values(M).find(m=>m.name===d.map)};
+const toImg=(m,x,y)=>[(y*m.xm+m.xa)*1000,(x*m.ym+m.ya)*1000];
+function callout(m,x,y){if(!m||x==null||!m.callouts||!m.callouts.length)return null;let b=null,bd=Infinity;
+  for(const c of m.callouts){const dd=(c[2]-x)**2+(c[3]-y)**2;if(dd<bd){bd=dd;b=c}}return b?`${b[0]} ${b[1]}`:null}
+const pctile=(arr,v)=>arr.length?arr.filter(x=>x<v).length/arr.length*100+arr.filter(x=>x===v).length/arr.length*50:50;
+const esc=s=>String(s).replace(/"/g,'&quot;');
+
+// ---------- posities van een speler over meerdere matches ----------
+function eventsFor(pkey,matchIds,sideFilter){
+  const out=[];
+  matchIds.forEach(id=>{const d=DATA.details[id];if(!d)return;const m=mapOf(d);const fi=d.players.findIndex(p=>p.fk===pkey);if(fi<0)return;const tm=d.players[fi].tm;
+    d.rounds.forEach((r,ri)=>{const atk=isAtk(tm,ri,d.fha);if(sideFilter==='atk'&&!atk||sideFilter==='def'&&atk)return;
+      r.ev.forEach(e=>{
+        if(e[1]===fi&&d.players[e[2]].tm!==tm){const x=e[8]!=null?e[8]:e[6],y=e[9]!=null?e[9]:e[7];if(x!=null)out.push({type:'K',x,y,vx:e[6],vy:e[7],m,map:d.map,map_id:d.map_id,id,ri,t:e[0],other:d.players[e[2]].n,w:e[3],atk,win:r.w===tm})}
+        if(e[2]===fi&&e[6]!=null)out.push({type:'D',x:e[6],y:e[7],kx:e[8],ky:e[9],m,map:d.map,map_id:d.map_id,id,ri,t:e[0],other:e[1]!=null?d.players[e[1]].n:'?',w:e[3],atk,win:r.w===tm});
+      })})});
+  return out;
+}
+
+// ---------- lobbydistributie (alle niet-vrienden in de gekozen matches) ----------
+function fbfdFor(d){const fb=new Array(d.players.length).fill(0),fd=new Array(d.players.length).fill(0);
+  d.rounds.forEach(r=>{if(r.ev[0]){if(r.ev[0][1]!=null)fb[r.ev[0][1]]++;fd[r.ev[0][2]]++}});return {fb,fd}}
+function lobbyRef(matchIds){
+  const ref={acs:[],adr:[],hs:[],kd:[],apr:[],fbr:[],fdr:[],dpr:[],trk:[],trd:[],iso:[],site:[]};
+  matchIds.forEach(id=>{const d=DATA.details[id];if(!d)return;const n=d.rounds.length||1,{fb,fd}=fbfdFor(d);
+    d.players.forEach((p,i)=>{if(p.fk)return;ref.acs.push(p.acs);ref.adr.push(p.adr);ref.hs.push(p.hs);ref.kd.push(p.k/Math.max(1,p.d));
+      ref.apr.push(p.a/n);ref.fbr.push(fb[i]/n);ref.fdr.push(fd[i]/n);ref.dpr.push(p.d/n);
+      if(p.trk!=null)ref.trk.push(p.trk/n);
+      if(p.trd!=null&&p.d)ref.trd.push(p.trd/p.d);
+      if(p.iso_t>=8)ref.iso.push(p.iso_a/p.iso_t);
+      if((p.site_w||0)+(p.site_a||0)>=3)ref.site.push(p.site_w/(p.site_w+p.site_a))})});
+  return ref;
+}
+
+// ---------- SPEELSTIJL ----------
+function styleFor(p,rows,ref){
+  const a=agg(rows); if(!a.m) return null;
+  const R=a.R, sum=k=>rows.reduce((s,r)=>s+(r[k]||0),0), pr=x=>Math.round(x);
+  const siteN=sum('site_w')+sum('site_a');
+  const v={acs:a.acs,adr:a.adr,hs:a.hsp*100,kd:a.kd,apr:a.a/R,fbr:sum('fb')/R,fdr:sum('fd')/R,dpr:a.d/R,
+    trk:sum('trk')/R,trd:a.d?sum('trd')/a.d:NaN,iso:sum('iso_t')?sum('iso_a')/sum('iso_t'):NaN,site:siteN?sum('site_w')/siteN:NaN};
+  const P={}; Object.keys(v).forEach(k=>P[k]=isFinite(v[k])&&ref[k]&&ref[k].length?pctile(ref[k],v[k]):50);
+  const avgOf=xs=>xs.reduce((s,x)=>s+x,0)/xs.length;
+  const teamplay=avgOf([P.apr,P.trk,P.trd]);
+  const withTeam=avgOf([100-P.iso,P.site]);
+  const radar=[['Aim',P.hs],['Impact',P.acs],['Entry',P.fbr],['Overleven',100-P.dpr],['Teamplay',teamplay],['Bij het team',withTeam],['Duels',P.kd]];
+  const evs=eventsFor(p.key,rows.map(r=>r.match),'all');
+  const C=[]; const add=(score,kind,title,text)=>C.push({score,kind,title,text});
+
+  // met het team mee of niet
+  if(siteN>=10){const sp=v.site*100,ref50=ref.site.length?avgOf(ref.site)*100:85;
+    if(P.site<=35&&ref50-sp>=7)add((50-P.site)*0.9+5,'bad','Gaat vaak ergens anders heen',`Op het moment dat jullie team de spike plant, stond je in ${pr(100-sp)}% van de rondes niet bij die site (lobby gemiddeld ${pr(100-ref50)}%). Je lurkt of roteert later dan je team.`);
+    else if(P.site>=65&&sp-ref50>=3)add((P.site-50)*0.8,'good','Gaat mee met het team',`Bij een plant stond je in ${pr(sp)}% van de rondes bij de site waar jullie team plantte. Je speelt de execute mee.`);}
+  if(isFinite(v.iso)){const ip=v.iso*100;
+    if(P.iso>=70)add((P.iso-50)*0.8,'bad','Je speelt veel alleen',`Op de momenten dat er iemand doodgaat, sta je in ${pr(ip)}% van de gevallen verder dan 15 meter van je dichtstbijzijnde teamgenoot. Meer dan ${pr(P.iso)}% van de lobby. Je wordt daardoor minder vaak getrade.`);
+    else if(P.iso<=30)add((50-P.iso)*0.8,'good','Speelt dicht bij het team',`Maar ${pr(ip)}% van de tijd sta je zonder teamgenoot in de buurt. Minder dan ${pr(100-P.iso)}% van de lobby.`);}
+  // teamplay
+  if(teamplay>=68)add(teamplay-45,'good','Teamspeler',`Je combineert assists (${v.apr.toFixed(2)} per ronde), trade-kills (${v.trk.toFixed(2)} per ronde) en getradede deaths (${pr(v.trd*100)}%). Samen beter dan ${pr(teamplay)}% van de lobby.`);
+  else if(teamplay<=32)add(55-teamplay,'bad','Weinig samenspel',`Weinig assists, trade-kills en getradede deaths vergeleken met de lobby. Je acties staan vaak los van die van je team.`);
+  // entry
+  if(P.fbr>=65) add(P.fbr-50+(P.fdr>=65?5:0),'neutral','Je opent de rondes',`${v.fbr.toFixed(2)} first bloods per ronde, meer dan ${pr(P.fbr)}% van de spelers in jullie potjes. ${P.fdr>=65?`Maar je gaat ook vaak als eerste neer (${v.fdr.toFixed(2)} per ronde).`:'En je gaat zelden als eerste neer. Sterk.'}`);
+  else if(P.fdr>=65) add(P.fdr-45,'bad','Vaak als eerste neer',`${v.fdr.toFixed(2)} first deaths per ronde, meer dan ${pr(P.fdr)}% van de lobby, zonder veel first bloods terug.`);
+  // aim, impact
+  add(Math.abs(P.hs-50),P.hs>=55?'good':P.hs<=40?'bad':'neutral',P.hs>=55?'Sterke aim':'Aim op het hoofd kan beter',`Je headshotpercentage is ${pr(v.hs)}%, hoger dan ${pr(P.hs)}% van de spelers in jullie lobbies.`);
+  add(Math.abs(P.acs-50)+3,P.acs>=55?'good':P.acs<=40?'bad':'neutral',P.acs>=70?'Je draagt het team':P.acs>=55?'Bovengemiddelde impact':'Impact per ronde kan omhoog',`ACS ${pr(v.acs)} en ADR ${pr(v.adr)}. Beter dan ${pr(P.acs)}% van de lobby.`);
+  // timing
+  if(a.d>=10){const ep=a.earlyp*100;
+    if(ep>=25) add(ep-12,'bad','Vroeg in de ronde neer',`${pr(ep)}% van je deaths valt in de eerste 20 seconden van een ronde.`);
+    else if(a.dtime>=45) add((a.dtime-40)*0.8,'good','Geduldig speler',`Je gaat gemiddeld pas na ${pr(a.dtime)} seconden dood.`)}
+  // hero buys
+  const hn=sum('hero_n'),hw=sum('hero_w');
+  if(hn>=5){const hb=a.buy.full,fullwr=hb[1]?hb[0]/hb[1]:NaN;add(8+hn*0.6,hw/hn<0.3?'bad':'neutral','Koopt alleen als het team spaart',`${hn} keer kocht je iets terwijl hoogstens één teamgenoot kocht. Die rondes won jullie team ${hw} keer (${pc(hw/hn)}).`)}
+  // kant
+  if(isFinite(a.atkkd)&&isFinite(a.defkd)){const df=a.atkkd-a.defkd;if(Math.abs(df)>=0.2)add(Math.abs(df)*50,'neutral',df>0?'Sterker in de aanval':'Sterker in de verdediging',`K/D in de aanval ${a.atkkd.toFixed(2)}, in de verdediging ${a.defkd.toFixed(2)}.`)}
+  // plekken, per map
+  const byC={};evs.forEach(e=>{const c=callout(e.m,e.x,e.y);if(!c)return;const kk=`${c}|${e.map}`;byC[kk]=byC[kk]||{k:0,d:0,c,map:e.map};byC[kk][e.type==='K'?'k':'d']++});
+  const cl=Object.values(byC);
+  const worst=cl.filter(s=>s.d>=4&&s.d>s.k).sort((x,y)=>(y.d-y.k)-(x.d-x.k))[0];
+  const best=cl.filter(s=>s.k>=4&&s.k>s.d).sort((x,y)=>(y.k-y.d)-(x.k-x.d))[0];
+  if(worst)add(10+(worst.d-worst.k)*2,'bad',`Lastige plek: ${worst.c} op ${worst.map}`,`Daar ging je ${worst.d} keer dood en maakte je ${worst.k} kills. Bekijk op de pagina Heatmap hoe je daar binnenkomt.`);
+  if(best)add(9+(best.k-best.d)*2,'good',`Jouw plek: ${best.c} op ${best.map}`,`Daar maakte je ${best.k} kills tegenover ${best.d} deaths.`);
+  // consistentie en vorm
+  if(rows.length>=8){const xs=rows.map(r=>r.acs_sum/r.rounds),mu=avgOf(xs),sd=Math.sqrt(xs.reduce((s,x)=>s+(x-mu)**2,0)/xs.length),cv=sd/mu;
+    if(cv>=0.38)add((cv-0.3)*90,'neutral','Wisselvallig',`Je ACS schommelt sterk per match (tussen ${pr(Math.min(...xs))} en ${pr(Math.max(...xs))}).`);
+    if(rows.length>=10){const last=avgOf(xs.slice(0,5)),rest=avgOf(xs.slice(5)),df=(last-rest)/rest*100;
+      if(Math.abs(df)>=12)add(Math.abs(df)*0.7,df>0?'good':'bad',df>0?'In vorm':'Uit vorm',`Je laatste 5 matches had je een ACS van ${pr(last)}, tegenover ${pr(rest)} daarvoor.`)}}
+  // utility
+  const up=utilityPct(p,rows);
+  if(up){if(up.pct<=35)add((50-up.pct)*0.9,'bad','Weinig utility gebruikt',`${up.avg.toFixed(1)} abilities per ronde, minder dan ${pr(100-up.pct)}% van de spelers op dezelfde agents.`);
+    else if(up.pct>=65)add((up.pct-50)*0.9,'good','Veel utility',`${up.avg.toFixed(1)} abilities per ronde, meer dan ${pr(up.pct)}% van de spelers op dezelfde agents.`)}
+  // archetype
+  let arche='Allrounder';
+  if(P.acs>=75)arche='Carry';
+  if(P.fbr>=65&&P.fdr>=55)arche='Entry fragger';
+  else if(P.iso>=65&&P.site<=45&&P.fbr<55)arche='Lurker';
+  else if(teamplay>=68&&P.acs<70)arche='Support';
+  else if(100-P.dpr>=65&&P.fbr<45)arche='Anchor';
+  C.sort((x,y)=>y.score-x.score);
+  let top=C.slice(0,5);if(!top.some(c=>c.kind==='bad')){const b=C.find(c=>c.kind==='bad');if(b)top[4]=b}
+  // ---- profielkaart: kenmerken
+  const ag={};rows.forEach(r=>ag[r.agent]=(ag[r.agent]||0)+1);const agL=Object.entries(ag).sort((x,y)=>y[1]-x[1]);
+  const agTxt=agL[0][1]/rows.length>=0.7?`One-trick: ${agL[0][0]} (${pr(agL[0][1]/rows.length*100)}%)`:agL.length>=4?`Flexibel: ${agL.length} agents`:agL.slice(0,2).map(x=>x[0]).join(' en ');
+  const wk=Object.entries(a.wpn).sort((x,y)=>y[1]-x[1]);const kt=wk.reduce((s,x)=>s+x[1],0)||1;
+  const snip=(a.wpn.Operator||0)+(a.wpn.Marshal||0)+(a.wpn.Outlaw||0);
+  const wTxt=snip/kt>=0.2?`Sniper (${pr(snip/kt*100)}% van je kills)`:wk[0]?`${wk[0][0]} (${pr(wk[0][1]/kt*100)}% van je kills)`:'–';
+  const mp={};rows.forEach(r=>(mp[r.map]=mp[r.map]||[]).push(r));const mL=Object.entries(mp).filter(([m,l])=>l.length>=3).map(([m,l])=>({m,n:l.length,wr:wr(l)})).sort((x,y)=>y.wr-x.wr);
+  const aggr=a.dtime<=35?'Agressief':a.dtime>=48?'Afwachtend':'Gemiddeld';
+  const traits=[
+    ['Speltype',arche],
+    ['Agents',agTxt],
+    ['Wapenvoorkeur',wTxt],
+    ['Mee met het team',siteN>=5?`${pr(v.site*100)}% bij de plant-site`+` <span class="tm">lobby ${pr(avgOf(ref.site)*100)}%</span>`:'te weinig data'],
+    ['Alleen op de kaart',isFinite(v.iso)?`${pr(v.iso*100)}% van de tijd <span class="tm">lobby ${pr(avgOf(ref.iso)*100)}%</span>`:'–'],
+    ['Trades',`${v.trk.toFixed(2)} trade-kills per ronde · ${pr((v.trd||0)*100)}% van je deaths getraded`],
+    ['Speeltempo',`${aggr} · gem. death na ${pr(a.dtime)} s`],
+    ['Openingsduels',`${v.fbr.toFixed(2)} FB en ${v.fdr.toFixed(2)} FD per ronde`],
+    ['Sterkste kant',isFinite(a.atkkd)&&isFinite(a.defkd)?(a.atkkd>a.defkd?`Aanval (K/D ${a.atkkd.toFixed(2)})`:`Verdediging (K/D ${a.defkd.toFixed(2)})`):'–'],
+    ['Beste map',mL[0]?`${mL[0].m} (${pc(mL[0].wr)} van ${mL[0].n})`:'min. 3 matches per map nodig'],
+    ['Lastigste map',mL.length>1?`${mL[mL.length-1].m} (${pc(mL[mL.length-1].wr)} van ${mL[mL.length-1].n})`:'–'],
+    ['Clutches',a.cla?`${a.clw} van ${a.cla} gewonnen (${pc(a.clw/a.cla)})`:'–'],
+    ['Hero buys',hn?`${hn}x gekocht terwijl het team spaarde, ${pc(hw/hn)} gewonnen`:'nooit'],
+  ];
+  return {arche,radar,points:top,v,P,n:rows.length,traits};
+}
+function radarSVG(series){
+  const N=series[0].radar.length,cx=160,cy=150,R=105;const ang=i=>-Math.PI/2+i*2*Math.PI/N;const pt=(i,r)=>[cx+Math.cos(ang(i))*r,cy+Math.sin(ang(i))*r];
+  let g='';[25,50,75,100].forEach(l=>g+=`<polygon points="${[...Array(N)].map((_,i)=>pt(i,R*l/100).join(',')).join(' ')}" fill="none" stroke="#22303f"/>`);
+  series[0].radar.forEach(([lab],i)=>{const [x,y]=pt(i,R+20);g+=`<line x1="${cx}" y1="${cy}" x2="${pt(i,R)[0]}" y2="${pt(i,R)[1]}" stroke="#1b2633"/><text x="${x}" y="${y+4}" fill="#8696a7" font-size="12" text-anchor="middle">${lab}</text>`});
+  series.forEach(s=>{g+=`<polygon points="${s.radar.map(([,v],i)=>pt(i,R*Math.max(4,v)/100).join(',')).join(' ')}" fill="${s.color}" fill-opacity=".18" stroke="${s.color}" stroke-width="2"/>`});
+  return `<svg viewBox="0 0 320 300" width="100%" style="max-width:360px">${g}</svg>`;
+}
+function renderStyle(app,act){
+  const ids=[...new Set(act.flatMap(p=>rowsFor(p).map(r=>r.match)))];
+  const ref=lobbyRef(ids);
+  const S=act.map(p=>({p,s:styleFor(p,rowsFor(p),ref)})).filter(x=>x.s);
+  if(!S.length)return;
+  const icon=k=>k==='good'?'<span style="color:var(--win)">▲</span>':k==='bad'?'<span style="color:var(--loss)">▼</span>':'<span style="color:var(--gold)">●</span>';
+  const axes=[['Aim','headshotpercentage'],['Impact','ACS'],['Entry','first bloods per ronde'],['Overleven','hoe weinig je per ronde doodgaat'],['Teamplay','assists, trade-kills en getradede deaths samen'],['Bij het team','mee naar de plant-site en niet alleen op de kaart'],['Duels','K/D']];
+  let h=`<section><h2>Speelstijl</h2><p class="lead">Wat jullie statistieken zeggen over hoe jullie spelen, binnen de gekozen matches. Alles is vergeleken met de andere spelers in jullie potjes (${ref.acs.length} spelerprestaties). ▲ sterk punt · ▼ verbeterpunt · ● kenmerk.</p>
+   <div class="g2" style="grid-template-columns:minmax(260px,360px) 1fr;align-items:start"><div class="panel"><h3>Profiel <small>percentiel t.o.v. de lobby</small></h3>${radarSVG(S.map(x=>({radar:x.s.radar,color:x.p.color})))}
+   <div class="legend">${S.map(x=>`<span><i class="dot" style="background:${x.p.color}"></i>${x.p.name}</span>`).join('')}</div>
+   <details style="margin-top:12px"><summary style="cursor:pointer;color:var(--mute);font-size:13px">Waar zijn de assen op gebaseerd?</summary><table style="margin-top:6px"><tbody>${axes.map(([a,b])=>`<tr><td><b>${a}</b></td><td style="color:#b9c7d6">${b}</td></tr>`).join('')}</tbody></table>
+   <div style="color:var(--mute);font-size:12px;margin-top:6px">Buitenste ring = beter dan bijna iedereen in de lobby, midden = slechter dan bijna iedereen.</div></details></div><div style="display:grid;gap:18px">`;
+  S.forEach(({p,s})=>{
+    h+=`<div class="panel" style="border-top:3px solid ${p.color}"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap"><h3 style="color:${p.color};margin:0">${p.name}</h3>
+      <span class="pill" style="background:color-mix(in srgb,${p.color} 18%,transparent);color:${p.color};font-size:14px">${s.arche}</span></div>
+      <ol style="list-style:none;margin-top:10px">${s.points.map(c=>`<li style="display:grid;grid-template-columns:22px 1fr;gap:6px;padding:9px 0;border-bottom:1px solid #18232f">${icon(c.kind)}<div><b>${c.title}</b><div style="color:#b9c7d6;font-size:14px">${c.text}</div></div></li>`).join('')}</ol></div>`;
+  });
+  h+='</div></div></section>';
+  // profielkaart
+  h+=`<section><h2>Profielkaart</h2><p class="lead">Alle kenmerken die we uit jullie potjes kunnen halen, op een rij.</p><div class="g2" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr))">`+
+    S.map(({p,s})=>`<div class="panel" style="border-top:3px solid ${p.color}"><h3 style="color:${p.color}">${p.name}</h3><table class="traits"><tbody>${s.traits.map(([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`).join('')}</tbody></table></div>`).join('')+'</div></section>';
+  app.insertAdjacentHTML('beforeend',h);
+}
+
+// ---------- HEATMAP (overzicht, over meerdere matches) ----------
+let HM={map:'',who:'',type:'D',side:'all',mode:'heat'};
+function heatLayer(m,pts,color,mode){
+  let g='';
+  if(mode==='heat'){g+=`<g filter="url(#hblur)">`+pts.map(p=>{const [x,y]=toImg(m,p.x,p.y);return `<circle cx="${x}" cy="${y}" r="26" fill="${color}" fill-opacity=".22"/>`}).join('')+'</g>'}
+  g+=pts.map(p=>{const [x,y]=toImg(m,p.x,p.y);const c=callout(m,p.x,p.y)||'';
+    const tipTxt=`${p.type==='K'?'Kill op '+p.other:'Dood door '+p.other} · ${p.w} · ${p.t} s<br>${c} · ${p.map} · ${p.atk?'aanval':'verdediging'}`;
+    return p.type==='K'?`<circle class="hp" cx="${x}" cy="${y}" r="${mode==='heat'?5:7}" fill="${color}" stroke="#06090d" stroke-width="1.5" data-h="${esc(tipTxt)}"/>`
+      :`<g class="hp" data-h="${esc(tipTxt)}"><circle cx="${x}" cy="${y}" r="9" fill="transparent"/><path d="M${x-6},${y-6}L${x+6},${y+6}M${x+6},${y-6}L${x-6},${y+6}" stroke="${color}" stroke-width="3.2" stroke-linecap="round"/></g>`}).join('');
+  return g;
+}
+function mapFrame(m,inner){return `<svg viewBox="0 0 1000 1000" width="100%" style="display:block;background:#0b1118;border-radius:4px"><defs><filter id="hblur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="16"/></filter></defs><image href="${m.icon}" width="1000" height="1000" opacity=".85"/>${inner}</svg>`}
+function renderHeatOverview(app,act){
+  if(!DATA.maps||!Object.keys(DATA.maps).length)return;
+  const sec=document.createElement('section');sec.id='heatSec';app.appendChild(sec);
+  const draw=()=>{
+    const ids=[...new Set(act.flatMap(p=>rowsFor(p).map(r=>r.match)))].filter(id=>DATA.details[id]&&mapOf(DATA.details[id]));
+    const cnt={};ids.forEach(id=>{const n=DATA.details[id].map;cnt[n]=(cnt[n]||0)+1});
+    const maps=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]);
+    if(!maps.length){sec.innerHTML='';return}
+    if(!maps.includes(HM.map))HM.map=maps[0];
+    const whoList=act.filter(p=>p.key);if(!whoList.find(p=>p.key===HM.who))HM.who=whoList[0].key;
+    const mids=ids.filter(id=>DATA.details[id].map===HM.map);
+    const m=mapOf(DATA.details[mids[0]]);
+    const evs=eventsFor(HM.who,mids,HM.side).filter(e=>HM.type==='B'||e.type===HM.type);
+    const col=colorOf(HM.who);
+    let inner='';
+    if(HM.type!=='K')inner+=heatLayer(m,evs.filter(e=>e.type==='D'),'#ff4655',HM.mode);
+    if(HM.type!=='D')inner+=heatLayer(m,evs.filter(e=>e.type==='K'),'#3ee6a0',HM.mode);
+    // callout-tabel
+    const byC={};eventsFor(HM.who,mids,HM.side).forEach(e=>{const c=callout(m,e.x,e.y)||'?';byC[c]=byC[c]||{k:0,d:0};byC[c][e.type==='K'?'k':'d']++});
+    const rowsC=Object.entries(byC).sort((a,b)=>(b[1].k+b[1].d)-(a[1].k+a[1].d)).slice(0,12);
+    const btn=(grp,val,lab)=>`<button class="btn ${HM[grp]===val?'on':''}" data-hm="${grp}" data-v="${val}">${lab}</button>`;
+    sec.innerHTML=`<h2>Heatmap</h2><p class="lead">Waar de kills en deaths vallen, over alle gekozen matches op één map. Kills staan op de plek waar de speler stond, deaths op de plek waar hij viel. Beweeg over een punt voor details.</p>
+     <div class="panel" style="margin-bottom:14px"><div class="frow" style="gap:8px">
+       <select id="hmMap">${maps.map(n=>`<option ${n===HM.map?'selected':''} value="${n}">${n} (${cnt[n]})</option>`).join('')}</select>
+       <select id="hmWho">${whoList.map(p=>`<option value="${p.key}" ${p.key===HM.who?'selected':''}>${p.name}</option>`).join('')}</select>
+       ${btn('type','D','Deaths')}${btn('type','K','Kills')}${btn('type','B','Beide')}
+       <span style="width:10px"></span>${btn('side','all','Beide kanten')}${btn('side','atk','Aanval')}${btn('side','def','Verdediging')}
+       <span style="width:10px"></span>${btn('mode','heat','Heatmap')}${btn('mode','dots','Punten')}</div></div>
+     <div class="g2" style="grid-template-columns:minmax(300px,620px) 1fr;align-items:start"><div class="panel" style="padding:10px">${mapFrame(m,inner)}</div>
+      <div class="panel scroll"><h3>Per plek <small>${HM.map} · ${mids.length} matches</small></h3><table><thead><tr><th>Plek</th><th>Kills</th><th>Deaths</th><th>Saldo</th></tr></thead><tbody>${rowsC.map(([c,s])=>`<tr><td>${c}</td><td style="color:var(--win)">${s.k}</td><td style="color:var(--loss)">${s.d}</td><td><b style="color:${s.k-s.d>=0?'var(--win)':'var(--loss)'}">${s.k-s.d>0?'+':''}${s.k-s.d}</b></td></tr>`).join('')}</tbody></table>
+      <div style="color:var(--mute);font-size:12px;margin-top:10px">De plek is de dichtstbijzijnde callout op de kaart.</div></div></div>`;
+    sec.querySelector('#hmMap').onchange=e=>{HM.map=e.target.value;draw()};
+    sec.querySelector('#hmWho').onchange=e=>{HM.who=e.target.value;draw()};
+    sec.querySelectorAll('[data-hm]').forEach(b=>b.onclick=()=>{HM[b.dataset.hm]=b.dataset.v;draw()});
+    sec.querySelectorAll('.hp').forEach(e=>bindTip(e,e.dataset.h));
+  };
+  draw();
+}
+
+// ---------- HEATMAP IN HET MATCHVERSLAG ----------
+let MH={show:{K:1,D:1,P:1},round:'all',off:{}};
+function matchHeatHTML(d){
+  const m=mapOf(d);
+  if(!m)return `<section><h2>Heatmap</h2><div class="panel" style="color:var(--mute)">Voor deze map zijn nog geen kaartgegevens beschikbaar.</div></section>`;
+  return `<section><h2>Wat er gebeurde op de kaart</h2><p class="lead">Groene stip = waar een kill werd gemaakt, met een lijn naar het slachtoffer. Rood kruis = waar iemand van jullie viel, met een lijn naar de killer. De dunne lijnen zijn jullie posities door de ronde heen, vastgelegd op elk moment dat er iemand doodging.</p>
+   <div class="panel" style="margin-bottom:14px"><div class="frow" id="mhCtl" style="gap:8px"></div></div>
+   <div class="g2" style="grid-template-columns:minmax(300px,620px) 1fr;align-items:start"><div class="panel" style="padding:10px" id="mhMap"></div><div class="panel scroll" id="mhTab"></div></div></section>`;
+}
+function drawMatchHeat(d,F,myTeam){
+  const m=mapOf(d);if(!m)return;
+  const ctl=$('#mhCtl'),box=$('#mhMap'),tab=$('#mhTab');
+  const draw=()=>{
+    const col=f=>colorOf(f.fk);
+    ctl.innerHTML=F.map(f=>`<button class="chip ${MH.off[f.i]?'':'on'}" style="--c:${col(f)}" data-f="${f.i}"><i class="dot" style="background:${col(f)}"></i>${f.n}</button>`).join('')+
+      `<span style="width:8px"></span>`+[['K','Kills'],['D','Deaths'],['P','Posities']].map(([k,l])=>`<button class="btn ${MH.show[k]?'on':''}" data-s="${k}">${l}</button>`).join('')+
+      `<select id="mhRound"><option value="all">Alle rondes</option>${d.rounds.map((r,i)=>`<option value="${i}" ${String(i)===String(MH.round)?'selected':''}>Ronde ${i+1} · ${r.w===myTeam?'W':'L'} · ${isAtk(myTeam,i,d.fha)?'aanval':'verdediging'}</option>`).join('')}</select>`;
+    const rounds=MH.round==='all'?d.rounds.map((r,i)=>i):[+MH.round];
+    let g='',stats={};
+    F.filter(f=>!MH.off[f.i]).forEach(f=>{stats[f.i]={};const c=col(f);
+      rounds.forEach(ri=>{const r=d.rounds[ri];
+        if(MH.show.P){const tr=[];r.ev.forEach(e=>(e[10]||[]).forEach(q=>{if(q[0]===f.i)tr.push(q)}));
+          if(tr.length>1)g+=`<polyline points="${tr.map(q=>toImg(m,q[1],q[2]).join(',')).join(' ')}" fill="none" stroke="${c}" stroke-width="2" stroke-opacity=".45"/>`;
+          tr.forEach(q=>{const [x,y]=toImg(m,q[1],q[2]);g+=`<circle cx="${x}" cy="${y}" r="3" fill="${c}" fill-opacity=".6"/>`})}
+        r.ev.forEach(e=>{
+          if(MH.show.K&&e[1]===f.i&&d.players[e[2]].tm!==f.tm&&e[6]!=null){const kx=e[8]!=null?e[8]:e[6],ky=e[9]!=null?e[9]:e[7];const [x1,y1]=toImg(m,kx,ky),[x2,y2]=toImg(m,e[6],e[7]);const co=callout(m,kx,ky);
+            stats[f.i][co]=stats[f.i][co]||{k:0,d:0};stats[f.i][co].k++;
+            g+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#3ee6a0" stroke-width="1.6" stroke-dasharray="5 4" opacity=".7"/><circle cx="${x2}" cy="${y2}" r="3" fill="#ff8a95"/>
+              <circle class="hp" cx="${x1}" cy="${y1}" r="8" fill="${c}" stroke="#3ee6a0" stroke-width="3" data-h="${esc(`<b style='color:${c}'>${f.n}</b> · ronde ${ri+1}<br>Kill op ${d.players[e[2]].n} · ${e[3]} · ${e[0]} s<br>Vanaf ${co||'?'}`)}"/>`}
+          if(MH.show.D&&e[2]===f.i&&e[6]!=null){const [x,y]=toImg(m,e[6],e[7]);const co=callout(m,e[6],e[7]);stats[f.i][co]=stats[f.i][co]||{k:0,d:0};stats[f.i][co].d++;
+            if(e[8]!=null){const [kx,ky]=toImg(m,e[8],e[9]);g+=`<line x1="${kx}" y1="${ky}" x2="${x}" y2="${y}" stroke="#ff4655" stroke-width="1.6" stroke-dasharray="5 4" opacity=".75"/><circle cx="${kx}" cy="${ky}" r="4" fill="#ff4655"/>`}
+            g+=`<g class="hp" data-h="${esc(`<b style='color:${c}'>${f.n}</b> · ronde ${ri+1}<br>Dood door ${e[1]!=null?d.players[e[1]].n:'?'} · ${e[3]} · ${e[0]} s<br>In ${co||'?'}${e[5]!=null?' · teamgenoot op '+Math.round(e[5]/100)+' m':''}`)}"><circle cx="${x}" cy="${y}" r="11" fill="#06090d" fill-opacity=".6"/><path d="M${x-7},${y-7}L${x+7},${y+7}M${x+7},${y-7}L${x-7},${y+7}" stroke="${c}" stroke-width="3.6" stroke-linecap="round"/></g>`}
+        })})});
+    box.innerHTML=mapFrame(m,g);
+    tab.innerHTML=`<h3>Per plek <small>${MH.round==='all'?'hele match':'ronde '+(+MH.round+1)}</small></h3>`+F.filter(f=>!MH.off[f.i]).map(f=>{const rows=Object.entries(stats[f.i]).sort((a,b)=>(b[1].k+b[1].d)-(a[1].k+a[1].d)).slice(0,8);
+      return `<div class="label" style="color:${col(f)};margin-top:10px">${f.n}</div><table><tbody>${rows.length?rows.map(([c,s])=>`<tr><td>${c}</td><td style="color:var(--win)">${s.k} kills</td><td style="color:var(--loss)">${s.d} deaths</td></tr>`).join(''):'<tr><td style="color:var(--mute)">Geen kills of deaths</td></tr>'}</tbody></table>`}).join('');
+    ctl.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{MH.off[b.dataset.f]=!MH.off[b.dataset.f];draw()});
+    ctl.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{MH.show[b.dataset.s]=!MH.show[b.dataset.s];draw()});
+    ctl.querySelector('#mhRound').onchange=e=>{MH.round=e.target.value;draw()};
+    box.querySelectorAll('.hp').forEach(e=>bindTip(e,e.dataset.h));
+  };
+  draw();
+}
+
+// ---------- COACH-FEEDBACK PER MATCH ----------
+
+// ================= DUO-SYNERGIE, TILT, AGENT-ADVIES, UTILITY =================
+const allRowsFor=p=>(DATA.matches[p.key]||[]).filter(baseFilter);   // zonder "laatste N": voor advies en trends
+const wr=rs=>rs.length?rs.filter(r=>r.result==='W').length/rs.length:NaN;
+const acsOf=rs=>{const R=rs.reduce((s,r)=>s+r.rounds,0);return R?rs.reduce((s,r)=>s+r.acs_sum,0)/R:NaN};
+const pc=v=>isFinite(v)?Math.round(v*100)+'%':'–';
+const n0=v=>isFinite(v)?Math.round(v):'–';
+const sectionWrap=(title,lead,inner)=>`<section><h2>${title}</h2>${lead?`<p class="lead">${lead}</p>`:''}${inner}</section>`;
+
+// ---------- utility t.o.v. spelers op dezelfde agent ----------
+function utilityPct(p,rows){
+  const byAgent={};
+  Object.values(DATA.details||{}).forEach(d=>d.players.forEach(q=>{if(!q.fk&&q.ag&&q.ut!=null)(byAgent[q.ag]=byAgent[q.ag]||[]).push(q.ut)}));
+  let sum=0,w=0,mine=[];
+  rows.forEach(r=>{const d=DATA.details[r.match];if(!d)return;const me=d.players.find(q=>q.fk===p.key);if(!me||me.ut==null)return;
+    const ref=byAgent[me.ag]||[];if(ref.length<8)return;sum+=pctile(ref,me.ut);w++;mine.push(me.ut)});
+  return w>=3?{pct:sum/w,avg:mine.reduce((s,x)=>s+x,0)/mine.length,n:w}:null;
+}
+
+// ---------- duo-synergie ----------
+function renderSynergy(app,act){
+  if(act.length<2)return;
+  const pairs=[];for(let i=0;i<act.length;i++)for(let j=i+1;j<act.length;j++)pairs.push([act[i],act[j]]);
+  let h='<div class="g2" style="grid-template-columns:repeat(auto-fit,minmax(340px,1fr))">';
+  pairs.forEach(([a,b])=>{
+    const ra=allRowsFor(a), withB=ra.filter(r=>(r.with||[]).includes(b.key)), withoutB=ra.filter(r=>!(r.with||[]).includes(b.key));
+    const rb=allRowsFor(b), withA=rb.filter(r=>(r.with||[]).includes(a.key)), withoutA=rb.filter(r=>!(r.with||[]).includes(a.key));
+    if(!withB.length){h+=`<div class="panel"><h3><span style="color:${a.color}">${a.name}</span> + <span style="color:${b.color}">${b.name}</span></h3><div style="color:var(--mute)">Nog geen matches samen in deze selectie.</div></div>`;return}
+    // agentcombinaties
+    const combo={};withB.forEach(r=>{const rB=withA.find(x=>x.match===r.match);if(!rB)return;const k=`${r.agent} + ${rB.agent}`;(combo[k]=combo[k]||[]).push(r)});
+    const combos=Object.entries(combo).filter(([k,v])=>v.length>=2).sort((x,y)=>wr(y[1])-wr(x[1])||y[1].length-x[1].length);
+    const line=(p,w,wo)=>`<tr><td style="color:${p.color};font-weight:700">${p.name}</td><td>${pc(wr(w))} <span style="color:var(--mute)">(${w.length})</span></td><td>${pc(wr(wo))} <span style="color:var(--mute)">(${wo.length})</span></td><td>${n0(acsOf(w))}</td><td>${n0(acsOf(wo))}</td></tr>`;
+    const dW=wr(withB)-wr(withoutB);
+    h+=`<div class="panel scroll"><h3><span style="color:${a.color}">${a.name}</span> + <span style="color:${b.color}">${b.name}</span> <small>${withB.length} matches samen</small></h3>
+      <div style="display:flex;gap:26px;align-items:baseline;margin:4px 0 12px"><div><span class="big" style="font-size:44px;color:${wr(withB)>=.5?'var(--win)':'var(--loss)'}">${pc(wr(withB))}</span> <span style="color:var(--mute);font-size:13px">winrate samen</span></div></div>
+      <table><thead><tr><th></th><th>Win samen</th><th>Win zonder</th><th>ACS samen</th><th>ACS zonder</th></tr></thead><tbody>${line(a,withB,withoutB)}${line(b,withA,withoutA)}</tbody></table>
+      ${combos.length?`<div class="label" style="margin-top:14px">Beste agentcombinaties <span style="text-transform:none;letter-spacing:0;font-weight:400">(min. 2 matches)</span></div><table><tbody>${combos.slice(0,4).map(([k,v])=>`<tr><td>${k}</td><td>${pc(wr(v))}</td><td style="color:var(--mute)">${v.length} matches</td></tr>`).join('')}</tbody></table>`:''}
+      <div style="margin-top:12px;padding:10px 12px;border-left:3px solid ${isFinite(dW)&&dW>=0?'var(--win)':'var(--loss)'};background:rgba(255,255,255,.03);font-size:14px">${!isFinite(dW)||!withoutB.length?'Te weinig matches zonder elkaar om te vergelijken.':Math.abs(dW)<0.05?`${a.name} wint ongeveer even vaak met als zonder ${b.name}.`:`${a.name} wint <b>${Math.round(Math.abs(dW)*100)} procentpunt ${dW>0?'vaker':'minder vaak'}</b> als ${b.name} meespeelt.`}</div></div>`;
+  });
+  if(act.length===3){const [a,b,c]=act;const trio=allRowsFor(a).filter(r=>(r.with||[]).includes(b.key)&&(r.with||[]).includes(c.key));
+    if(trio.length)h+=`<div class="panel"><h3>Met z'n drieën <small>${trio.length} matches</small></h3><div><span class="big" style="font-size:44px;color:${wr(trio)>=.5?'var(--win)':'var(--loss)'}">${pc(wr(trio))}</span> <span style="color:var(--mute);font-size:13px">winrate</span></div>
+      <table style="margin-top:10px"><tbody>${act.map(p=>{const rs=allRowsFor(p).filter(r=>trio.some(t=>t.match===r.match));return `<tr><td style="color:${p.color};font-weight:700">${p.name}</td><td>ACS ${n0(acsOf(rs))}</td><td>K/D ${(rs.reduce((s,r)=>s+r.k,0)/Math.max(1,rs.reduce((s,r)=>s+r.d,0))).toFixed(2)}</td></tr>`}).join('')}</tbody></table></div>`}
+  app.insertAdjacentHTML('beforeend',sectionWrap('Duo-synergie','Spelen jullie beter samen? Winrate en ACS met en zonder elkaar, en welke agentcombinaties het best werken. Gebaseerd op alle matches binnen de gekozen modus, seizoen en map.',h+'</div>'));
+}
+
+// ---------- tilt-check ----------
+function sessionsOf(rows){
+  const asc=rows.slice().sort((a,b)=>new Date(a.date)-new Date(b.date));const out=[];let cur=[];
+  asc.forEach(r=>{if(cur.length&&(new Date(r.date)-new Date(cur[cur.length-1].date))>3*3600e3){out.push(cur);cur=[]}cur.push(r)});if(cur.length)out.push(cur);return out;
+}
+function renderTilt(app,act){
+  let h='<div class="g2" style="grid-template-columns:repeat(auto-fit,minmax(340px,1fr))">';let any=false;
+  act.forEach(p=>{
+    const S=sessionsOf(allRowsFor(p));if(S.flat().length<8)return;any=true;
+    const byIdx=[[],[],[],[]];const afterW=[],afterL=[],afterLL=[];
+    S.forEach(s=>s.forEach((r,i)=>{byIdx[Math.min(i,3)].push(r);if(i>0){(s[i-1].result==='W'?afterW:afterL).push(r);if(i>1&&s[i-1].result==='L'&&s[i-2].result==='L')afterLL.push(r)}}));
+    const base=acsOf(S.flat()),baseW=wr(S.flat());
+    const bar=(rs,lab)=>{const a=acsOf(rs);const w=wr(rs);return `<tr><td>${lab}</td><td>${rs.length}</td><td>${pc(w)}</td><td><b style="color:${!isFinite(a)?'':a>=base*1.05?'var(--win)':a<=base*0.95?'var(--loss)':''}">${n0(a)}</b></td></tr>`};
+    const tl=acsOf(afterLL),tw=acsOf(afterW);
+    let verdict;
+    if(afterLL.length>=3&&tl<=base*0.9)verdict=`<b>Tilt-gevoelig.</b> Na twee verloren potjes op rij zakt je ACS naar ${n0(tl)} (normaal ${n0(base)}) en win je ${pc(wr(afterLL))}. Na twee verliezen even pauze nemen kan lonen.`;
+    else if(afterLL.length>=3&&tl>=base*1.05)verdict=`<b>Je bijt terug.</b> Na twee verloren potjes op rij speel je juist beter: ACS ${n0(tl)} tegenover ${n0(base)} normaal.`;
+    else if(afterLL.length>=3)verdict=`<b>Stabiel.</b> Na verloren potjes blijft je niveau ongeveer gelijk (ACS ${n0(tl)} tegenover ${n0(base)}).`;
+    else verdict='Nog te weinig reeksen van twee verloren potjes om iets over tilt te zeggen.';
+    const late=byIdx[3],lateA=acsOf(late);
+    if(late.length>=4&&lateA<=base*0.9)verdict+=` Vanaf het 4e potje van een avond zakt je ACS naar ${n0(lateA)}.`;
+    h+=`<div class="panel"><h3 style="color:${p.color}">${p.name} <small>${S.length} speelsessies</small></h3>
+      <table><thead><tr><th>Situatie</th><th>Matches</th><th>Winrate</th><th>ACS</th></tr></thead><tbody>
+      ${bar(byIdx[0],'1e potje van de avond')}${bar(byIdx[1],'2e potje')}${bar(byIdx[2],'3e potje')}${bar(byIdx[3],'4e potje of later')}
+      ${bar(afterW,'Na een gewonnen potje')}${bar(afterL,'Na een verloren potje')}${bar(afterLL,'Na 2 verliezen op rij')}
+      <tr><td style="color:var(--mute)">Gemiddeld</td><td style="color:var(--mute)">${S.flat().length}</td><td style="color:var(--mute)">${pc(baseW)}</td><td style="color:var(--mute)">${n0(base)}</td></tr></tbody></table>
+      <div style="margin-top:12px;padding:10px 12px;border-left:3px solid ${p.color};background:rgba(255,255,255,.03);font-size:14px">${verdict}</div></div>`;
+  });
+  if(any)app.insertAdjacentHTML('beforeend',sectionWrap('Tilt-check','Hoe presteer je naarmate de avond vordert, en na winst of verlies? Een sessie is een reeks potjes met minder dan 3 uur ertussen. Groen = beter dan je gemiddelde, rood = slechter.',h+'</div>'));
+}
+
+// ---------- agent-advies per map ----------
+function renderAgentAdvice(app,act){
+  let h='<div class="g2" style="grid-template-columns:repeat(auto-fit,minmax(520px,1fr))">';let any=false;
+  act.forEach(p=>{
+    const rs=allRowsFor(p);const maps={};rs.forEach(r=>{(maps[r.map]=maps[r.map]||{})[r.agent]=(maps[r.map][r.agent]||[]).concat([r])});
+    const lines=Object.entries(maps).filter(([mp,ags])=>Object.values(ags).flat().length>=2).sort((a,b)=>Object.values(b[1]).flat().length-Object.values(a[1]).flat().length).map(([mp,ags])=>{
+      const list=Object.entries(ags).map(([ag,r])=>({ag,n:r.length,w:wr(r),acs:acsOf(r)}));
+      const most=list.slice().sort((a,b)=>b.n-a.n)[0];
+      const cand=list.filter(x=>x.n>=3);
+      const best=cand.sort((a,b)=>(b.w*100+b.acs/10)-(a.w*100+a.acs/10))[0];
+      let adv;
+      if(!best)adv=`<span style="color:var(--mute)">nog te weinig data</span>`;
+      else if(best.ag===most.ag)adv=`Blijf bij <b>${best.ag}</b>`;
+      else adv=`Probeer vaker <b>${best.ag}</b>`;
+      return `<tr><td>${mp}</td><td>${most.ag} <span style="color:var(--mute)">(${most.n}x, ${pc(most.w)})</span></td><td>${best?`${best.ag} <span style="color:var(--mute)">(${pc(best.w)}, ACS ${n0(best.acs)})</span>`:'–'}</td><td>${adv}</td></tr>`});
+    if(!lines.length)return;any=true;
+    h+=`<div class="panel scroll"><h3 style="color:${p.color}">${p.name}</h3><table><thead><tr><th>Map</th><th>Meest gespeeld</th><th>Beste agent</th><th>Advies</th></tr></thead><tbody>${lines.join('')}</tbody></table></div>`;
+  });
+  if(any)app.insertAdjacentHTML('beforeend',sectionWrap('Agent-advies per map','Per map je meest gespeelde agent en de agent waarmee je het best presteert (minstens 3 matches, op winrate en ACS).',h+'</div>'));
+}
+
+// ================= LEGENDA / BEGRIPPEN =================
+const GLOSS=[
+ ['Basis','acs','ACS','Average Combat Score. Een score per ronde die Valorant zelf berekent uit kills, multikills, schade en assists. Rond de 200 is gemiddeld, boven de 250 is sterk.'],
+ ['Basis','adr','ADR','Average Damage per Round. Gemiddelde schade die je per ronde doet. Rond de 130 tot 140 is gemiddeld.'],
+ ['Basis','kd','K/D','Kills gedeeld door deaths. 1.00 betekent dat je evenveel kills maakt als je doodgaat.'],
+ ['Basis','kda','KDA','(Kills + assists) gedeeld door deaths. Laat ook zien hoeveel je bijdraagt aan kills van anderen.'],
+ ['Basis','kast','KAST','Kill, Assist, Survived, Traded. Het percentage rondes waarin je minstens één van die vier deed. Een maat voor hoe vaak je iets bijdraagt. Rond de 70% is goed, boven de 75% sterk.'],
+ ['Basis','hs','HS% (headshot %)','Het deel van je raakschoten dat op het hoofd raakte. Headshots doen veel meer schade, dus een hoger percentage betekent snellere kills.'],
+ ['Basis','winrate','Winrate','Het percentage matches dat je won.'],
+ ['Basis','kpr','Kills per ronde','Gemiddeld aantal kills per ronde.'],
+ ['Gevecht','fb','First blood (FB)','De eerste kill van een ronde. Wie de first blood maakt, geeft zijn team een 5 tegen 4-voordeel.'],
+ ['Gevecht','fd','First death (FD)','Als eerste doodgaan in een ronde. Je team speelt dan de rest van de ronde met een man minder.'],
+ ['Gevecht','entry','Entry-saldo','First bloods min first deaths. Positief betekent dat je de openingsduels vaker wint dan verliest.'],
+ ['Gevecht','mk','Multikill (2K, 3K, 4K, Ace)','Meerdere kills in één ronde. 2K is twee kills, 3K drie, 4K vier en een Ace is het hele vijandelijke team (5K).'],
+ ['Gevecht','clutch','Clutch (1vX)','Een ronde waarin je als laatste van je team overblijft tegen één of meer tegenstanders. 1v2 betekent jij tegen twee. Een clutch gewonnen betekent dat je die ronde toch wint. Op de site telt elke situatie waarin je als laatste overbleef als poging.'],
+ ['Gevecht','duel','Duel','Een één-tegen-één gevecht. Bij "Duels per tegenstander" zie je hoe vaak je een bepaalde tegenstander uitschakelde en andersom.'],
+ ['Gevecht','nemesis','Kwelgeest / favoriete doelwit','De tegenstander die jou het vaakst uitschakelde, en de tegenstander die jij het vaakst uitschakelde.'],
+ ['Teamplay','trade','Trade','Als een teamgenoot de tegenstander uitschakelt die jou net doodde, ben je "getraded". Op de site telt dat als het binnen 5 seconden gebeurt.'],
+ ['Teamplay','tradek','Trade-kill','Een kill waarmee jij een teamgenoot wreekt: je schakelt binnen 5 seconden de tegenstander uit die net je teamgenoot doodde.'],
+ ['Teamplay','traded','Deaths getraded','Het percentage van je deaths waarbij een teamgenoot je killer binnen 5 seconden uitschakelde. Hoog betekent dat je dicht bij je team speelt.'],
+ ['Teamplay','assist','Assist','Je hielp bij een kill, bijvoorbeeld door schade te doen of een tegenstander te flashen of te markeren.'],
+ ['Teamplay','synergy','Duo-synergie','Hoe jullie presteren als jullie samen spelen tegenover apart. "Win samen" is de winrate in matches met elkaar in het team, "Win zonder" in matches zonder elkaar.'],
+ ['Positie','alone','Alleen gestorven','Je ging dood terwijl er geen teamgenoot binnen ongeveer 15 meter van je stond. Vaak alleen sterven past bij lurken, maar je wordt dan ook zelden getraded.'],
+ ['Positie','early','Vroege death','Doodgaan in de eerste 20 seconden van een ronde. Veel vroege deaths kan betekenen dat je te snel of te agressief opent.'],
+ ['Positie','dtime','Gem. moment van death','Na hoeveel seconden in de ronde je gemiddeld doodgaat. Hoger betekent dat je langer leeft.'],
+ ['Positie','callout','Callout','De naam van een plek op de map, zoals "A Lobby" of "B Main". Op de site wordt de dichtstbijzijnde callout gebruikt.'],
+ ['Positie','heatmap','Heatmap','Een kaart van de map waarop je ziet waar kills en deaths vaak gebeuren. Hoe roder of groener een plek, hoe vaker daar iets gebeurt.'],
+ ['Positie','positions','Posities / looproutes','In het matchverslag zie je waar jullie stonden. De API legt die posities alleen vast op elk moment dat iemand doodgaat, dus het is een benadering van je route.'],
+ ['Map en ronde','atk','Aanval (AANV)','De kant die de spike moet planten. Wordt ook "attack" genoemd.'],
+ ['Map en ronde','def','Verdediging (VERD)','De kant die de sites verdedigt en de spike moet defusen. Wordt ook "defense" genoemd.'],
+ ['Map en ronde','site','Site (A, B, C)','De plekken waar de spike geplant kan worden. In de ronde-voor-ronde-tabel staat de letter van de site waar geplant werd.'],
+ ['Map en ronde','plant','Plant / defuse','Planten is de spike op een site zetten (aanval). Defusen is hem onschadelijk maken (verdediging). "Plants / match" telt hoe vaak jij plantte.'],
+ ['Map en ronde','half','Helft en wissel','Na 12 rondes wisselen de teams van kant. Bij 12-12 volgt overtime, waarin elke ronde van kant wordt gewisseld.'],
+ ['Economie','bonus','Ronde na verloren pistolronde','Na een verloren pistolronde heeft je team weinig geld. Meestal spaart iedereen in ronde 2 (en 14), zodat je in ronde 3 alles kunt kopen. Koopt één speler dan toch bijvoorbeeld een Marshal, dan heet dat een force of "hero buy". Op de pagina Economie zie je hoe dat uitpakt.'],
+ ['Map en ronde','pistol','Pistolronde','De eerste ronde van elke helft (ronde 1 en 13). Iedereen heeft dan weinig geld en koopt alleen een pistool en eventueel licht schild.'],
+ ['Economie','loadout','Loadout','De totale waarde van wat je aan het begin van de ronde bij je hebt: wapen, schild en abilities.'],
+ ['Economie','eco','Eco','Een ronde waarin je bijna niets koopt (loadout onder ¤1.500) om geld te sparen voor de volgende ronde.'],
+ ['Economie','force','Force buy','Een ronde waarin je koopt wat je kunt, terwijl je eigenlijk te weinig geld hebt voor een volledige uitrusting (loadout ¤1.500 tot ¤3.600). Vaak een SMG, shotgun of goedkoop geweer.'],
+ ['Economie','full','Full buy','Een ronde met een volledige uitrusting: een geweer zoals Vandal of Phantom en zwaar schild (loadout ¤3.600 of meer).'],
+ ['Economie','credits','Credits (¤)','Het geld in Valorant. Je verdient het met kills, plants en rondewinst, en geeft het uit aan wapens, schild en abilities.'],
+ ['Utility','util','Abilities / utility','De vaardigheden van je agent, zoals smokes, flashes en muren. "Abilities / ronde" telt hoeveel je er gemiddeld per ronde gebruikt, zonder je ultimate.'],
+ ['Utility','ult','Ultimate (ult)','De sterkste vaardigheid van je agent, die je oplaadt met kills, deaths en orbs. "Ults / match" telt hoe vaak je hem gebruikte.'],
+ ['Utility','roles','Rollen: Duelist, Initiator, Controller, Sentinel','Duelist: maakt ruimte en zoekt gevechten (bijv. Phoenix, Jett). Initiator: verzamelt info en helpt anderen binnenkomen (Sova, Skye). Controller: blokkeert zicht met smokes (Brimstone, Omen). Sentinel: verdedigt en houdt flanken in de gaten (Sage, Killjoy).'],
+ ['Speelstijl','percentile','Percentiel / t.o.v. de lobby','"Hoger dan 70% van de lobby" betekent dat je beter scoort dan 70% van alle andere spelers in jullie potjes, teamgenoten en tegenstanders samen.'],
+ ['Speelstijl','radar','Profiel (radar)','Zeven eigenschappen als percentiel tegenover de lobby. Aim = headshot %. Impact = ACS. Entry = first bloods per ronde. Overleven = hoe weinig je doodgaat. Teamplay = assists, trade-kills en getradede deaths samen. Bij het team = of je bij de plant-site staat en hoe vaak je zonder teamgenoot in de buurt bent. Duels = K/D.'],
+ ['Speelstijl','withteam','Mee met het team','Op het moment dat jullie team de spike plant: stond je bij die site, of ergens anders op de kaart? Rondes waarin je al dood was tellen niet mee. Gemeten met de posities die de game vastlegt.'],
+ ['Speelstijl','iso','Alleen op de kaart','Hoe vaak je verder dan ongeveer 15 meter van je dichtstbijzijnde teamgenoot stond, gemeten op elk moment dat er iemand doodging.'],
+ ['Economie','hero','Hero buy','Een wapen kopen terwijl hoogstens één teamgenoot ook koopt, buiten de pistolrondes. Bijvoorbeeld een Marshal in een eco-ronde.'],
+ ['Speelstijl','arche','Speltypes','Entry fragger: opent rondes en zoekt het eerste gevecht. Lurker: speelt vaak alleen en flankt. Support: veel assists en utility voor het team. Anchor: houdt een plek vast en overleeft. Carry: maakt het verschil met hoge impact. Allrounder: geen duidelijke uitschieter.'],
+ ['Speelstijl','tilt','Tilt / tilt-check','Tilt is slechter gaan spelen door frustratie, bijvoorbeeld na een paar verloren potjes. De tilt-check vergelijkt je prestaties na winst en verlies, en per potje van de avond.'],
+ ['Speelstijl','session','Sessie','Een reeks potjes met minder dan 3 uur ertussen, zoals een gameavond.'],
+ ['Speelstijl','mvp','MVP','Most Valuable Player: de speler met de hoogste ACS in de match of in de week.'],
+ ['Speelstijl','form','Vorm','Hoe je de laatste tijd speelt. De vormgrafiek toont je ACS per match. Een gevuld bolletje is een gewonnen match.'],
+ ['Rank en modus','rank','Rank','Je niveau in competitive, van Iron tot Radiant. Op de site staat de rank uit je laatste match.'],
+ ['Rank en modus','rr','RR (Rank Rating)','Punten binnen je rank, van 0 tot 100. Bij 100 promoveer je naar de volgende rank. Na elk competitive potje win of verlies je RR, afhankelijk van winst, verlies en prestatie.'],
+ ['Rank en modus','mmr','MMR / elo','Je verborgen niveau waarop Valorant je tegenstanders kiest. Op de site gebruiken we de elo van Riot: je rank en RR als één getal (elke rank is 100 punten). Zo kun je de RR-tijdlijn over meerdere ranks heen volgen.'],
+ ['Rank en modus','act','Act en episode','Valorant is opgedeeld in episodes, met daarin acts van een paar weken tot maanden. Per act krijg je een eindrank. Afkorting e11a6 = episode 11, act 6.'],
+ ['Rank en modus','actwins','Beste overwinningen (act-driehoek)','De ranks waarop je je beste overwinningen van een act behaalde. In de game staan ze in een driehoek in je carrière-overzicht en bepalen ze je act-badge.'],
+ ['Rank en modus','shield','Rank-schild (derank protection)','Een bescherming die voorkomt dat je na één verlies direct een rank zakt. "Rank-schild gebruikt" telt hoe vaak dat gebeurde.'],
+ ['Rank en modus','peak','Peak rank','De hoogste rank die je ooit bereikte, met het seizoen erbij.'],
+ ['Rank en modus','mode','Modus: competitive, unrated','Competitive telt mee voor je rank, unrated niet. Bovenaan kun je per modus filteren.'],
+ ['Rank en modus','season','Seizoen (bijv. e11a6)','Episode en act van Valorant. e11a6 betekent episode 11, act 6.'],
+ ['Termen','peek','Peek','Om een hoek kijken of stappen om een tegenstander te vinden of aan te vallen.'],
+ ['Termen','lurk','Lurk','Alleen aan de andere kant van de map spelen om tegenstanders in de rug te pakken of info te geven.'],
+ ['Termen','rotate','Rotatie','Van de ene site naar de andere lopen, bijvoorbeeld als de tegenstanders ergens anders aanvallen.'],
+ ['Termen','crosshair','Crosshair-plaatsing','Je richtkruis alvast op hoofdhoogte houden waar een tegenstander kan verschijnen, zodat je minder hoeft te bewegen om te raken.'],
+ ['Termen','retake','Retake','Een site terugveroveren nadat de aanvallers de spike geplant hebben.'],
+ ['Termen','orb','Ult orb','Bolletjes op de map die je kunt oppakken om je ultimate sneller op te laden.'],
+];
+const GLOSS_KEY={'Winrate':'winrate','K/D':'kd','KDA':'kda','ACS':'acs','ADR':'adr','Headshot %':'hs','KAST':'kast','First bloods / match':'fb','First deaths / match':'fd','Entry-saldo / match':'entry','Multikills / match':'mk','3K of meer':'mk','Clutch %':'clutch','Trade-kills / match':'tradek','Deaths getraded':'traded','Vroege deaths':'early','Alleen gestorven':'alone','Gem. moment van death':'dtime','K/D aanval':'atk','K/D verdediging':'def','Plants / match':'plant','Abilities / ronde':'util','Ults / match':'ult',
+  'Kills':'kd','Deaths':'kd','Assists':'assist','First bloods':'fb','First deaths':'fd','Multikill-rondes':'mk','Beste ronde':'mk','Rondes overleefd':'kast','Trade-kills':'tradek','Vroege deaths (≤20 s)':'early'};
+(function(){
+  const css=`.gbtn{position:fixed;right:18px;bottom:18px;z-index:20;background:rgba(24,24,27,.85);color:#fafafa;border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:10px 16px;font-family:var(--fs);font-weight:500;font-size:13.5px;cursor:pointer;backdrop-filter:blur(12px)}
+  .gside{position:fixed;top:0;right:0;height:100%;width:min(420px,92vw);background:#0d151f;border-left:1px solid var(--line);z-index:30;transform:translateX(105%);transition:transform .25s ease;display:flex;flex-direction:column}
+  .gside.open{transform:none;box-shadow:-20px 0 60px rgba(0,0,0,.5)}
+  .gside header{padding:18px 20px 12px;border-bottom:1px solid var(--line);display:block}
+  .gside h2{font-family:var(--fd);font-weight:400;font-size:28px;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center}
+  .gside input{width:100%;margin-top:10px;background:#0e1620;border:1px solid var(--line);color:var(--txt);padding:9px 12px;border-radius:3px;font-size:14px}
+  .gside .glist{overflow:auto;padding:6px 20px 40px;flex:1}
+  .gside .gcat{font-family:var(--fs);font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--red);font-size:12px;margin:18px 0 6px}
+  .gside .gi{padding:10px 12px;border-radius:4px;margin:4px 0;background:rgba(255,255,255,.02);border:1px solid transparent}
+  .gside .gi b{display:block;font-size:15px;margin-bottom:2px}
+  .gside .gi span{color:#b9c7d6;font-size:13.5px;line-height:1.5}
+  .gside .gi.hl{border-color:var(--gold);background:rgba(245,196,81,.08)}
+  .gclose{background:none;border:1px solid var(--line);color:var(--mute);border-radius:3px;cursor:pointer;font-size:18px;width:34px;height:34px}
+  .gshade{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:25;display:none}.gshade.open{display:block}
+  .ginfo{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;border:1px solid #3a4a5c;color:#8696a7;font-size:10px;margin-left:6px;cursor:pointer;font-family:Inter,sans-serif;font-weight:600;vertical-align:middle;text-transform:none;letter-spacing:0}
+  .ginfo:hover{border-color:var(--gold);color:var(--gold)}`;
+  document.head.insertAdjacentHTML('beforeend',`<style>${css}</style>`);
+  document.body.insertAdjacentHTML('beforeend',`<button class="gbtn" id="gOpen">? Legenda</button><div class="gshade" id="gShade"></div>
+   <aside class="gside" id="gSide" aria-label="Legenda"><header><h2>Legenda <button class="gclose" id="gClose" aria-label="Sluiten">×</button></h2>
+   <div style="color:var(--mute);font-size:13px">Alle afkortingen en Valorant-termen op deze site.</div><input id="gSearch" placeholder="Zoek een begrip, bijv. KAST of trade"></header><div class="glist" id="gList"></div></aside>`);
+  const list=$('#gList');
+  const draw=(q='',hl=null)=>{q=q.toLowerCase();let cur='',h='';
+    GLOSS.filter(g=>!q||(g[2]+' '+g[3]).toLowerCase().includes(q)).forEach(([cat,id,t,txt])=>{if(cat!==cur){h+=`<div class="gcat">${cat}</div>`;cur=cat}h+=`<div class="gi ${id===hl?'hl':''}" id="g_${id}"><b>${t}</b><span>${txt}</span></div>`});
+    list.innerHTML=h||'<div style="color:var(--mute);margin-top:20px">Niets gevonden.</div>'};
+  window.openGloss=(id)=>{$('#gSide').classList.add('open');$('#gShade').classList.add('open');$('#gSearch').value='';draw('',id);
+    if(id){const el=document.getElementById('g_'+id);if(el)el.scrollIntoView({block:'center'})}};
+  const close=()=>{$('#gSide').classList.remove('open');$('#gShade').classList.remove('open')};
+  $('#gOpen').onclick=()=>openGloss(null);$('#gClose').onclick=close;$('#gShade').onclick=close;
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
+  $('#gSearch').oninput=e=>draw(e.target.value);
+  draw();
+  // ⓘ-knopjes bij de statistieklabels in tabellen
+  const addInfo=()=>document.querySelectorAll('td.stat').forEach(td=>{if(td.dataset.gi)return;td.dataset.gi=1;const lab=td.childNodes[0]&&td.childNodes[0].textContent.trim();const id=GLOSS_KEY[lab];
+    if(id){const b=document.createElement('span');b.className='ginfo';b.textContent='i';b.title='Wat betekent dit?';b.onclick=()=>openGloss(id);td.insertBefore(b,td.childNodes[1]||null)}});
+  new MutationObserver(addInfo).observe(document.getElementById('app'),{childList:true,subtree:true});
+})();
+
+// ================= NA EEN VERLOREN PISTOLRONDE =================
+function rowsNoLimit(p){
+  let rows=(DATA.matches[p.key]||[]).filter(baseFilter);
+  const others=[...SEL].filter(k=>k!==p.key);
+  if(TOG==='together') rows=rows.filter(r=>others.every(k=>(r.with||[]).includes(k)));
+  if(TOG==='solo') rows=rows.filter(r=>!(r.with||[]).length);
+  return rows;
+}
+function plCat(e){
+  if(e.bought&&e.mates_buy<=1) return 'buy_alone';
+  if(e.bought) return 'buy_team';
+  if(e.mates_buy>=2) return 'save_teambuys';
+  return 'all_save';
+}
+const PL_LABEL={buy_alone:'Koopt, team spaart',all_save:'Iedereen spaart',buy_team:'Koopt, team koopt ook',save_teambuys:'Spaart, team koopt'};
+function plStats(l){
+  const n=l.length,w=l.filter(e=>e.win).length,k=l.reduce((s,e)=>s+e.k,0),d=l.filter(e=>e.died).length,nx=l.filter(e=>e.next_win!=null),nw=nx.filter(e=>e.next_win).length;
+  return {n,w,k,d,wr:w/n,kpr:k/n,dp:d/n,kd:k/Math.max(1,d),nx:nx.length,nw,nwr:nx.length?nw/nx.length:NaN};
+}
+function renderPistolLoss(app,act){
+  if(!DATA.pistol_loss)return;
+  let h='<div class="g2" style="grid-template-columns:1fr">';let any=false;
+  act.forEach(p=>{
+    const ids=new Set(rowsNoLimit(p).map(r=>r.match));
+    const ev=(DATA.pistol_loss[p.key]||[]).filter(e=>ids.has(e.match));
+    if(!ev.length)return;any=true;
+    const g={};ev.forEach(e=>(g[plCat(e)]=g[plCat(e)]||[]).push(e));
+    const order=['buy_alone','all_save','buy_team','save_teambuys'].filter(c=>g[c]);
+    const S={};order.forEach(c=>S[c]=plStats(g[c]));
+    const cell=(v,good)=>`<td><b style="color:${good==null?'':good?'var(--win)':'var(--loss)'}">${v}</b></td>`;
+    let t=`<table><thead><tr><th>Situatie</th><th>Rondes</th><th>Ronde gewonnen</th><th>Kills</th><th>Kills / ronde</th><th>Dood</th><th>K/D</th><th>Volgende ronde gewonnen</th></tr></thead><tbody>`;
+    order.forEach(c=>{const s=S[c];t+=`<tr><td>${PL_LABEL[c]}</td><td>${s.n}</td>${cell(`${s.w} / ${s.n} (${pc(s.wr)})`,null)}<td>${s.k}</td><td>${s.kpr.toFixed(2)}</td><td>${s.d} / ${s.n} (${pc(s.dp)})</td><td>${s.kd.toFixed(2)}</td><td>${s.nx?`${s.nw} / ${s.nx} (${pc(s.nwr)})`:'–'}</td></tr>`});
+    t+='</tbody></table>';
+    // wapens bij kopen
+    const bw={};ev.filter(e=>e.bought).forEach(e=>(bw[e.weapon||'?']=bw[e.weapon||'?']||[]).push(e));
+    const wt=Object.entries(bw).sort((a,b)=>b[1].length-a[1].length).map(([w,l])=>{const s=plStats(l);return `<tr><td><b>${w}</b></td><td>${s.n}</td><td>${s.w} (${pc(s.wr)})</td><td>${s.k}</td><td>${s.d}</td><td>${s.kd.toFixed(2)}</td><td>${s.nx?pc(s.nwr):'–'}</td></tr>`}).join('');
+    // conclusie
+    let concl='';
+    const A=S.buy_alone,B=S.all_save;
+    if(A&&B&&A.n>=5&&B.n>=5){
+      const dw=A.wr-B.wr,dn=A.nwr-B.nwr;
+      concl=`Als ${p.name} koopt terwijl het team spaart, wint jullie team die ronde <b>${pc(A.wr)}</b> (${A.w} van de ${A.n}), tegen <b>${pc(B.wr)}</b> als iedereen spaart. `+
+        `De ronde erna wint jullie team <b>${pc(A.nwr)}</b> tegen <b>${pc(B.nwr)}</b>. `+
+        (dw>=0.08&&dn>=-0.05?`Kopen levert dus vaker een rondewinst op en kost de volgende ronde niets. `:
+         dn<=-0.1?`De extra rondewinst weegt niet op tegen de slechtere volgende ronde. `:
+         Math.abs(dw)<0.05?`Kopen maakt voor de rondewinst weinig verschil. `:'')+
+        `${p.name} maakt in die rondes gemiddeld ${A.kpr.toFixed(2)} kills en gaat ${pc(A.dp)} van de keren dood.`+
+        (A.n+B.n<60?` <span style="color:var(--mute)">Let op: het gaat om ${A.n+B.n} rondes, dus kleine verschillen kunnen toeval zijn.</span>`:'');
+    } else if(A&&A.n>=3){
+      concl=`${p.name} kocht ${A.n} keer terwijl het team spaarde en won daarvan ${A.w} rondes, met ${A.k} kills en ${A.d} keer dood.`;
+    } else concl=`${p.name} kocht zelden alleen na een verloren pistolronde (${A?A.n:0} keer).`;
+    const list=ev.slice().sort((a,b)=>new Date(b.date)-new Date(a.date)).map(e=>`<tr class="click" onclick="openMatch('${e.match}')"><td>${new Date(e.date).toLocaleDateString('nl-NL')}</td><td>${e.map}</td><td>R${e.round}</td><td>${PL_LABEL[plCat(e)]}</td><td>${e.weapon||'–'} <span style="color:var(--mute)">¤${e.loadout}</span></td><td><span class="pill p-${e.win?'W':'L'}">${e.win?'Win':'Loss'}</span></td><td>${e.k}</td><td>${e.died?'✕ '+e.death_t+' s':'●'}</td><td>${e.next_win==null?'–':e.next_win?'<span style="color:var(--win)">W</span>':'<span style="color:var(--loss)">L</span>'}</td></tr>`).join('');
+    h+=`<div class="panel"><h3 style="color:${p.color}">${p.name} <small>${ev.length} rondes na een verloren pistolronde</small></h3>
+      <div class="scroll">${t}</div>
+      <div style="margin:14px 0;padding:11px 13px;border-left:3px solid ${p.color};background:rgba(255,255,255,.03);font-size:14px">${concl}</div>
+      ${wt?`<div class="label" style="margin-top:6px">Gekocht wapen</div><div class="scroll"><table><thead><tr><th>Wapen</th><th>Rondes</th><th>Gewonnen</th><th>Kills</th><th>Dood</th><th>K/D</th><th>Volgende ronde</th></tr></thead><tbody>${wt}</tbody></table></div>`:''}
+      <details style="margin-top:14px"><summary style="cursor:pointer;color:var(--mute);font-size:13px">Alle ${ev.length} rondes bekijken</summary><div class="scroll" style="margin-top:8px"><table><thead><tr><th>Datum</th><th>Map</th><th>Ronde</th><th>Situatie</th><th>Wapen</th><th>Uitslag</th><th>Kills</th><th>Dood</th><th>Volgende</th></tr></thead><tbody>${list}</tbody></table></div></details></div>`;
+  });
+  if(any)app.insertAdjacentHTML('beforeend',sectionWrap('Na een verloren pistolronde',`Ronde 2 en ronde 14 als jullie de pistolronde verloren hebben. Normaal spaart het team dan voor ronde 3. "Koopt" betekent een loadout van ¤${2000} of meer, of een ander wapen dan een pistool. "Team spaart" betekent dat hoogstens één teamgenoot ook koopt. Gebaseerd op alle matches binnen de filters (niet alleen de laatste ${N||'x'}).`,h+'</div>'));
+}
+
+// ================= RANK =================
+const TIER_BASE=['Unranked','Unused','Unused','Iron 1','Iron 2','Iron 3','Bronze 1','Bronze 2','Bronze 3','Silver 1','Silver 2','Silver 3','Gold 1','Gold 2','Gold 3','Platinum 1','Platinum 2','Platinum 3','Diamond 1','Diamond 2','Diamond 3','Ascendant 1','Ascendant 2','Ascendant 3','Immortal 1','Immortal 2','Immortal 3','Radiant'];
+const TIER_COL={Iron:'#5c5f63',Bronze:'#a6824c',Silver:'#bbc2c2',Gold:'#eccf56',Platinum:'#59a9b6',Diamond:'#b489c4',Ascendant:'#6ae2af',Immortal:'#bb3d65',Radiant:'#ffffaa',Unranked:'#8696a7'};
+const tierName=id=>(DATA.tiers&&DATA.tiers[id]&&DATA.tiers[id].name)||TIER_BASE[id]||'Onbekend';
+const tierColor=id=>{const n=tierName(id).split(' ')[0];return TIER_COL[n]||'#8696a7'};
+const tierIcon=id=>DATA.tiers&&DATA.tiers[id]&&DATA.tiers[id].icon;
+const eloOf=h=>h.elo!=null?h.elo:h.tier!=null?(Math.max(0,h.tier-3))*100+(h.rr||0):null;
+const tierFromElo=e=>Math.min(27,Math.floor(e/100)+3);
+function badge(id,size=44){const ic=tierIcon(id);const c=tierColor(id);
+  return ic?`<img src="${ic}" alt="" title="${tierName(id)}" width="${size}" height="${size}" style="display:block" onerror="this.outerHTML=fallbackBadge(${id},${size})">`:fallbackBadge(id,size)}
+function fallbackBadge(id,size){const c=tierColor(id);return `<div title="${tierName(id)}" style="width:${size}px;height:${size}px;border-radius:50%;background:radial-gradient(circle at 35% 30%,${c},${c}55 70%);display:flex;align-items:center;justify-content:center;font-family:var(--fd);color:#0b1118;font-size:${size*0.36}px">${(tierName(id).match(/\d/)||[''])[0]}</div>`}
+const actSort=s=>{const m=/e(\d+)a(\d+)/.exec(s||'');return m?(+m[1])*10+(+m[2]):0};
+const actLabel=s=>{const m=/e(\d+)a(\d+)/.exec(s||'');return m?`Episode ${m[1]} · Act ${m[2]}`:(s||'?')};
+let RK={act:'all',range:0};
+
+function rankHistory(p){const M=DATA.mmr&&DATA.mmr[p.key];return M?M.history.filter(h=>h.date&&eloOf(h)!=null):[]}
+function streaks(hs){let w=0,l=0,cw=0,cl=0;hs.forEach(h=>{if(h.change>0){cw++;cl=0}else if(h.change<0){cl++;cw=0}else{cw=0;cl=0}w=Math.max(w,cw);l=Math.max(l,cl)});
+  let cur=0;for(let i=hs.length-1;i>=0;i--){const s=Math.sign(hs[i].change);if(!s)break;if(!cur)cur=s;else if(s!==Math.sign(cur))break;cur+=s>0?(cur>0?0:0):0;}
+  let c=0,sg=0;for(let i=hs.length-1;i>=0;i--){const s=Math.sign(hs[i].change);if(!s)break;if(!sg)sg=s;if(s!==sg)break;c++}
+  return {w,l,cur:c*sg}}
+
+function renderRank(app,P){
+  const withData=P.filter(p=>rankHistory(p).length||(DATA.mmr&&DATA.mmr[p.key]&&DATA.mmr[p.key].current));
+  if(!DATA.mmr||!withData.length){app.insertAdjacentHTML('beforeend',`<div class="panel empty"><b>Nog geen rankdata</b>De rank en RR-geschiedenis worden bij de volgende run opgehaald. Kom over een uur terug.</div>`);
+    P.filter(p=>!withData.includes(p)).length&&0;return}
+  const missing=P.filter(p=>!withData.includes(p));
+  // ---------- huidige rank ----------
+  let h=`<section><h2>Huidige rank</h2><div class="cards">`;
+  withData.forEach(p=>{const M=DATA.mmr[p.key],c=M.current&&M.current.current,pk=M.current&&M.current.peak,hs=rankHistory(p);const last=hs[hs.length-1];
+    const tid=c?c.tier.id:last?last.tier:0,rr=c?c.rr:last?last.rr:0,ch=c?c.last_change:last?last.change:0;
+    const shields=c&&c.rank_protection_shields;
+    h+=`<div class="panel card" style="--c:${p.color}"><div style="display:flex;gap:16px;align-items:center">${badge(tid,84)}
+      <div style="min-width:0"><div class="nm" style="font-size:28px">${p.name}</div><div style="font-family:var(--fd);font-size:26px;color:${tierColor(tid)};line-height:1.1">${tierName(tid)}</div>
+      <div style="font-family:var(--fs);font-weight:700;font-size:18px">${rr} RR <span style="color:${ch>0?'var(--win)':ch<0?'var(--loss)':'var(--mute)'};font-size:15px">${ch>0?'+':''}${ch} laatste potje</span></div></div></div>
+      <div style="height:8px;background:#0d151e;border-radius:4px;margin:14px 0 4px;overflow:hidden"><i style="display:block;height:100%;width:${Math.min(100,rr)}%;background:${tierColor(tid)}"></i></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--mute)"><span>0</span><span>${100-rr} RR tot ${tid<27?tierName(tid+1):'top'}</span><span>100</span></div>
+      <div class="kv" style="margin-top:14px;grid-template-columns:repeat(3,1fr)">
+        <div><b style="color:${pk?tierColor(pk.tier.id):''}">${pk?tierName(pk.tier.id):'–'}</b><span>Peak${pk?' · '+pk.season.short:''}</span></div>
+        <div><b>${shields!=null?shields:'–'}</b><span>Rank-schilden</span></div>
+        <div><b>${c&&c.games_needed_for_rating?c.games_needed_for_rating:'0'}</b><span>Placement nodig</span></div></div>
+      ${M.current_at?`<div style="color:#5d6d7e;font-size:11px;margin-top:10px">Rank opgehaald ${new Date(M.current_at).toLocaleString('nl-NL',{dateStyle:'medium',timeStyle:'short'})}</div>`:''}</div>`});
+  missing.forEach(p=>h+=`<div class="panel card" style="--c:${p.color}"><div class="nm">${p.name}</div><div style="color:var(--mute);margin-top:8px">Nog geen rankdata. De API kent dit account pas weer na een nieuw potje.</div></div>`);
+  h+='</div></section>';
+  app.insertAdjacentHTML('beforeend',h);
+
+  // ---------- tijdlijn ----------
+  const acts=[...new Set(withData.flatMap(p=>rankHistory(p).map(x=>x.season)).filter(Boolean))].sort((a,b)=>actSort(b)-actSort(a));
+  const sec=document.createElement('section');app.appendChild(sec);
+  const drawTL=()=>{
+    const series=withData.map(p=>{let hs=rankHistory(p);if(RK.act!=='all')hs=hs.filter(x=>x.season===RK.act);if(RK.range)hs=hs.slice(-RK.range);return {p,hs}}).filter(s=>s.hs.length);
+    const btn=(v,l)=>`<button class="btn ${RK.range===v?'on':''}" data-rr="${v}">${l}</button>`;
+    let ctl=`<div class="frow" style="gap:8px;margin-bottom:12px"><select id="rkAct"><option value="all">Alle acts</option>${acts.map(a=>`<option value="${a}" ${RK.act===a?'selected':''}>${actLabel(a)}</option>`).join('')}</select>${btn(20,'Laatste 20')}${btn(50,'50')}${btn(100,'100')}${btn(0,'Alles')}</div>`;
+    if(!series.length){sec.innerHTML=`<h2>RR-tijdlijn</h2>${ctl}<div class="panel empty"><b>Geen potjes</b>Niets in deze selectie.</div>`;bind();return}
+    const all=series.flatMap(s=>s.hs.map(eloOf));let lo=Math.floor((Math.min(...all)-30)/100)*100,hi=Math.ceil((Math.max(...all)+30)/100)*100;if(hi-lo<200)hi=lo+200;
+    const allT=[...new Set(series.flatMap(s=>s.hs.map(x=>x.date)))].sort();const idxOf={};allT.forEach((d,i)=>idxOf[d]=i);const t0=0,t1=Math.max(1,allT.length-1);
+    const W=1100,H=380,x0=110,x1=W-20,y0=H-40,y1=16;
+    const X=d=>x0+(idxOf[d]||0)/t1*(x1-x0),Y=e=>y0-(e-lo)/(hi-lo)*(y0-y1);
+    let g='';
+    for(let e=lo;e<hi;e+=100){const tid=tierFromElo(e);g+=`<rect x="${x0}" y="${Y(e+100)}" width="${x1-x0}" height="${Y(e)-Y(e+100)}" fill="${tierColor(tid)}" fill-opacity=".05"/><line x1="${x0}" x2="${x1}" y1="${Y(e)}" y2="${Y(e)}" stroke="#1f2b38"/>`;
+      g+=`<text x="${x0-10}" y="${(Y(e)+Y(e+100))/2+4}" fill="${tierColor(tid)}" font-size="12" text-anchor="end">${tierName(tid)}</text>`}
+    // act-grenzen
+    const seen={};let lastLab=-99;allT.forEach(dt=>{const x=series.map(s=>s.hs.find(h=>h.date===dt)).find(Boolean);if(!x||seen[x.season])return;seen[x.season]=1;const xx=X(dt);g+=`<line x1="${xx}" x2="${xx}" y1="${y1}" y2="${y0}" stroke="#3a4a5c" stroke-dasharray="3 5"/>`;if(xx-lastLab>46){g+=`<text x="${xx+4}" y="${y0+16}" fill="#5d6d7e" font-size="11">${x.season||''}</text>`;lastLab=xx}});
+    series.forEach(({p,hs})=>{g+=`<polyline points="${hs.map(x=>X(x.date)+','+Y(eloOf(x))).join(' ')}" fill="none" stroke="${p.color}" stroke-width="2.4" stroke-linejoin="round"/>`;
+      hs.forEach(x=>{const cx=X(x.date),cy=Y(eloOf(x));const col=x.change>0?'#3ee6a0':x.change<0?'#ff4655':'#8696a7';
+        g+=`<circle class="rp" cx="${cx}" cy="${cy}" r="${hs.length>120?2.5:4}" fill="${col}" stroke="${p.color}" stroke-width="1.5" data-h="${esc(`<b style='color:${p.color}'>${p.name}</b> · ${new Date(x.date).toLocaleDateString('nl-NL',{day:'numeric',month:'short',year:'numeric'})}<br>${x.map||''}${x.agent?' · '+x.agent:''}${x.score?' · '+x.score:''}<br><b style='color:${col}'>${x.change>0?'+':''}${x.change} RR</b> → ${tierName(x.tier)} ${x.rr} RR${x.k!=null?`<br>${x.k}/${x.d}/${x.a} · ACS ${x.acs}`:''}${x.protected?'<br>Rank-schild gebruikt':''}${x.refunded?'<br>'+x.refunded+' RR terug':''}${x.bonus?'<br>Prestatiebonus '+x.bonus:''}`)}" ${x.match&&DATA.details[x.match]?`onclick="openMatch('${x.match}')" style="cursor:pointer"`:''}/>`})});
+    sec.innerHTML=`<h2>RR-tijdlijn</h2><p class="lead">Je rank en RR na elk competitive potje, van oud naar nieuw. De RR per potje wordt pas sinds vandaag bewaard, dus deze lijn wordt elke dag langer. Elk bolletje is één potje. Groen bolletje = RR gewonnen, rood = verloren. Klik op een bolletje om de match te openen.</p>${ctl}<div class="panel"><div class="scroll"><svg viewBox="0 0 ${W} ${H}" width="100%" style="min-width:760px">${g}</svg></div><div class="legend">${series.map(s=>`<span><i class="dot" style="background:${s.p.color}"></i>${s.p.name} (${s.hs.length} potjes)</span>`).join('')}</div></div>`;
+    sec.querySelectorAll('.rp').forEach(c=>bindTip(c,c.dataset.h));bind();
+    function bind(){sec.querySelector('#rkAct').onchange=e=>{RK.act=e.target.value;drawTL()};sec.querySelectorAll('[data-rr]').forEach(b=>b.onclick=()=>{RK.range=+b.dataset.rr;drawTL()})}
+  };
+  drawTL();
+
+  // ---------- rank per act (lange termijn) ----------
+  (function(){
+    const ser=withData.map(p=>{const se=((DATA.mmr[p.key].current||{}).seasonal||[]).filter(x=>x.games>0&&x.end_tier&&x.end_tier.id>2);return {p,se}}).filter(x=>x.se.length);
+    if(!ser.length)return;
+    const acts=[...new Set(ser.flatMap(x=>x.se.map(s=>s.season.short)))].sort((a,b)=>actSort(a)-actSort(b));
+    const el=s=>(s.end_tier.id-3)*100+(s.end_rr||0);
+    const vals=ser.flatMap(x=>x.se.map(el));let lo=Math.floor((Math.min(...vals)-30)/100)*100,hi=Math.ceil((Math.max(...vals)+30)/100)*100;if(hi-lo<300)hi=lo+300;
+    const W=1100,H=360,x0=110,x1=W-20,y0=H-46,y1=16,X=i=>acts.length<2?(x0+x1)/2:x0+i/(acts.length-1)*(x1-x0),Y=e=>y0-(e-lo)/(hi-lo)*(y0-y1);
+    let g='';
+    for(let e=lo;e<hi;e+=100){const tid=tierFromElo(e);g+=`<rect x="${x0}" y="${Y(e+100)}" width="${x1-x0}" height="${Y(e)-Y(e+100)}" fill="${tierColor(tid)}" fill-opacity=".05"/><line x1="${x0}" x2="${x1}" y1="${Y(e)}" y2="${Y(e)}" stroke="#1f2b38"/><text x="${x0-10}" y="${(Y(e)+Y(e+100))/2+4}" fill="${tierColor(tid)}" font-size="12" text-anchor="end">${tierName(tid)}</text>`}
+    let lastLab=-99;acts.forEach((a,i)=>{if(X(i)-lastLab>38){g+=`<text x="${X(i)}" y="${y0+18}" fill="#5d6d7e" font-size="11" text-anchor="middle">${a}</text>`;lastLab=X(i)}});
+    ser.forEach(({p,se})=>{const pts=se.slice().sort((a,b)=>actSort(a.season.short)-actSort(b.season.short)).map(s=>({s,x:X(acts.indexOf(s.season.short)),y:Y(el(s))}));
+      g+=`<polyline points="${pts.map(q=>q.x+','+q.y).join(' ')}" fill="none" stroke="${p.color}" stroke-width="2.4"/>`;
+      pts.forEach(q=>g+=`<circle class="ap" cx="${q.x}" cy="${q.y}" r="5" fill="${tierColor(q.s.end_tier.id)}" stroke="${p.color}" stroke-width="2" data-h="${esc(`<b style='color:${p.color}'>${p.name}</b> · ${actLabel(q.s.season.short)}<br>Eindrank ${tierName(q.s.end_tier.id)} ${q.s.end_rr} RR<br>${q.s.games} potjes, ${q.s.wins} gewonnen (${Math.round(q.s.wins/q.s.games*100)}%)`)}"/>`)});
+    app.insertAdjacentHTML('beforeend',sectionWrap('Rank per act','Je eindrank aan het eind van elke act, over je hele Valorant-carrière. Dit komt rechtstreeks van Riot, dus ook acts van voor deze site.',`<div class="panel"><div class="scroll"><svg viewBox="0 0 ${W} ${H}" width="100%" style="min-width:760px">${g}</svg></div><div class="legend">${ser.map(x=>`<span><i class="dot" style="background:${x.p.color}"></i>${x.p.name} (${x.se.length} acts)</span>`).join('')}</div></div>`));
+    app.querySelectorAll('.ap').forEach(c=>bindTip(c,c.dataset.h));
+  })();
+
+  // ---------- RR-statistieken ----------
+  const st=withData.map(p=>{const hs=rankHistory(p);const w=hs.filter(x=>x.change>0),l=hs.filter(x=>x.change<0);const sum=a=>a.reduce((s,x)=>s+x,0);const s=streaks(hs);
+    const last30=hs.filter(x=>Date.now()-new Date(x.date)<30*864e5);
+    return {p,n:hs.length,net:sum(hs.map(x=>x.change||0)),avgW:w.length?sum(w.map(x=>x.change))/w.length:NaN,avgL:l.length?sum(l.map(x=>x.change))/l.length:NaN,
+      best:hs.reduce((b,x)=>!b||x.change>b.change?x:b,null),worst:hs.reduce((b,x)=>!b||x.change<b.change?x:b,null),ws:s.w,ls:s.l,cur:s.cur,
+      prot:hs.filter(x=>x.protected).length,ref:sum(hs.map(x=>x.refunded||0)),bonus:sum(hs.map(x=>x.bonus||0)),afk:hs.filter(x=>x.afk).length,
+      n30:last30.length,net30:sum(last30.map(x=>x.change||0)),
+      promo:hs.filter((x,i)=>i&&x.tier>hs[i-1].tier).length,demo:hs.filter((x,i)=>i&&x.tier<hs[i-1].tier).length}});
+  const rows=[['Potjes met RR-data',s=>s.n],['Netto RR (alles)',s=>`<b style="color:${s.net>=0?'var(--win)':'var(--loss)'}">${s.net>0?'+':''}${s.net}</b>`],['Netto RR laatste 30 dagen',s=>`<b style="color:${s.net30>=0?'var(--win)':'var(--loss)'}">${s.net30>0?'+':''}${s.net30}</b> <span style="color:var(--mute)">(${s.n30} potjes)</span>`],
+    ['Gem. RR bij winst',s=>isFinite(s.avgW)?'+'+s.avgW.toFixed(1):'–'],['Gem. RR bij verlies',s=>isFinite(s.avgL)?s.avgL.toFixed(1):'–'],
+    ['Grootste winst',s=>s.best?`+${s.best.change} <span style="color:var(--mute)">${s.best.map||''}</span>`:'–'],['Grootste verlies',s=>s.worst?`${s.worst.change} <span style="color:var(--mute)">${s.worst.map||''}</span>`:'–'],
+    ['Langste winreeks',s=>s.ws],['Langste verliesreeks',s=>s.ls],['Huidige reeks',s=>s.cur>0?`<span style="color:var(--win)">${s.cur}x winst</span>`:s.cur<0?`<span style="color:var(--loss)">${-s.cur}x verlies</span>`:'–'],
+    ['Gepromoveerd / gedegradeerd',s=>`${s.promo} / ${s.demo}`],['Rank-schild gebruikt',s=>s.prot],['RR teruggekregen',s=>s.ref],['Prestatiebonus RR',s=>s.bonus||'–'],['AFK-straf',s=>s.afk]];
+  app.insertAdjacentHTML('beforeend',sectionWrap('RR-statistieken','Over alle opgeslagen competitive potjes.',`<div class="panel scroll"><table class="cmp"><thead><tr><th></th>${st.map(s=>`<th style="color:${s.p.color}">${s.p.name}</th>`).join('')}</tr></thead><tbody>${rows.map(([l,f])=>`<tr><td class="stat">${l}</td>${st.map(s=>`<td class="val"><div class="cv nb" data-p="${s.p.name}"><b style="color:${s.p.color};min-width:0;text-align:left">${f(s)}</b></div></td>`).join('')}</tr>`).join('')}</tbody></table></div>`));
+
+  // ---------- per act ----------
+  let ah='<div class="g2" style="grid-template-columns:1fr">';
+  withData.forEach(p=>{const M=DATA.mmr[p.key],seas=(M.current&&M.current.seasonal)||[],hs=rankHistory(p);
+    const byAct={};hs.forEach(x=>(byAct[x.season]=byAct[x.season]||[]).push(x));
+    const keys=[...new Set([...seas.map(s=>s.season.short),...Object.keys(byAct)])].filter(Boolean).sort((a,b)=>actSort(b)-actSort(a));
+    if(!keys.length)return;
+    const tr=keys.map(a=>{const s=seas.find(x=>x.season.short===a),l=byAct[a]||[];const net=l.reduce((t,x)=>t+(x.change||0),0);
+      const peak=l.reduce((b,x)=>eloOf(x)>(b?eloOf(b):-1)?x:b,null);const first=l[0],lastH=l[l.length-1];
+      const games=s?s.games:l.length,wins=s?s.wins:l.filter(x=>x.change>0).length;
+      const endT=s?s.end_tier.id:lastH?lastH.tier:0,endRR=s?s.end_rr:lastH?lastH.rr:0;
+      const aw=s&&s.act_wins?s.act_wins.slice().sort((x,y)=>y.id-x.id).slice(0,9):[];
+      return `<tr><td><b>${a}</b><div style="color:var(--mute);font-size:12px">${actLabel(a)}</div></td><td>${games}</td><td>${wins} <span style="color:var(--mute)">(${games?Math.round(wins/games*100):0}%)</span></td>
+        <td>${first?`<div style="display:flex;align-items:center;gap:6px">${badge(first.tier,28)}${tierName(first.tier)}</div>`:'–'}</td>
+        <td><div style="display:flex;align-items:center;gap:6px">${badge(endT,28)}<span>${tierName(endT)} <span style="color:var(--mute)">${endRR} RR</span></span></div></td>
+        <td>${peak?tierName(peak.tier):'–'}</td><td>${l.length?`<b style="color:${net>=0?'var(--win)':'var(--loss)'}">${net>0?'+':''}${net}</b>`:'–'}</td>
+        <td><div style="display:flex;gap:2px;flex-wrap:wrap;max-width:240px">${aw.map(t=>badge(t.id,22)).join('')||'<span style="color:var(--mute)">–</span>'}</div></td></tr>`}).join('');
+    ah+=`<div class="panel scroll"><h3 style="color:${p.color}">${p.name}</h3><table><thead><tr><th>Act</th><th>Potjes</th><th>Gewonnen</th><th>Begin</th><th>Eind</th><th>Hoogste</th><th>Netto RR</th><th>Beste overwinningen</th></tr></thead><tbody>${tr}</tbody></table></div>`});
+  app.insertAdjacentHTML('beforeend',sectionWrap('Per act','Per act je aantal potjes, winst, begin- en eindrank, hoogste rank en netto RR. "Beste overwinningen" zijn de ranks waarop je je beste wins van die act behaalde (de driehoek in je carrière-overzicht in de game). Potjes en winst komen van Riot; bij oudere acts zonder samenvatting tellen we de opgeslagen potjes.',ah+'</div>'));
+
+  // ---------- RR per map, agent, met/zonder vrienden ----------
+  const groupTable=(title,keyFn,minN=2)=>{let out='<div class="g2" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr))">';
+    withData.forEach(p=>{const g={};rankHistory(p).forEach(x=>{const k=keyFn(x,p);if(!k)return;(g[k]=g[k]||[]).push(x)});
+      const list=Object.entries(g).filter(([k,l])=>l.length>=minN).map(([k,l])=>({k,n:l.length,net:l.reduce((s,x)=>s+(x.change||0),0),w:l.filter(x=>x.change>0).length})).sort((a,b)=>b.net/b.n-a.net/a.n);
+      out+=`<div class="panel scroll"><h3 style="color:${p.color}">${p.name}</h3><table><thead><tr><th>${title}</th><th>Potjes</th><th>Winst</th><th>Netto RR</th><th>RR / potje</th></tr></thead><tbody>${list.map(x=>`<tr><td>${x.k}</td><td>${x.n}</td><td>${Math.round(x.w/x.n*100)}%</td><td><b style="color:${x.net>=0?'var(--win)':'var(--loss)'}">${x.net>0?'+':''}${x.net}</b></td><td>${(x.net/x.n).toFixed(1)}</td></tr>`).join('')||'<tr><td colspan="5" style="color:var(--mute)">Te weinig data</td></tr>'}</tbody></table></div>`});
+    return out+'</div>'};
+  app.insertAdjacentHTML('beforeend',sectionWrap('RR per map','Waar win en verlies je de meeste RR? Gesorteerd op RR per potje, minimaal 2 potjes.',groupTable('Map',x=>x.map)));
+  app.insertAdjacentHTML('beforeend',sectionWrap('RR per agent','Alleen potjes die ook in de matchgeschiedenis staan.',groupTable('Agent',x=>x.agent)));
+  const names=Object.fromEntries(DATA.players.map(p=>[p.key,p.name]));
+  app.insertAdjacentHTML('beforeend',sectionWrap('RR solo en met vrienden','Win je meer RR als je met de anderen speelt?',groupTable('Samen met',(x,p)=>x.with_==null?null:x.with_.length?x.with_.map(k=>names[k]).join(' + '):'Zonder vrienden',1)));
+
+  // ---------- lobby ----------
+  let lh='<div class="g2" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr))">';let anyL=false;
+  withData.forEach(p=>{const rows=[];rankHistory(p).forEach(x=>{const d=DATA.details[x.match];if(!d)return;const me=d.players.find(q=>q.fk===p.key);if(!me)return;
+      const tid=n=>{const i=TIER_BASE.indexOf(n);return i>2?i:null};
+      const opp=d.players.filter(q=>q.tm!==me.tm).map(q=>tid(q.tier)).filter(Boolean),mates=d.players.filter(q=>q.tm===me.tm&&q!==me).map(q=>tid(q.tier)).filter(Boolean);
+      if(opp.length>=3)rows.push({x,opp:opp.reduce((s,v)=>s+v,0)/opp.length,mates:mates.length?mates.reduce((s,v)=>s+v,0)/mates.length:null})});
+    if(rows.length<3)return;anyL=true;
+    const avg=a=>a.reduce((s,v)=>s+v,0)/a.length,own=avg(rows.map(r=>r.x.tier)),op=avg(rows.map(r=>r.opp)),mt=avg(rows.filter(r=>r.mates).map(r=>r.mates));
+    const harder=rows.filter(r=>r.opp>r.x.tier+0.5),easier=rows.filter(r=>r.opp<r.x.tier-0.5);
+    const wr2=l=>l.length?Math.round(l.filter(r=>r.x.change>0).length/l.length*100)+'% ('+l.length+')':'–';
+    lh+=`<div class="panel"><h3 style="color:${p.color}">${p.name} <small>${rows.length} potjes</small></h3><table><tbody>
+      <tr><td>Je eigen rank (gem.)</td><td><b>${tierName(Math.round(own))}</b></td></tr><tr><td>Tegenstanders (gem.)</td><td><b>${tierName(Math.round(op))}</b></td></tr><tr><td>Teamgenoten (gem.)</td><td><b>${isFinite(mt)?tierName(Math.round(mt)):'–'}</b></td></tr>
+      <tr><td>Winst tegen hogere lobby</td><td>${wr2(harder)}</td></tr><tr><td>Winst tegen lagere lobby</td><td>${wr2(easier)}</td></tr></tbody></table></div>`});
+  if(anyL)app.insertAdjacentHTML('beforeend',sectionWrap('Lobby-niveau','Tegen welk niveau speel je? Gemiddelde rank van tegenstanders en teamgenoten in je potjes, op basis van hun rank in die match.',lh+'</div>'));
+
+  // ---------- verdeling ----------
+  let dh='<div class="g2" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr))">';
+  withData.forEach(p=>{const c={};rankHistory(p).forEach(x=>c[x.tier]=(c[x.tier]||0)+1);const ks=Object.keys(c).map(Number).sort((a,b)=>b-a);const mx=Math.max(...Object.values(c));
+    dh+=`<div class="panel"><h3 style="color:${p.color}">${p.name}</h3>${ks.map(k=>`<div style="display:grid;grid-template-columns:30px 110px 1fr 34px;gap:8px;align-items:center;margin:5px 0;font-size:13px">${badge(k,24)}<span>${tierName(k)}</span><div style="height:10px;background:#0d151e;border-radius:2px"><i style="display:block;height:100%;width:${c[k]/mx*100}%;background:${tierColor(k)};border-radius:2px"></i></div><b style="font-family:var(--fs);text-align:right">${c[k]}</b></div>`).join('')}</div>`});
+  app.insertAdjacentHTML('beforeend',sectionWrap('Tijd per rank','In hoeveel potjes je op elke rank stond.',dh+'</div>'));
+}
+
+// ================= APP (PWA) =================
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
+(function(){
+  const standalone=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+  if(standalone||navigator.userAgent.includes('SquadTrackerApp')){document.body.classList.add('is-app');return}
+  const isAndroid=/android/i.test(navigator.userAgent);
+  if(!isAndroid||window.innerWidth>=820)return;
+  try{if(localStorage.getItem('apkHide'))return}catch(e){}
+  setTimeout(()=>{document.body.insertAdjacentHTML('beforeend',`<div class="inst" id="inst"><div><b>Squad Tracker als app</b><span>Download de Android-app voor je beginscherm.</span></div><a class="btn on" href="https://github.com/Dovdijk/Valo-track/releases/download/app/SquadTracker.apk">Download</a><button class="ix" id="instX" aria-label="Sluiten">×</button></div>`);
+    document.getElementById('instX').onclick=()=>{try{localStorage.setItem('apkHide',1)}catch(e){}document.getElementById('inst').remove()}},1500);
+})();
+
+// ================= DE KRONING (melding bij openen) =================
+const TAUNTS=[
+ "{L}, de troon blijft leeg tot je die crosshair op hoofdhoogte houdt.",
+ "{L} heeft de afgelopen potjes vooral gespeeld als decoratie op de minimap.",
+ "Breaking news: {L} gespot in de spawn, nog steeds aan het nadenken over een buy.",
+ "{W} draagt de kroon. {L} draagt de spike en zet hem nooit neer.",
+ "{L}, je K/D belt. Hij wil weten waar je bent.",
+ "Koning {W} vergeeft je, {L}. De lobby niet.",
+ "{L}, een Marshal kopen is geen strategie. Het is een levensstijl.",
+ "Zelfs de bots in de range hebben medelijden met {L}.",
+ "{L} heeft meer rondes gespectate dan gespeeld.",
+ "Officieel: {W} is de baas. {L} mag de drankjes halen.",
+ "{L}, je utility heeft vakantie genomen en is nooit teruggekomen.",
+ "{W} plant de spike. {L} plant zichzelf in de grond.",
+ "Tip voor {L}: de tegenstander zit niet in de lucht. Iets lager mikken.",
+ "{L} peekt alsof er geen morgen is. Spoiler: die kwam ook niet.",
+ "Er is een nieuwe callout op de map: 'waar {L} altijd doodgaat'.",
+ "{W} heeft een fanclub. {L} heeft een supportticket.",
+ "{L}, het is 'Run It Back', niet 'Run Away'.",
+ "Gelukkig voor {L} telt de gezelligheid ook mee. Toch?",
+ "{L} speelt als een eco-ronde: gratis en zonder verwachtingen.",
+ "Nieuwe rank ontdekt: {L}-onder-{W}.",
+ "{W} haalt de kills. {L} haalt de assists op de kill feed van de tegenstander.",
+ "{L}, je bent geen lurker als je daar al vijf minuten staat te AFK'en.",
+ "Er is hoop voor {L}. Weinig, maar het is er.",
+ "{W} is de MVP. {L} is de MVP van de deathcam.",
+ "{L}, als je zo doorgaat krijg je een eigen plek op de heatmap. In het rood.",
+ "Statistisch gezien is {L} nog steeds familie van {W}. Ver weg.",
+ "{L} heeft zijn rank-schild vaker gebruikt dan zijn headset.",
+ "Ere wie ere toekomt: {W}. Schande wie schande toekomt: {L}.",
+ "{L}, de warm-up was niet optioneel.",
+ "{W} rolt een rode loper uit. {L} struikelt erover.",
+ "{L}, flashen werkt beter als je je eigen team niet verblindt.",
+ "Het oordeel is geveld. {W} regeert, {L} reageert.",
+ "{L} denkt dat 'trade' iets is wat je met Pokémonkaarten doet.",
+ "{W} 1, {L} 0. En dat is nog vriendelijk geteld.",
+ "{L}, je crosshair en de vijand hebben elkaar nog nooit ontmoet.",
+ "Bij elke kroning hoort een nar. Bedankt, {L}.",
+ "{L} speelt niet slecht. Hij speelt alleen consequent niet goed.",
+ "{W} is de koning van de lobby. {L} is de koning van de excuses.",
+ "{L}, de Spike is niet de enige die ontploft vanavond.",
+ "{L}, een clutch is iets wat je wint. Niet iets wat je vermijdt.",
+ "Volgende keer beter, {L}. Of de keer daarna. Of daarna.",
+ "{W} houdt een speech. {L} houdt zijn mond. Dat is beter zo.",
+];
+const TIE_LINES=["Gelijkspel. De troon blijft leeg tot het volgende potje.","Precies even goed. Of even slecht. Dat mogen jullie zelf bepalen.","Geen koning vandaag. De kroon ligt klaar voor wie hem pakt."];
+function crownScore(key){const rs=(DATA.matches[key]||[]).slice(0,10);const R=rs.reduce((s,r)=>s+r.rounds,0);if(!R)return null;
+  return {score:Math.round(rs.reduce((s,r)=>s+r.acs_sum,0)/R*rs.reduce((s,r)=>s+r.kast,0)/R),n:rs.length}}
+function nextTaunt(){let used=[];try{used=JSON.parse(localStorage.getItem('tauntUsed')||'[]')}catch(e){}
+  let free=TAUNTS.map((_,i)=>i).filter(i=>!used.includes(i));if(!free.length){used=used.slice(-5);free=TAUNTS.map((_,i)=>i).filter(i=>!used.includes(i))}
+  const i=free[Math.floor(Math.random()*free.length)];used.push(i);try{localStorage.setItem('tauntUsed',JSON.stringify(used))}catch(e){}return TAUNTS[i]}
+function showCrowning(){
+  if(!DATA||document.getElementById('crown'))return;
+  const A={key:'marciebeur#euw',name:'Don',color:'#ff7a45'},B={key:'dennisvg#3745',name:'Dennis',color:'#3ee6c2'};
+  const a=crownScore(A.key),b=crownScore(B.key);if(!a||!b)return;
+  const tie=a.score===b.score,W=a.score>b.score?A:B,L=W===A?B:A,ws=W===A?a:b,ls=W===A?b:a;
+  const line=tie?TIE_LINES[Math.floor(Math.random()*TIE_LINES.length)]:nextTaunt().replace(/\{W\}/g,W.name).replace(/\{L\}/g,L.name);
+  document.body.insertAdjacentHTML('beforeend',`<div id="crown" role="dialog" aria-label="De kroning">
+    <canvas id="confetti"></canvas>
+    <div class="cr-in">
+      <div class="cr-crown">♛</div>
+      <div class="cr-hail">${tie?'GELIJKSPEL':'ALL HAIL'}</div>
+      <div class="cr-name" style="color:${tie?'#f5c451':W.color}">${tie?'DON = DENNIS':'KONING<br>'+W.name.toUpperCase()}</div>
+      <div class="cr-quote">“${line}”</div>
+      <div class="cr-score"><span style="color:${W.color}">${ws.score}</span> tegen <span style="color:${L.color}">${ls.score}</span></div>
+      <div class="cr-tap">tik om door te gaan</div>
+    </div></div>`);
+  const el=document.getElementById('crown');document.body.style.overflow='hidden';
+  const close=()=>{el.classList.add('out');document.body.style.overflow='';setTimeout(()=>el.remove(),350)};
+  el.onclick=close;document.addEventListener('keydown',function k(e){if(e.key==='Escape'){close();document.removeEventListener('keydown',k)}});
+  // confetti
+  const cv=document.getElementById('confetti'),ctx=cv.getContext('2d');const dpr=window.devicePixelRatio||1;
+  const fit=()=>{cv.width=innerWidth*dpr;cv.height=innerHeight*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)};fit();addEventListener('resize',fit);
+  const cols=['#f5c451','#ff4655','#3ee6c2','#ff7a45','#ffffff','#b48cff'];
+  const P=[...Array(Math.min(220,Math.round(innerWidth/4)))].map(()=>({x:Math.random()*innerWidth,y:-20-Math.random()*innerHeight,w:6+Math.random()*6,h:8+Math.random()*10,
+    vy:2+Math.random()*3.5,vx:-1+Math.random()*2,r:Math.random()*6.28,vr:-0.2+Math.random()*0.4,c:cols[Math.floor(Math.random()*cols.length)],s:Math.random()*6.28}));
+  const t0=performance.now();
+  (function frame(t){if(!document.getElementById('crown'))return;ctx.clearRect(0,0,innerWidth,innerHeight);const fade=Math.max(0,1-(t-t0-6000)/2500);
+    P.forEach(p=>{p.y+=p.vy;p.x+=p.vx+Math.sin(p.s+=0.04)*0.8;p.r+=p.vr;if(p.y>innerHeight+20&&fade>0.6){p.y=-20;p.x=Math.random()*innerWidth}
+      ctx.save();ctx.globalAlpha=fade;ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.c;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h*Math.abs(Math.cos(p.s)));ctx.restore()});
+    if(fade>0)requestAnimationFrame(frame)})(t0);
+}
+(function(){const css=`#crown{position:fixed;inset:0;z-index:100;background:#0b1118;display:flex;align-items:center;justify-content:center;cursor:pointer;animation:crFade .35s ease}
+#crown.out{opacity:0;transition:opacity .35s}
+#confetti{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.cr-in{position:relative;text-align:center;padding:24px;max-width:560px}
+.cr-crown{font-size:clamp(70px,18vw,120px);color:#f5c451;line-height:1;animation:crDrop 1.1s cubic-bezier(.2,1.4,.4,1) .25s both}
+.cr-hail{font-family:var(--fd);letter-spacing:6px;color:#f5c451;font-size:clamp(18px,4.5vw,26px);margin-top:6px;animation:crUp .5s ease 1.1s both}
+.cr-name{font-family:var(--fd);font-size:clamp(56px,17vw,120px);line-height:.95;margin-top:6px;animation:crSlam .55s cubic-bezier(.2,1.6,.4,1) .8s both}
+.cr-quote{margin:26px auto 0;border:1px solid #f5c451;padding:14px 16px;font-size:clamp(15px,3.8vw,18px);color:#e9eef3;line-height:1.55;max-width:460px;animation:crUp .5s ease 1.5s both}
+.cr-score{margin-top:18px;font-family:var(--fs);font-weight:700;font-size:20px;color:#8696a7;animation:crUp .5s ease 1.8s both}
+.cr-score span{font-family:var(--fd);font-size:30px;font-weight:400}
+.cr-tap{margin-top:28px;font-size:12px;color:#5d6d7e;letter-spacing:1px;animation:crUp .5s ease 2.4s both}
+@keyframes crFade{from{opacity:0}}
+@keyframes crDrop{0%{transform:translateY(-60vh) rotate(-25deg);opacity:0}60%{opacity:1}100%{transform:none}}
+@keyframes crSlam{0%{transform:scale(3);opacity:0}100%{transform:none;opacity:1}}
+@keyframes crUp{from{transform:translateY(16px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.cr-crown,.cr-hail,.cr-name,.cr-quote,.cr-score,.cr-tap{animation:none}}`;
+document.head.insertAdjacentHTML('beforeend',`<style>${css}</style>`)})();
+// ================= COACH-FEEDBACK v2 =================
+const AG_ROLE={Jett:'D',Raze:'D',Reyna:'D',Phoenix:'D',Yoru:'D',Neon:'D',Iso:'D',Waylay:'D',
+  Sova:'I',Breach:'I',Skye:'I','KAY/O':'I',Fade:'I',Gekko:'I',Tejo:'I',
+  Brimstone:'C',Omen:'C',Viper:'C',Astra:'C',Harbor:'C',Clove:'C',Miks:'C',
+  Sage:'S',Cypher:'S',Killjoy:'S',Chamber:'S',Deadlock:'S',Vyse:'S',Veto:'S'};
+const ROLE_NM={D:'duelist',I:'initiator',C:'controller',S:'sentinel'};
+const ROLE_KAST={D:[50,60],I:[53,62],C:[64,69],S:[63,68]}; // goed-grens, sterk-grens (ranked, iets onder pro)
+const fmtR=a=>{a=[...new Set(a)].sort((x,y)=>x-y);return a.length>1?a.slice(0,-1).join(', ')+' en '+a.slice(-1):String(a[0]||'')};
+const COACH_CACHE={};
+function coachRoundsOf(d,fi){
+  const me=d.players[fi];
+  return d.rounds.map((r,ri)=>{
+    const kills=r.ev.filter(e=>e[1]===fi&&d.players[e[2]].tm!==me.tm);
+    const di=r.ev.findIndex(e=>e[2]===fi), death=di>=0?r.ev[di]:null;
+    const assist=r.ev.some(e=>e[4].includes(fi));
+    const traded=!!death&&r.ev.some(e=>e[2]===death[1]&&e[1]!=null&&d.players[e[1]].tm===me.tm&&e[0]>=death[0]&&e[0]-death[0]<=5);
+    const tradeK=kills.filter(k=>r.ev.some(e=>e[1]===k[2]&&d.players[e[2]].tm===me.tm&&k[0]>=e[0]&&k[0]-e[0]<=5)).length;
+    let mates=4,foes=5,clutch=0;
+    const alive=new Set(d.players.map((p,i)=>i));
+    for(let j=0;j<r.ev.length;j++){const e=r.ev[j];
+      if(j===di){mates=[...alive].filter(i=>i!==fi&&d.players[i].tm===me.tm).length;foes=[...alive].filter(i=>d.players[i].tm!==me.tm).length}
+      alive.delete(e[2]);
+      const mn=[...alive].filter(i=>d.players[i].tm===me.tm),th=[...alive].filter(i=>d.players[i].tm!==me.tm);
+      if(!clutch&&mn.length===1&&mn[0]===fi&&th.length)clutch=th.length}
+    const atk=isAtk(me.tm,ri,d.fha), win=r.w===me.tm, eco=r.eco[fi]||[0,null,null,0];
+    const planted=!!r.pl;
+    return {ri:ri+1,kills,death,assist,traded,tradeK,mates,foes,clutch,atk,win,eco,planted,
+      fb:!!r.ev[0]&&r.ev[0][1]===fi,fd:!!r.ev[0]&&r.ev[0][2]===fi,pistol:ri===0||ri===12,
+      kast:kills.length>0||assist||!death||traded};
+  });
+}
+function coachMetrics(d,fi){
+  const key=d.id+':'+fi;if(COACH_CACHE[key])return COACH_CACHE[key];
+  const p=d.players[fi],R=coachRoundsOf(d,fi),n=R.length,AU=DATA.settings.alone_units||1500;
+  const ds=R.filter(x=>x.death);
+  const untr=ds.filter(x=>!x.traded), alone=ds.filter(x=>x.death[5]!=null&&x.death[5]>AU);
+  const empty=ds.filter(x=>!x.traded&&!x.kills.length&&!x.assist);
+  const early=ds.filter(x=>x.death[0]<=20);
+  const fds=R.filter(x=>x.fd),fbs=R.filter(x=>x.fb);
+  const save=R.filter(x=>x.death&&!x.win&&x.eco[0]>=3900&&x.mates<=1&&x.foes>=x.mates+3&&!(x.atk&&x.planted));
+  const force=R.filter(x=>!x.pistol&&x.eco[0]>=1500&&x.eco[0]<3600&&!x.win);
+  const sniperCheap=R.filter(x=>!x.pistol&&['Marshal','Outlaw'].includes(x.eco[1])&&x.eco[0]<3600&&!x.win);
+  // ongelijke buys met de andere vrienden
+  const fr=d.players.map((q,i)=>i).filter(i=>i!==fi&&d.players[i].fk&&d.players[i].tm===p.tm);
+  const mis=R.filter((x,ri)=>!x.pistol&&!x.win&&fr.some(j=>{const o=d.rounds[ri].eco[j];if(!o)return false;
+    return (x.eco[0]>=3900&&o[0]<2000)||(x.eco[0]<2000&&o[0]>=3900)}));
+  const m=mapOf(d);let spot=null;
+  if(m){const dc={};ds.forEach(x=>{if(x.death[6]!=null){const c=callout(m,x.death[6],x.death[7]);if(c){(dc[c]=dc[c]||[]).push(x.ri)}}});
+    const w=Object.entries(dc).sort((a,b)=>b[1].length-a[1].length)[0];if(w&&w[1].length>=3)spot={c:w[0],r:w[1]}}
+  const lob=lobbyTrade(d),myT=ds.length?(ds.length-untr.length)/ds.length*100:null;
+  const out={p,R,n,lob,myT,role:AG_ROLE[p.ag]||'?',ds,untr,alone,empty,early,fds,fbs,save,force,sniperCheap,mis,spot,
+    kast:R.filter(x=>x.kast).length/n*100,tradeK:R.reduce((s,x)=>s+x.tradeK,0),
+    multi:R.filter(x=>x.kills.length>=3),clutchW:R.filter(x=>x.clutch&&x.win),win:d.teams[p.tm]&&d.teams[p.tm][2]};
+  COACH_CACHE[key]=out;return out;
+}
+function lobbyTrade(d){const c='lob:'+d.id;if(COACH_CACHE[c]!=null)return COACH_CACHE[c];let D=0,T=0;
+  d.rounds.forEach(r=>r.ev.forEach(e=>{const v=d.players[e[2]];if(!v||e[1]==null)return;D++;
+    if(r.ev.some(x=>x[2]===e[1]&&x[1]!=null&&d.players[x[1]].tm===v.tm&&x[0]>=e[0]&&x[0]-e[0]<=5))T++}));
+  return COACH_CACHE[c]=D?Math.round(T/D*100):null}
+// historie: welke matches van deze vriend (nieuwste eerst)
+function coachHist(fk){
+  return Object.values(DATA.details).map(d=>{const i=d.players.findIndex(q=>q.fk===fk);return i>=0?{d,i}:null}).filter(Boolean)
+    .sort((a,b)=>new Date(b.d.date)-new Date(a.d.date));
+}
+function fbfdWin(fk){
+  const c='fbfd:'+fk;if(COACH_CACHE[c])return COACH_CACHE[c];
+  let fb=[0,0],fd=[0,0];coachHist(fk).forEach(({d,i})=>{const tm=d.players[i].tm;d.rounds.forEach(r=>{if(!r.ev[0])return;const w=r.w===tm;
+    if(r.ev[0][1]===i){fb[0]+=w;fb[1]++}if(r.ev[0][2]===i){fd[0]+=w;fd[1]++}})});
+  return COACH_CACHE[c]={fb:fb[1]>=10?Math.round(fb[0]/fb[1]*100):null,fd:fd[1]>=10?Math.round(fd[0]/fd[1]*100):null};
+}
+// detectors: geeft {sev,val} of null. val = de meetwaarde voor de huiswerk-check
+const ISSUES={
+  untraded:{nm:'Deaths die niets opleverden',test:M=>{const r=M.untr.length/Math.max(1,M.ds.length);return M.ds.length>=8&&M.lob!=null&&M.myT<=M.lob-8?{sev:14+(M.lob-M.myT)*0.8,val:M.ds.length-M.untr.length,txt:`${M.ds.length-M.untr.length} van ${M.ds.length} getrade`}:null}},
+  firstdeath:{nm:'Te vaak als eerste neer',test:M=>{const lim=M.role==='D'?4:3,ex=M.fds.length-M.fbs.length;
+    const trd=M.fds.filter(x=>x.traded).length;if(M.fds.length>=lim&&ex>=(M.role==='D'?2:1)&&!(M.role==='D'&&trd>=M.fds.length/2))return {sev:16+ex*4,val:M.fds.length,txt:`${M.fds.length} first deaths`};return null}},
+  early:{nm:'Vroeg in de ronde dood',test:M=>M.early.length>=3&&M.early.length/Math.max(1,M.ds.length)>=0.3?{sev:12+M.early.length*3,val:M.early.length,txt:`${M.early.length} keer binnen 20 seconden`}:null},
+  spot:{nm:'Steeds op dezelfde plek dood',test:M=>M.spot?{sev:10+M.spot.r.length*4,val:M.spot.r.length,txt:`${M.spot.r.length} keer in ${M.spot.c}`}:null},
+  save:{nm:'Wapen weggegooid in verloren rondes',test:M=>M.save.length>=2?{sev:10+M.save.length*5,val:M.save.length,txt:`${M.save.length} keer`}:null},
+  eco:{nm:'Koopgedrag',test:M=>{const x=Math.max(M.mis.length,M.force.length,M.sniperCheap.length*1.5);return x>=2?{sev:9+x*3,val:M.mis.length+M.force.length,txt:`${M.mis.length+M.force.length} slechte buys`}:null}},
+  kast:{nm:'Te weinig rondes met impact',test:M=>{const b=ROLE_KAST[M.role];if(!b)return null;const gap=b[0]-M.kast;return gap>=5?{sev:8+gap,val:Math.round(M.kast),txt:`KAST ${Math.round(M.kast)}%`}:null}},
+};
+function issueHTML(key,M,fk){
+  const r=ROLE_NM[M.role]||'speler',ag=M.p.ag,W=fbfdWin(fk);
+  const why=W.fb!=null&&W.fd!=null?`In jullie eigen potjes win je <b>${W.fb}%</b> van de rondes waarin jij de first blood pakt, maar maar <b>${W.fd}%</b> als jij als eerste sterft.`:'Elke death zonder trade betekent dat je team de rest van de ronde met een man minder speelt.';
+  const L=(t,c)=>`<div class="co-l"><span>${t}</span><div>${c}</div></div>`;
+  switch(key){
+    case 'untraded':{const al=M.alone.map(x=>x.ri);return {
+      what:`<b>${M.untr.length} van je ${M.ds.length} deaths</b> werden niet getrade. In deze lobby werd gemiddeld <b>${M.lob}%</b> van de deaths getrade, bij jou ${Math.round(M.myT)}%${al.length?`. In ${al.length} daarvan stond er niemand binnen 15 meter (ronde ${fmtR(al)})`:''}.`,
+      why,
+      todo:{D:`Als ${ag} maak je ruimte, maar alleen als er iemand achter je aan komt. Wacht op de flash of smoke van je team en vraag om een trade voordat je erin gaat.`,
+        I:`Gebruik eerst je info-utility en peek daarna samen met een teamgenoot, niet in je eentje.`,
+        C:`Als ${ag} ben je te waardevol om alleen te sterven: zonder jou zijn er geen smokes meer. Blijf een stap achter de entry en trade hem.`,
+        S:`Als ${ag} speel je achter of naast het team. Neem pas een duel als een teamgenoot binnen schootsafstand staat en jou kan traden.`}[M.role]||'Blijf dicht bij een teamgenoot.',
+      goal:`Minstens ${M.lob}% van je deaths getrade, net als de lobby (nu ${Math.round(M.myT)}%).`}}
+    case 'firstdeath':return {
+      what:`<b>${M.fds.length} keer als eerste neer</b> (ronde ${fmtR(M.fds.map(x=>x.ri))}), tegenover ${M.fbs.length} first blood${M.fbs.length===1?'':'s'}. ${M.fds.filter(x=>x.traded).length} daarvan werden getrade.`,
+      why,
+      todo:M.role==='D'?`First deaths horen bij een ${r}, maar dan moet je getrade worden. Ga niet droog: flash, dash of smoke eerst, en zorg dat er een tweede speler direct achter je zit.`:`Als ${r} hoor je niet het eerste contact te maken. Laat de duelist of je utility de eerste info geven, en hou de hoeken die al gecleard zijn.`,
+      goal:`Maximaal ${Math.max(1,Math.floor(M.fds.length/2))} first deaths, of minstens de helft ervan getrade.`};
+    case 'early':return {
+      what:`<b>${M.early.length} van je ${M.ds.length} deaths</b> vielen in de eerste 20 seconden (ronde ${fmtR(M.early.map(x=>x.ri))}).`,
+      why:`Vroeg in de ronde weet je nog niets. Een death dan geeft de tegenstander gratis een numeriek voordeel en vaak je wapen.`,
+      todo:`Peek in het begin geen lange hoeken zonder info. Wacht op een call, utility of geluid, en kies een hoek waar je na één schot weg kunt.`,
+      goal:`Maximaal 1 death in de eerste 20 seconden.`};
+    case 'spot':return {
+      what:`Je ging <b>${M.spot.r.length} keer dood in ${M.spot.c}</b> (ronde ${fmtR(M.spot.r)}).`,
+      why:`De tegenstander leert snel. Wie daar één keer wint, zet zijn crosshair de volgende ronde al op jouw hoofdhoogte.`,
+      todo:`Na één keer sterven op een plek: wissel van hoek, kom later of eerder, of gooi daar eerst utility. Op defense mag je ook een andere positie spelen.`,
+      goal:`Nooit meer dan 2 keer op dezelfde plek dood.`};
+    case 'save':return {
+      what:`In ronde ${fmtR(M.save.map(x=>x.ri))} ging je met een full buy dood terwijl de ronde al verloren was (jij plus hooguit één teamgenoot tegen ${Math.max(...M.save.map(x=>x.foes))} of meer).`,
+      why:`Een bewaard wapen scheelt de volgende ronde ¤2.900 of meer. Zo kan je team weer volledig kopen.`,
+      todo:`Zie je dat je met 1 of 2 tegen 4 staat en de spike ligt er niet voor jou? Verstop je en bewaar je wapen, en zeg het tegen je team.`,
+      goal:`Geen enkele full buy meer weggeven in een verloren ronde.`};
+    case 'eco':{const parts=[];if(M.mis.length)parts.push(`in ronde ${fmtR(M.mis.map(x=>x.ri))} kocht je anders dan je vrienden (de een full, de ander spaarde)`);
+      if(M.sniperCheap.length)parts.push(`in ronde ${fmtR(M.sniperCheap.map(x=>x.ri))} kocht je een ${M.sniperCheap[0].eco[1]} zonder genoeg geld voor armor en utility`);
+      else if(M.force.length)parts.push(`${M.force.length} force buys gingen verloren (ronde ${fmtR(M.force.map(x=>x.ri))})`);
+      return {what:parts.map(s=>s[0].toUpperCase()+s.slice(1)).join('. ')+'. Al die rondes gingen verloren.',
+      why:`Een team dat half koopt en half spaart verliest bijna altijd. Na een verloren pistol is samen sparen in ronde 2 en full kopen in ronde 3 de standaard.`,
+      todo:`Spreek voor elke ronde af: kopen, sparen of forcen, en doe dat samen. Wil je forcen, koop dan een Spectre of Stinger met armor in plaats van een sniper.`,
+      goal:`Geen enkele ronde meer waarin jullie verschillend kopen.`}}
+    case 'kast':{const b=ROLE_KAST[M.role];return {
+      what:`KAST van <b>${Math.round(M.kast)}%</b>. Voor een ${r} is ${b[0]}% of hoger goed.`,
+      why:`KAST telt in hoeveel rondes je iets bijdroeg. Het is een van de beste voorspellers van winnen, beter dan je kills.`,
+      todo:{D:`Je hoeft niet elke ronde te fraggen, maar zorg dat je death altijd iets oplevert: info, schade of een trade.`,I:`Gebruik je flashes en recon voor je teamgenoten. Elke assist telt mee.`,C:`Overleven is jouw belangrijkste bijdrage: blijf achter, smoke en speel voor de trade.`,S:`Blijf leven en hou je flank. Een overleefde ronde telt ook.`}[M.role],
+      goal:`KAST van ${b[0]}% of hoger.`}}
+  }
+}
+const GOODS=[
+  M=>M.multi.length?{sev:14+M.multi.length*6,html:`<b>${M.multi.length} ${M.multi.length>1?'rondes':'ronde'} met 3 of meer kills</b> (ronde ${fmtR(M.multi.map(x=>x.ri))}).`,keep:'Kijk waarom dat lukte: welke hoek, welke utility, welke timing. Dat wil je vaker opzoeken.'}:null,
+  M=>M.clutchW.length?{sev:22,html:`<b>Clutch gewonnen</b>: 1 tegen ${Math.max(...M.clutchW.map(x=>x.clutch))} in ronde ${fmtR(M.clutchW.map(x=>x.ri))}.`,keep:'Rustig blijven en één duel tegelijk nemen. Precies goed.'}:null,
+  M=>M.tradeK>=3?{sev:10+M.tradeK*3,html:`<b>${M.tradeK} trade-kills</b>: je stond dichtbij genoeg om je teamgenoten te wreken.`,keep:M.role==='D'?'Zo maak je als duelist het verschil, ook als je niet als eerste gaat.':'Dit is precies wat je rol vraagt. Blijf zo spelen.'}:null,
+  M=>M.fbs.length-M.fds.length>=2?{sev:12+(M.fbs.length-M.fds.length)*4,html:`Je won de openingsduels: <b>${M.fbs.length} first bloods</b> tegenover ${M.fds.length} first death${M.fds.length===1?'':'s'}.`,keep:'Jullie team won daardoor veel rondes met 5 tegen 4.'}:null,
+  M=>{const b=ROLE_KAST[M.role];return b&&M.kast>=b[1]+8?{sev:12,html:`KAST van <b>${Math.round(M.kast)}%</b>, sterk voor een ${ROLE_NM[M.role]}.`,keep:'Je droeg in bijna elke ronde iets bij.'}:null},
+  M=>M.ds.length>=8&&M.lob!=null&&M.myT>=M.lob+12?{sev:12,html:`<b>${M.ds.length-M.untr.length} van je ${M.ds.length} deaths</b> werden getrade, ruim boven de lobby (${M.lob}%).`,keep:'Je speelde dicht bij je team, zodat je death meteen werd beantwoord.'}:null,
+];
+function coachEval(d,fi){
+  const fk=d.players[fi].fk,M=coachMetrics(d,fi);
+  const hist=coachHist(fk),pos=hist.findIndex(h=>h.d.id===d.id),prev=hist.slice(pos+1,pos+11);
+  const issues=Object.entries(ISSUES).map(([k,I])=>{const t=I.test(M);if(!t)return null;
+    const rep=prev.filter(h=>I.test(coachMetrics(h.d,h.i))).length;return {k,...t,rep,sev:t.sev*(rep>=4?1.35:rep>=2?1.15:1)}}).filter(Boolean).sort((a,b)=>b.sev-a.sev);
+  const goods=GOODS.map(g=>g(M)).filter(Boolean).sort((a,b)=>b.sev-a.sev).slice(0,2);
+  return {M,issues,goods,prev,fk};
+}
+function coachBlock(d,f){
+  const E=coachEval(d,f.i),M=E.M,col=colorOf(f.fk),top=E.issues[0],more=E.issues.slice(1,3);
+  let h=`<div class="panel co" style="--pc:${col}"><div class="co-h"><b style="color:${col}">${f.n}</b><span>${f.ag} · ${ROLE_NM[M.role]||''} · ${f.k}/${f.d}/${f.a}</span></div>`;
+  if(top){const x=issueHTML(top.k,M,E.fk);
+    h+=`<div class="co-focus"><div class="co-tag">Focuspunt</div><div class="co-t">${ISSUES[top.k].nm}</div>
+      <p>${x.what}</p>${top.rep>=2?`<p class="co-rep">Dit kwam ook terug in <b>${top.rep} van je laatste ${E.prev.length}</b> potjes.</p>`:''}
+      <div class="co-l"><span>Waarom</span><div>${x.why}</div></div>
+      <div class="co-l"><span>Volgende keer</span><div>${x.todo}</div></div>
+      <div class="co-goal"><span>Doel</span>${x.goal}</div></div>`}
+  if(more.length)h+=`<div class="co-sub">Ook letten op</div>`+more.map(i=>{const x=issueHTML(i.k,M,E.fk);return `<div class="co-item bad"><b>${ISSUES[i.k].nm}.</b> ${x.what} <span class="co-do">${x.todo}</span></div>`}).join('');
+  if(E.goods.length)h+=`<div class="co-sub">Ging goed</div>`+E.goods.map(g=>`<div class="co-item good">${g.html} <span class="co-do">${g.keep}</span></div>`).join('');
+  // huiswerk-check
+  const pv=E.prev[0];if(pv){const P=coachEval(pv.d,pv.i),pt=P.issues[0];if(pt){const now=ISSUES[pt.k].test(M);
+    const thenTxt=pt.txt,better=!now||(pt.k==='untraded'||pt.k==='kast'?now.val>pt.val:now.val<pt.val);
+    h+=`<div class="co-hw ${better?'up':'down'}"><span>Huiswerk van vorig potje</span><div><b>${ISSUES[pt.k].nm}</b> (${pv.d.map}): toen ${thenTxt}, nu ${now?now.txt:'geen probleem meer'}. ${better?'Dat gaat beter.':'Nog niet beter, blijf hierop letten.'}</div></div>`}}
+  if(!top&&!E.goods.length)h+=`<p style="color:var(--mute);margin-top:8px">Een degelijk potje zonder duidelijke uitschieters.</p>`;
+  return h+`</div>`;
+}
+function matchFeedbackHTML(d,F){
+  return `<section><h2>Coach-feedback</h2><p class="lead">Per speler één focuspunt met de oorzaak en wat je volgende keer anders doet. Beoordeeld tegen je rol en je eigen laatste 10 potjes.</p><div class="g2" style="grid-template-columns:repeat(${Math.min(F.length,3)},minmax(0,1fr))">${F.map(f=>coachBlock(d,f)).join('')}</div></section>`;
+}
+(function(){document.head.insertAdjacentHTML('beforeend',`<style>
+.co-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:12px}.co-h b{font-size:20px;font-weight:700;letter-spacing:-.02em}.co-h span{color:var(--mute);font-size:13px}
+.co-focus{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.co-tag{display:inline-block;font-size:11.5px;font-weight:600;color:#09090b;background:var(--pc);border-radius:99px;padding:2px 10px}
+.co-t{font-size:17px;font-weight:700;letter-spacing:-.01em;margin:8px 0 6px}
+.co-focus p{font-size:14.5px;line-height:1.55;color:#e4e4e7}.co-rep{color:#fbbf24 !important;font-size:13.5px !important;margin-top:6px}
+.co-l{display:grid;grid-template-columns:104px 1fr;gap:10px;margin-top:10px;font-size:14px;line-height:1.55;color:#d4d4d8}.co-l span{color:var(--mute);font-size:12.5px;padding-top:1px}
+.co-goal{margin-top:12px;padding:9px 12px;border-radius:10px;background:color-mix(in srgb,var(--pc) 12%,transparent);font-size:14px}.co-goal span{font-weight:600;margin-right:8px;color:var(--pc)}
+.co-sub{font-size:12.5px;color:var(--mute);margin:16px 0 6px;font-weight:500}
+.co-item{font-size:14px;line-height:1.5;padding:9px 12px;border-radius:10px;margin:6px 0;background:rgba(255,255,255,.03);position:relative;padding-left:16px}
+.co-item:before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0}
+.co-item.bad:before{background:var(--loss)}.co-item.good:before{background:var(--win)}
+.co-do{display:block;color:var(--mute);font-size:13px;margin-top:3px}
+.co-hw{margin-top:14px;border-top:1px solid var(--line);padding-top:12px;font-size:13.5px;line-height:1.5;color:#d4d4d8}.co-hw span{display:block;font-size:12.5px;color:var(--mute);margin-bottom:3px}
+.co-hw.up b{color:var(--win)}.co-hw.down b{color:#fbbf24}
+@media(max-width:820px){.co-l{grid-template-columns:1fr;gap:2px}}
+</style>`)})();
+</script>
+</body>
+</html>

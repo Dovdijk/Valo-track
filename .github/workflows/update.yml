@@ -61,7 +61,7 @@ jobs:
       - name: Website klaarzetten
         run: |
           mkdir -p _site/data
-          cp index.html manifest.webmanifest sw.js _site/
+          cp index.html test.html manifest.webmanifest sw.js _site/
           cp -r icons _site/
           cp data/stats.json _site/data/
 

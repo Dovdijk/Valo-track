@@ -11,7 +11,7 @@ on:
         default: false
   push:
     branches: [main]
-    paths: ["index.html", "config.json", "scripts/**"]
+    paths: ["index.html", "config.json", "scripts/**", "sw.js", "manifest.webmanifest", "icons/**"]
 
 permissions:
   contents: write
@@ -61,7 +61,8 @@ jobs:
       - name: Website klaarzetten
         run: |
           mkdir -p _site/data
-          cp index.html _site/
+          cp index.html manifest.webmanifest sw.js _site/
+          cp -r icons _site/
           cp data/stats.json _site/data/
 
       - uses: actions/configure-pages@v5

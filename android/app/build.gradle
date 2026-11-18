@@ -1,0 +1,37 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'nl.squadtracker.app'
+    compileSdk 34
+    defaultConfig {
+        applicationId 'nl.squadtracker.app'
+        minSdk 24
+        targetSdk 34
+        versionCode (System.getenv('VERSION_CODE') ?: '1').toInteger()
+        versionName "1.0." + (System.getenv('VERSION_CODE') ?: '1')
+        buildConfigField 'String', 'SITE_URL', '"' + (System.getenv('SITE_URL') ?: 'https://dovdijk.github.io/Valo-track/') + '"'
+    }
+    buildFeatures { buildConfig true }
+    signingConfigs {
+        release {
+            storeFile file(System.getenv('KEYSTORE_FILE') ?: 'release.keystore')
+            storePassword System.getenv('KEYSTORE_PASSWORD')
+            keyAlias 'squad'
+            keyPassword System.getenv('KEYSTORE_PASSWORD')
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+}

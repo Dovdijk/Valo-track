@@ -2,7 +2,15 @@
 <html lang="nl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1118">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Squad">
 <title>Squad Tracker · Valorant</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -184,6 +192,13 @@ body.inmatch #fToggle{display:none}
   .frow{gap:6px}
   .tip{max-width:80vw}
 }
+
+.inst{position:fixed;left:12px;right:12px;bottom:calc(76px + env(safe-area-inset-bottom));z-index:44;background:#152130;border:1px solid var(--red);border-radius:10px;padding:12px 14px;display:flex;gap:12px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.inst div{flex:1;font-size:13px;color:#c7d2dd}.inst div b{color:#fff}.inst div>b{display:block;font-size:15px;margin-bottom:2px}
+.inst .ios{display:inline-block;border:1px solid #3a4a5c;border-radius:4px;padding:0 4px;font-size:11px}
+.inst .ix{background:none;border:0;color:var(--mute);font-size:22px;cursor:pointer}
+@media(min-width:821px){.inst{left:auto;right:22px;bottom:80px;width:380px}}
+body.is-app .topbar{padding-top:env(safe-area-inset-top)}
 </style>
 </head>
 <body>
@@ -305,7 +320,7 @@ function buildNav(){
   const main=['overzicht','vergelijk','rank','matches'];
   $('#bnav').innerHTML=main.map(k=>{const p=PAGES.find(x=>x[0]===k);return `<a href="#/${k}" data-p="${k}" class="${!CUR&&PAGE===k?'on':''}"><i>${p[2]}</i><span>${p[1]==='Vergelijken'?'Vergelijk':p[1]}</span></a>`}).join('')+
     `<a href="#" id="bMore" class="${!CUR&&!main.includes(PAGE)?'on':''}"><i>⋯</i><span>Meer</span></a>`;
-  $('#moreList').innerHTML=PAGES.map(([k,l,ic])=>`<a href="#/${k}" data-p="${k}" class="${!CUR&&PAGE===k?'on':''}"><i>${ic}</i>${l}</a>`).join('')+`<a href="#" id="mGloss"><i>?</i>Legenda</a>`;
+  $('#moreList').innerHTML=PAGES.map(([k,l,ic])=>`<a href="#/${k}" data-p="${k}" class="${!CUR&&PAGE===k?'on':''}"><i>${ic}</i>${l}</a>`).join('')+`<a href="#" id="mGloss"><i>?</i>Legenda</a>`+(navigator.userAgent.includes('SquadTrackerApp')?'':`<a href="https://github.com/Dovdijk/Valo-track/releases/download/app/SquadTracker.apk"><i>⤓</i>Android-app downloaden</a>`);
   document.querySelectorAll('[data-p]').forEach(a=>a.onclick=e=>{e.preventDefault();go(a.dataset.p)});
   $('#bMore').onclick=e=>{e.preventDefault();document.body.classList.toggle('sheet-more');document.body.classList.remove('sheet-filter')};
   $('#mGloss').onclick=e=>{e.preventDefault();closeSheets();openGloss()};
@@ -1354,6 +1369,18 @@ function renderRank(app,P){
     dh+=`<div class="panel"><h3 style="color:${p.color}">${p.name}</h3>${ks.map(k=>`<div style="display:grid;grid-template-columns:30px 110px 1fr 34px;gap:8px;align-items:center;margin:5px 0;font-size:13px">${badge(k,24)}<span>${tierName(k)}</span><div style="height:10px;background:#0d151e;border-radius:2px"><i style="display:block;height:100%;width:${c[k]/mx*100}%;background:${tierColor(k)};border-radius:2px"></i></div><b style="font-family:Rajdhani,'Arial Narrow',sans-serif;text-align:right">${c[k]}</b></div>`).join('')}</div>`});
   app.insertAdjacentHTML('beforeend',sectionWrap('Tijd per rank','In hoeveel potjes je op elke rank stond.',dh+'</div>'));
 }
+
+// ================= APP (PWA) =================
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
+(function(){
+  const standalone=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+  if(standalone||navigator.userAgent.includes('SquadTrackerApp')){document.body.classList.add('is-app');return}
+  const isAndroid=/android/i.test(navigator.userAgent);
+  if(!isAndroid||window.innerWidth>=820)return;
+  try{if(localStorage.getItem('apkHide'))return}catch(e){}
+  setTimeout(()=>{document.body.insertAdjacentHTML('beforeend',`<div class="inst" id="inst"><div><b>Squad Tracker als app</b><span>Download de Android-app voor je beginscherm.</span></div><a class="btn on" href="https://github.com/Dovdijk/Valo-track/releases/download/app/SquadTracker.apk">Download</a><button class="ix" id="instX" aria-label="Sluiten">×</button></div>`);
+    document.getElementById('instX').onclick=()=>{try{localStorage.setItem('apkHide',1)}catch(e){}document.getElementById('inst').remove()}},1500);
+})();
 </script>
 </body>
 </html>

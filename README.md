@@ -82,3 +82,16 @@ Alles staat in `config.json`:
 - **"Alle matches ooit" heeft een grens.** De API haalt de geschiedenis uit Riot, en die gaat niet eindeloos terug. Daarnaast gebruikt het script de matches die HenrikDev zelf al eerder heeft opgeslagen, die soms ouder zijn. Hoe ver je precies terugkomt, verschilt per speler. Alles wat één keer binnen is, blijft voorgoed bewaard in je repository.
 
 De data komt van de onofficiële HenrikDev API, niet van Riot zelf. Dit project is niet gemaakt of goedgekeurd door Riot Games. Als die API verandert of stopt, werkt het bijwerken niet meer tot het script is aangepast.
+
+## Android-app
+
+GitHub bouwt automatisch een Android-app (.apk) die de site schermvullend laat zien, met je eigen icoon. De statistieken in de app werken zichzelf bij, net als de site.
+
+**Eenmalig instellen**
+1. Ga naar **Settings → Secrets and variables → Actions → New repository secret**.
+2. Name: `ANDROID_KEYSTORE_PASSWORD`. Secret: een lang wachtwoord dat je zelf verzint, bijvoorbeeld 20 willekeurige tekens. Je hoeft het nergens anders in te vullen, maar verander het later niet, anders kun je de app niet meer bijwerken.
+3. Ga naar **Actions → Android-app bouwen → Run workflow**.
+
+**Downloaden:** https://github.com/Dovdijk/Valo-track/releases/download/app/SquadTracker.apk. Open het bestand op je telefoon en sta "installeren uit onbekende bronnen" toe als Android daarom vraagt.
+
+**Eigen icoon:** vervang `app-icon.png` (vierkant, minstens 512 x 512 pixels) via **Add file → Upload files**. GitHub bouwt dan vanzelf een nieuwe versie. Installeer die over de oude heen. De kleur linksboven in je afbeelding wordt de achtergrondkleur van het icoon.

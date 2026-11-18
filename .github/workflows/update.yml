@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: "17 * * * *"   # elk uur, op minuut 17
   workflow_dispatch:        # handmatig starten via de Actions-tab
+    inputs:
+      discord:
+        description: "Stuur nu een Discord-samenvatting van de afgelopen 7 dagen"
+        type: boolean
+        default: false
   push:
     branches: [main]
     paths: ["index.html", "config.json", "scripts/**"]
@@ -38,6 +43,12 @@ jobs:
 
       - name: Statistieken berekenen
         run: python scripts/build_stats.py
+
+      - name: Wekelijkse samenvatting naar Discord
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          FORCE_DISCORD: ${{ github.event.inputs.discord }}
+        run: python scripts/discord.py
 
       - name: Data opslaan in de repo
         run: |

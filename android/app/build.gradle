@@ -7,9 +7,11 @@ android {
         applicationId 'nl.squadtracker.app'
         minSdk 24
         targetSdk 34
-        versionCode (System.getenv('VERSION_CODE') ?: '1').toInteger()
-        versionName "1.0." + (System.getenv('VERSION_CODE') ?: '1')
-        buildConfigField 'String', 'SITE_URL', '"' + (System.getenv('SITE_URL') ?: 'https://dovdijk.github.io/Valo-track/') + '"'
+        def vc = System.getenv('VERSION_CODE') ?: '1'
+        versionCode = vc.toInteger()
+        versionName = "1.0." + vc
+        def site = System.getenv('SITE_URL') ?: 'https://dovdijk.github.io/Valo-track/'
+        buildConfigField('String', 'SITE_URL', '"' + site + '"')
     }
     buildFeatures { buildConfig true }
     def ksPw = System.getenv('KEYSTORE_PASSWORD')

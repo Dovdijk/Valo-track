@@ -265,7 +265,7 @@ function initFilters(){
     if(SEL.has(k)){if(SEL.size>1)SEL.delete(k)}else SEL.add(k);
     c.classList.toggle('on',SEL.has(k));render()});
 }
-fetch('data/stats.json?'+Date.now()).then(r=>{if(!r.ok)throw 0;return r.json()}).then(d=>{DATA=d;initFilters();parseRoute();render()}).catch(()=>{
+fetch('data/stats.json?'+Date.now()).then(r=>{if(!r.ok)throw 0;return r.json()}).then(d=>{DATA=d;initFilters();parseRoute();render();showCrowning()}).catch(()=>{
   $('#app').innerHTML=`<div class="panel empty" style="margin-top:30px"><b>Nog geen data</b>Draai eerst de GitHub Action "Matches bijwerken" (zie README). Open je deze pagina als los bestand, dan kan de browser de data niet laden: bekijk hem via GitHub Pages.</div>`;
 });
 document.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>{N=+b.dataset.n;$('#fN').value='';document.querySelectorAll('[data-n]').forEach(x=>x.classList.toggle('on',x===b));render()});
@@ -1381,6 +1381,106 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.se
   setTimeout(()=>{document.body.insertAdjacentHTML('beforeend',`<div class="inst" id="inst"><div><b>Squad Tracker als app</b><span>Download de Android-app voor je beginscherm.</span></div><a class="btn on" href="https://github.com/Dovdijk/Valo-track/releases/download/app/SquadTracker.apk">Download</a><button class="ix" id="instX" aria-label="Sluiten">×</button></div>`);
     document.getElementById('instX').onclick=()=>{try{localStorage.setItem('apkHide',1)}catch(e){}document.getElementById('inst').remove()}},1500);
 })();
+
+// ================= DE KRONING (melding bij openen) =================
+const TAUNTS=[
+ "{L}, de troon blijft leeg tot je die crosshair op hoofdhoogte houdt.",
+ "{L} heeft de afgelopen potjes vooral gespeeld als decoratie op de minimap.",
+ "Breaking news: {L} gespot in de spawn, nog steeds aan het nadenken over een buy.",
+ "{W} draagt de kroon. {L} draagt de spike en zet hem nooit neer.",
+ "{L}, je K/D belt. Hij wil weten waar je bent.",
+ "Koning {W} vergeeft je, {L}. De lobby niet.",
+ "{L}, een Marshal kopen is geen strategie. Het is een levensstijl.",
+ "Zelfs de bots in de range hebben medelijden met {L}.",
+ "{L} heeft meer rondes gespectate dan gespeeld.",
+ "Officieel: {W} is de baas. {L} mag de drankjes halen.",
+ "{L}, je utility heeft vakantie genomen en is nooit teruggekomen.",
+ "{W} plant de spike. {L} plant zichzelf in de grond.",
+ "Tip voor {L}: de tegenstander zit niet in de lucht. Iets lager mikken.",
+ "{L} peekt alsof er geen morgen is. Spoiler: die kwam ook niet.",
+ "Er is een nieuwe callout op de map: 'waar {L} altijd doodgaat'.",
+ "{W} heeft een fanclub. {L} heeft een supportticket.",
+ "{L}, het is 'Run It Back', niet 'Run Away'.",
+ "Gelukkig voor {L} telt de gezelligheid ook mee. Toch?",
+ "{L} speelt als een eco-ronde: gratis en zonder verwachtingen.",
+ "Nieuwe rank ontdekt: {L}-onder-{W}.",
+ "{W} haalt de kills. {L} haalt de assists op de kill feed van de tegenstander.",
+ "{L}, je bent geen lurker als je daar al vijf minuten staat te AFK'en.",
+ "Er is hoop voor {L}. Weinig, maar het is er.",
+ "{W} is de MVP. {L} is de MVP van de deathcam.",
+ "{L}, als je zo doorgaat krijg je een eigen plek op de heatmap. In het rood.",
+ "Statistisch gezien is {L} nog steeds familie van {W}. Ver weg.",
+ "{L} heeft zijn rank-schild vaker gebruikt dan zijn headset.",
+ "Ere wie ere toekomt: {W}. Schande wie schande toekomt: {L}.",
+ "{L}, de warm-up was niet optioneel.",
+ "{W} rolt een rode loper uit. {L} struikelt erover.",
+ "{L}, flashen werkt beter als je je eigen team niet verblindt.",
+ "Het oordeel is geveld. {W} regeert, {L} reageert.",
+ "{L} denkt dat 'trade' iets is wat je met Pokémonkaarten doet.",
+ "{W} 1, {L} 0. En dat is nog vriendelijk geteld.",
+ "{L}, je crosshair en de vijand hebben elkaar nog nooit ontmoet.",
+ "Bij elke kroning hoort een nar. Bedankt, {L}.",
+ "{L} speelt niet slecht. Hij speelt alleen consequent niet goed.",
+ "{W} is de koning van de lobby. {L} is de koning van de excuses.",
+ "{L}, de Spike is niet de enige die ontploft vanavond.",
+ "{L}, een clutch is iets wat je wint. Niet iets wat je vermijdt.",
+ "Volgende keer beter, {L}. Of de keer daarna. Of daarna.",
+ "{W} houdt een speech. {L} houdt zijn mond. Dat is beter zo.",
+];
+const TIE_LINES=["Gelijkspel. De troon blijft leeg tot het volgende potje.","Precies even goed. Of even slecht. Dat mogen jullie zelf bepalen.","Geen koning vandaag. De kroon ligt klaar voor wie hem pakt."];
+function crownScore(key){const rs=(DATA.matches[key]||[]).slice(0,10);const R=rs.reduce((s,r)=>s+r.rounds,0);if(!R)return null;
+  return {score:Math.round(rs.reduce((s,r)=>s+r.acs_sum,0)/R*rs.reduce((s,r)=>s+r.kast,0)/R),n:rs.length}}
+function nextTaunt(){let used=[];try{used=JSON.parse(localStorage.getItem('tauntUsed')||'[]')}catch(e){}
+  let free=TAUNTS.map((_,i)=>i).filter(i=>!used.includes(i));if(!free.length){used=used.slice(-5);free=TAUNTS.map((_,i)=>i).filter(i=>!used.includes(i))}
+  const i=free[Math.floor(Math.random()*free.length)];used.push(i);try{localStorage.setItem('tauntUsed',JSON.stringify(used))}catch(e){}return TAUNTS[i]}
+function showCrowning(){
+  if(!DATA||document.getElementById('crown'))return;
+  const A={key:'marciebeur#euw',name:'Don',color:'#ff7a45'},B={key:'dennisvg#3745',name:'Dennis',color:'#3ee6c2'};
+  const a=crownScore(A.key),b=crownScore(B.key);if(!a||!b)return;
+  const tie=a.score===b.score,W=a.score>b.score?A:B,L=W===A?B:A,ws=W===A?a:b,ls=W===A?b:a;
+  const line=tie?TIE_LINES[Math.floor(Math.random()*TIE_LINES.length)]:nextTaunt().replace(/\{W\}/g,W.name).replace(/\{L\}/g,L.name);
+  document.body.insertAdjacentHTML('beforeend',`<div id="crown" role="dialog" aria-label="De kroning">
+    <canvas id="confetti"></canvas>
+    <div class="cr-in">
+      <div class="cr-crown">♛</div>
+      <div class="cr-hail">${tie?'GELIJKSPEL':'ALL HAIL'}</div>
+      <div class="cr-name" style="color:${tie?'#f5c451':W.color}">${tie?'DON = DENNIS':'KONING<br>'+W.name.toUpperCase()}</div>
+      <div class="cr-quote">“${line}”</div>
+      <div class="cr-score"><span style="color:${W.color}">${ws.score}</span> tegen <span style="color:${L.color}">${ls.score}</span></div>
+      <div class="cr-tap">tik om door te gaan</div>
+    </div></div>`);
+  const el=document.getElementById('crown');document.body.style.overflow='hidden';
+  const close=()=>{el.classList.add('out');document.body.style.overflow='';setTimeout(()=>el.remove(),350)};
+  el.onclick=close;document.addEventListener('keydown',function k(e){if(e.key==='Escape'){close();document.removeEventListener('keydown',k)}});
+  // confetti
+  const cv=document.getElementById('confetti'),ctx=cv.getContext('2d');const dpr=window.devicePixelRatio||1;
+  const fit=()=>{cv.width=innerWidth*dpr;cv.height=innerHeight*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)};fit();addEventListener('resize',fit);
+  const cols=['#f5c451','#ff4655','#3ee6c2','#ff7a45','#ffffff','#b48cff'];
+  const P=[...Array(Math.min(220,Math.round(innerWidth/4)))].map(()=>({x:Math.random()*innerWidth,y:-20-Math.random()*innerHeight,w:6+Math.random()*6,h:8+Math.random()*10,
+    vy:2+Math.random()*3.5,vx:-1+Math.random()*2,r:Math.random()*6.28,vr:-0.2+Math.random()*0.4,c:cols[Math.floor(Math.random()*cols.length)],s:Math.random()*6.28}));
+  const t0=performance.now();
+  (function frame(t){if(!document.getElementById('crown'))return;ctx.clearRect(0,0,innerWidth,innerHeight);const fade=Math.max(0,1-(t-t0-6000)/2500);
+    P.forEach(p=>{p.y+=p.vy;p.x+=p.vx+Math.sin(p.s+=0.04)*0.8;p.r+=p.vr;if(p.y>innerHeight+20&&fade>0.6){p.y=-20;p.x=Math.random()*innerWidth}
+      ctx.save();ctx.globalAlpha=fade;ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.c;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h*Math.abs(Math.cos(p.s)));ctx.restore()});
+    if(fade>0)requestAnimationFrame(frame)})(t0);
+}
+(function(){const css=`#crown{position:fixed;inset:0;z-index:100;background:#0b1118;display:flex;align-items:center;justify-content:center;cursor:pointer;animation:crFade .35s ease}
+#crown.out{opacity:0;transition:opacity .35s}
+#confetti{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.cr-in{position:relative;text-align:center;padding:24px;max-width:560px}
+.cr-crown{font-size:clamp(70px,18vw,120px);color:#f5c451;line-height:1;animation:crDrop 1.1s cubic-bezier(.2,1.4,.4,1) .25s both}
+.cr-hail{font-family:Anton,Impact,sans-serif;letter-spacing:6px;color:#f5c451;font-size:clamp(18px,4.5vw,26px);margin-top:6px;animation:crUp .5s ease 1.1s both}
+.cr-name{font-family:Anton,Impact,sans-serif;font-size:clamp(56px,17vw,120px);line-height:.95;margin-top:6px;animation:crSlam .55s cubic-bezier(.2,1.6,.4,1) .8s both}
+.cr-quote{margin:26px auto 0;border:1px solid #f5c451;padding:14px 16px;font-size:clamp(15px,3.8vw,18px);color:#e9eef3;line-height:1.55;max-width:460px;animation:crUp .5s ease 1.5s both}
+.cr-score{margin-top:18px;font-family:Rajdhani,'Arial Narrow',sans-serif;font-weight:700;font-size:20px;color:#8696a7;animation:crUp .5s ease 1.8s both}
+.cr-score span{font-family:Anton,Impact,sans-serif;font-size:30px;font-weight:400}
+.cr-tap{margin-top:28px;font-size:12px;color:#5d6d7e;letter-spacing:1px;animation:crUp .5s ease 2.4s both}
+@keyframes crFade{from{opacity:0}}
+@keyframes crDrop{0%{transform:translateY(-60vh) rotate(-25deg);opacity:0}60%{opacity:1}100%{transform:none}}
+@keyframes crSlam{0%{transform:scale(3);opacity:0}100%{transform:none;opacity:1}}
+@keyframes crUp{from{transform:translateY(16px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.cr-crown,.cr-hail,.cr-name,.cr-quote,.cr-score,.cr-tap{animation:none}}`;
+document.head.insertAdjacentHTML('beforeend',`<style>${css}</style>`)})();
 </script>
 </body>
 </html>

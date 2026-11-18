@@ -198,6 +198,9 @@ def main():
                 label = "hele historie" if backfill else "nieuwe matches"
                 print(f"{player['name']}#{player['tag']} [{mode}, {label}]: {n} nieuw")
             except NotFound as nf:
+                if '"code":24' in str(nf):
+                    print(f"{player['name']}#{player['tag']}: de API kent dit account pas weer als de speler een potje speelt (mag ook deathmatch). Daarna gaat het vanzelf.")
+                    break
                 print(f"  API-antwoord: {nf}")
                 pu = None if player.get("puuid") else find_puuid(player)
                 if pu:

@@ -102,6 +102,8 @@ def analyse(m):
             deaths_known_team=0, alone_d=0,
             atk_rounds=0, atk_won=0, atk_k=0, atk_d=0, def_rounds=0, def_won=0, def_k=0, def_d=0,
             buy={t: [0, 0] for t in ("pistol", "eco", "force", "full")},
+            util=sum((p.get("ability_casts") or {}).get(k) or 0 for k in ("ability1", "ability2", "grenade")),
+            ults=(p.get("ability_casts") or {}).get("ultimate") or 0,
             weapons={}, loadout_sum=0,
         )
         weapons = Counter()
@@ -250,7 +252,9 @@ def detail(m):
                        fk=kk if kk in FRIENDS else None, tier=(p.get("tier") or {}).get("name"),
                        k=st["kills"], d=st["deaths"], a=st["assists"],
                        acs=round(st["score"] / n), adr=round(st["damage"]["dealt"] / n),
-                       hs=round(100 * st["headshots"] / shots) if shots else 0))
+                       hs=round(100 * st["headshots"] / shots) if shots else 0,
+                       ut=round(sum((p.get("ability_casts") or {}).get(k) or 0 for k in ("ability1", "ability2", "grenade")) / n, 2),
+                       ult=(p.get("ability_casts") or {}).get("ultimate") or 0))
     rr = []
     for i, r in enumerate(rounds):
         ev = []

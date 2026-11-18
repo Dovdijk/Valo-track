@@ -173,7 +173,7 @@ function agg(rows){
     tk:s('trade_k')/m, tradedp:s('traded_d')/s('d'), earlyp:s('early_d')/s('d'), alonep:s('alone_d')/s('deaths_known_team'),
     dtime:s('death_time_sum')/s('d'), plants:s('plants')/m, defuses:s('defuses'),
     atkkd:s('atk_k')/s('atk_d'), defkd:s('def_k')/s('def_d'), atkwr:s('atk_won')/s('atk_rounds'), defwr:s('def_won')/s('def_rounds'),
-    loadout:s('loadout_sum')/R, buy, wpn};
+    loadout:s('loadout_sum')/R, util:s('util')/R, ultpm:s('ults')/m, buy, wpn};
 }
 
 function render(){
@@ -213,7 +213,7 @@ function render(){
    ['Clutch %','clp',fmt.pct,1,'1vX gewonnen'],['Trade-kills / match','tk',fmt.f2,1],['Deaths getraded','tradedp',fmt.pct,1],
    ['Vroege deaths','earlyp',fmt.pct,-1,'death in de eerste 20 s'],['Alleen gestorven','alonep',fmt.pct,-1,'geen teamgenoot in de buurt'],
    ['Gem. moment van death','dtime',v=>fmt.f0(v)+' s',1,'seconden in de ronde'],['K/D aanval','atkkd',fmt.f2,1],['K/D verdediging','defkd',fmt.f2,1],
-   ['Plants / match','plants',fmt.f2,1]];
+   ['Plants / match','plants',fmt.f2,1],['Abilities / ronde','util',fmt.f2,1,'utility, zonder ultimate'],['Ults / match','ultpm',fmt.f1,1]];
   let h=`<section><h2>Head-to-head</h2><p class="lead">De kroon gaat naar wie op dat punt het best scoort binnen de gekozen periode.</p><div class="panel scroll"><table class="cmp"><thead><tr><th></th>${act.map(p=>`<th style="color:${p.color}">${p.name}</th>`).join('')}</tr></thead><tbody>`;
   stats.forEach(([lab,k,f,dir,hint])=>{
     const vals=act.map(p=>A[p.key][k]), fin=vals.filter(isFinite), mx=Math.max(...fin.map(Math.abs))||1;
@@ -223,6 +223,9 @@ function render(){
   });
   app.insertAdjacentHTML('beforeend',h+'</tbody></table></div></section>');
   renderStyle(app,act);
+  renderSynergy(app,act);
+  renderTilt(app,act);
+  renderAgentAdvice(app,act);
   renderHeatOverview(app,act);
 
   // trend
@@ -547,6 +550,10 @@ function styleFor(p,rows,ref){
     // vorm
     if(rows.length>=10){const last=xs.slice(0,5).reduce((s,x)=>s+x,0)/5,rest=xs.slice(5).reduce((s,x)=>s+x,0)/(xs.length-5),df=(last-rest)/rest*100;
       if(Math.abs(df)>=12)add(Math.abs(df)*0.7,df>0?'good':'bad',df>0?'In vorm':'Uit vorm',`Je laatste 5 matches had je een ACS van ${pr(last)}, tegenover ${pr(rest)} daarvoor (${df>0?'+':''}${pr(df)}%).`)}}
+  // utility t.o.v. dezelfde agent
+  const up=utilityPct(p,rows);
+  if(up){if(up.pct<=35)add((50-up.pct)*0.9,'bad','Weinig utility gebruikt',`Je gebruikt ${up.avg.toFixed(1)} abilities per ronde. Andere spelers op dezelfde agents gebruiken er meer: je zit op ${Math.round(up.pct)}% van de lobby. Ongebruikte utility is weggegooid geld.`);
+    else if(up.pct>=65)add((up.pct-50)*0.9,'good','Veel utility',`Je gebruikt ${up.avg.toFixed(1)} abilities per ronde, meer dan ${Math.round(up.pct)}% van de spelers op dezelfde agents.`)}
   // teamplay
   if(P.apr>=70)add(P.apr-50,'good','Teamspeler',`${v.apr.toFixed(2)} assists per ronde, meer dan ${pr(P.apr)}% van de lobby. Je utility helpt je team.`);
   // archetype
@@ -711,6 +718,10 @@ function matchFeedbackHTML(d,F,per,ST){
     const cw=cl.filter(c=>c.win);if(cw.length)G.push([14+Math.max(...cw.map(c=>c.n))*4,`<b>Clutch gewonnen</b>${cw.length>1?` (${cw.length}x)`:''}: 1 tegen ${Math.max(...cw.map(c=>c.n))}.`]);
     // economie
     const forceL=per[f.i].filter((x,i)=>i!==0&&i!==12&&x.eco[0]>=1500&&x.eco[0]<3600&&!x.win).length;if(forceL>=3)B.push([7+forceL,`<b>${forceL} force buys verloren</b>. Samen sparen geeft vaak een sterkere volgende ronde.`]);
+    // utility t.o.v. eigen gemiddelde op deze agent
+    const same=hist.filter(r=>r.agent===f.ag&&r.util!=null);if(same.length>=3&&f.ut!=null){const avgU=same.reduce((a,r)=>a+r.util,0)/same.reduce((a,r)=>a+r.rounds,0);
+      if(f.ut<=avgU*0.7)B.push([9,`Maar <b>${f.ut.toFixed(1)} abilities per ronde</b>, terwijl je op ${f.ag} gemiddeld ${avgU.toFixed(1)} gebruikt.`]);
+      else if(f.ut>=avgU*1.3)G.push([8,`Veel utility: <b>${f.ut.toFixed(1)} abilities per ronde</b> (normaal ${avgU.toFixed(1)} op ${f.ag}).`])}
     if(f.hs>=25)G.push([10+(f.hs-25)/2,`Headshotpercentage van <b>${f.hs}%</b>.`]);
     G.sort((a,b)=>b[0]-a[0]);B.sort((a,b)=>b[0]-a[0]);
     const g=G.slice(0,3),b=B.slice(0,2);
@@ -720,6 +731,102 @@ function matchFeedbackHTML(d,F,per,ST){
       ${!g.length&&!b.length?'<div style="color:var(--mute)">Een gemiddeld potje, niets wat er echt uitspringt.</div>':''}</div>`;
   });
   return `<section><h2>Coach-feedback</h2><p class="lead">Wat ging er goed en wat kan beter in deze match. Vergeleken met de rest van de lobby en met jullie eigen gemiddelde.</p><div class="g2" style="grid-template-columns:repeat(${Math.min(F.length,3)},1fr)">${blocks.join('')}</div></section>`;
+}
+
+// ================= DUO-SYNERGIE, TILT, AGENT-ADVIES, UTILITY =================
+const allRowsFor=p=>(DATA.matches[p.key]||[]).filter(baseFilter);   // zonder "laatste N": voor advies en trends
+const wr=rs=>rs.length?rs.filter(r=>r.result==='W').length/rs.length:NaN;
+const acsOf=rs=>{const R=rs.reduce((s,r)=>s+r.rounds,0);return R?rs.reduce((s,r)=>s+r.acs_sum,0)/R:NaN};
+const pc=v=>isFinite(v)?Math.round(v*100)+'%':'–';
+const n0=v=>isFinite(v)?Math.round(v):'–';
+const sectionWrap=(title,lead,inner)=>`<section><h2>${title}</h2>${lead?`<p class="lead">${lead}</p>`:''}${inner}</section>`;
+
+// ---------- utility t.o.v. spelers op dezelfde agent ----------
+function utilityPct(p,rows){
+  const byAgent={};
+  Object.values(DATA.details||{}).forEach(d=>d.players.forEach(q=>{if(!q.fk&&q.ag&&q.ut!=null)(byAgent[q.ag]=byAgent[q.ag]||[]).push(q.ut)}));
+  let sum=0,w=0,mine=[];
+  rows.forEach(r=>{const d=DATA.details[r.match];if(!d)return;const me=d.players.find(q=>q.fk===p.key);if(!me||me.ut==null)return;
+    const ref=byAgent[me.ag]||[];if(ref.length<8)return;sum+=pctile(ref,me.ut);w++;mine.push(me.ut)});
+  return w>=3?{pct:sum/w,avg:mine.reduce((s,x)=>s+x,0)/mine.length,n:w}:null;
+}
+
+// ---------- duo-synergie ----------
+function renderSynergy(app,act){
+  if(act.length<2)return;
+  const pairs=[];for(let i=0;i<act.length;i++)for(let j=i+1;j<act.length;j++)pairs.push([act[i],act[j]]);
+  let h='<div class="g2" style="grid-template-columns:repeat(auto-fit,minmax(340px,1fr))">';
+  pairs.forEach(([a,b])=>{
+    const ra=allRowsFor(a), withB=ra.filter(r=>(r.with||[]).includes(b.key)), withoutB=ra.filter(r=>!(r.with||[]).includes(b.key));
+    const rb=allRowsFor(b), withA=rb.filter(r=>(r.with||[]).includes(a.key)), withoutA=rb.filter(r=>!(r.with||[]).includes(a.key));
+    if(!withB.length){h+=`<div class="panel"><h3><span style="color:${a.color}">${a.name}</span> + <span style="color:${b.color}">${b.name}</span></h3><div style="color:var(--mute)">Nog geen matches samen in deze selectie.</div></div>`;return}
+    // agentcombinaties
+    const combo={};withB.forEach(r=>{const rB=withA.find(x=>x.match===r.match);if(!rB)return;const k=`${r.agent} + ${rB.agent}`;(combo[k]=combo[k]||[]).push(r)});
+    const combos=Object.entries(combo).filter(([k,v])=>v.length>=2).sort((x,y)=>wr(y[1])-wr(x[1])||y[1].length-x[1].length);
+    const line=(p,w,wo)=>`<tr><td style="color:${p.color};font-weight:700">${p.name}</td><td>${pc(wr(w))} <span style="color:var(--mute)">(${w.length})</span></td><td>${pc(wr(wo))} <span style="color:var(--mute)">(${wo.length})</span></td><td>${n0(acsOf(w))}</td><td>${n0(acsOf(wo))}</td></tr>`;
+    const dW=wr(withB)-wr(withoutB);
+    h+=`<div class="panel scroll"><h3><span style="color:${a.color}">${a.name}</span> + <span style="color:${b.color}">${b.name}</span> <small>${withB.length} matches samen</small></h3>
+      <div style="display:flex;gap:26px;align-items:baseline;margin:4px 0 12px"><div><span class="big" style="font-size:44px;color:${wr(withB)>=.5?'var(--win)':'var(--loss)'}">${pc(wr(withB))}</span> <span style="color:var(--mute);font-size:13px">winrate samen</span></div></div>
+      <table><thead><tr><th></th><th>Win samen</th><th>Win zonder</th><th>ACS samen</th><th>ACS zonder</th></tr></thead><tbody>${line(a,withB,withoutB)}${line(b,withA,withoutA)}</tbody></table>
+      ${combos.length?`<div class="label" style="margin-top:14px">Beste agentcombinaties <span style="text-transform:none;letter-spacing:0;font-weight:400">(min. 2 matches)</span></div><table><tbody>${combos.slice(0,4).map(([k,v])=>`<tr><td>${k}</td><td>${pc(wr(v))}</td><td style="color:var(--mute)">${v.length} matches</td></tr>`).join('')}</tbody></table>`:''}
+      <div style="margin-top:12px;padding:10px 12px;border-left:3px solid ${isFinite(dW)&&dW>=0?'var(--win)':'var(--loss)'};background:rgba(255,255,255,.03);font-size:14px">${!isFinite(dW)||!withoutB.length?'Te weinig matches zonder elkaar om te vergelijken.':Math.abs(dW)<0.05?`${a.name} wint ongeveer even vaak met als zonder ${b.name}.`:`${a.name} wint <b>${Math.round(Math.abs(dW)*100)} procentpunt ${dW>0?'vaker':'minder vaak'}</b> als ${b.name} meespeelt.`}</div></div>`;
+  });
+  if(act.length===3){const [a,b,c]=act;const trio=allRowsFor(a).filter(r=>(r.with||[]).includes(b.key)&&(r.with||[]).includes(c.key));
+    if(trio.length)h+=`<div class="panel"><h3>Met z'n drieën <small>${trio.length} matches</small></h3><div><span class="big" style="font-size:44px;color:${wr(trio)>=.5?'var(--win)':'var(--loss)'}">${pc(wr(trio))}</span> <span style="color:var(--mute);font-size:13px">winrate</span></div>
+      <table style="margin-top:10px"><tbody>${act.map(p=>{const rs=allRowsFor(p).filter(r=>trio.some(t=>t.match===r.match));return `<tr><td style="color:${p.color};font-weight:700">${p.name}</td><td>ACS ${n0(acsOf(rs))}</td><td>K/D ${(rs.reduce((s,r)=>s+r.k,0)/Math.max(1,rs.reduce((s,r)=>s+r.d,0))).toFixed(2)}</td></tr>`}).join('')}</tbody></table></div>`}
+  app.insertAdjacentHTML('beforeend',sectionWrap('Duo-synergie','Spelen jullie beter samen? Winrate en ACS met en zonder elkaar, en welke agentcombinaties het best werken. Gebaseerd op alle matches binnen de gekozen modus, seizoen en map.',h+'</div>'));
+}
+
+// ---------- tilt-check ----------
+function sessionsOf(rows){
+  const asc=rows.slice().sort((a,b)=>new Date(a.date)-new Date(b.date));const out=[];let cur=[];
+  asc.forEach(r=>{if(cur.length&&(new Date(r.date)-new Date(cur[cur.length-1].date))>3*3600e3){out.push(cur);cur=[]}cur.push(r)});if(cur.length)out.push(cur);return out;
+}
+function renderTilt(app,act){
+  let h='<div class="g2" style="grid-template-columns:repeat(auto-fit,minmax(340px,1fr))">';let any=false;
+  act.forEach(p=>{
+    const S=sessionsOf(allRowsFor(p));if(S.flat().length<8)return;any=true;
+    const byIdx=[[],[],[],[]];const afterW=[],afterL=[],afterLL=[];
+    S.forEach(s=>s.forEach((r,i)=>{byIdx[Math.min(i,3)].push(r);if(i>0){(s[i-1].result==='W'?afterW:afterL).push(r);if(i>1&&s[i-1].result==='L'&&s[i-2].result==='L')afterLL.push(r)}}));
+    const base=acsOf(S.flat()),baseW=wr(S.flat());
+    const bar=(rs,lab)=>{const a=acsOf(rs);const w=wr(rs);return `<tr><td>${lab}</td><td>${rs.length}</td><td>${pc(w)}</td><td><b style="color:${!isFinite(a)?'':a>=base*1.05?'var(--win)':a<=base*0.95?'var(--loss)':''}">${n0(a)}</b></td></tr>`};
+    const tl=acsOf(afterLL),tw=acsOf(afterW);
+    let verdict;
+    if(afterLL.length>=3&&tl<=base*0.9)verdict=`<b>Tilt-gevoelig.</b> Na twee verloren potjes op rij zakt je ACS naar ${n0(tl)} (normaal ${n0(base)}) en win je ${pc(wr(afterLL))}. Na twee verliezen even pauze nemen kan lonen.`;
+    else if(afterLL.length>=3&&tl>=base*1.05)verdict=`<b>Je bijt terug.</b> Na twee verloren potjes op rij speel je juist beter: ACS ${n0(tl)} tegenover ${n0(base)} normaal.`;
+    else if(afterLL.length>=3)verdict=`<b>Stabiel.</b> Na verloren potjes blijft je niveau ongeveer gelijk (ACS ${n0(tl)} tegenover ${n0(base)}).`;
+    else verdict='Nog te weinig reeksen van twee verloren potjes om iets over tilt te zeggen.';
+    const late=byIdx[3],lateA=acsOf(late);
+    if(late.length>=4&&lateA<=base*0.9)verdict+=` Vanaf het 4e potje van een avond zakt je ACS naar ${n0(lateA)}.`;
+    h+=`<div class="panel"><h3 style="color:${p.color}">${p.name} <small>${S.length} speelsessies</small></h3>
+      <table><thead><tr><th>Situatie</th><th>Matches</th><th>Winrate</th><th>ACS</th></tr></thead><tbody>
+      ${bar(byIdx[0],'1e potje van de avond')}${bar(byIdx[1],'2e potje')}${bar(byIdx[2],'3e potje')}${bar(byIdx[3],'4e potje of later')}
+      ${bar(afterW,'Na een gewonnen potje')}${bar(afterL,'Na een verloren potje')}${bar(afterLL,'Na 2 verliezen op rij')}
+      <tr><td style="color:var(--mute)">Gemiddeld</td><td style="color:var(--mute)">${S.flat().length}</td><td style="color:var(--mute)">${pc(baseW)}</td><td style="color:var(--mute)">${n0(base)}</td></tr></tbody></table>
+      <div style="margin-top:12px;padding:10px 12px;border-left:3px solid ${p.color};background:rgba(255,255,255,.03);font-size:14px">${verdict}</div></div>`;
+  });
+  if(any)app.insertAdjacentHTML('beforeend',sectionWrap('Tilt-check','Hoe presteer je naarmate de avond vordert, en na winst of verlies? Een sessie is een reeks potjes met minder dan 3 uur ertussen. Groen = beter dan je gemiddelde, rood = slechter.',h+'</div>'));
+}
+
+// ---------- agent-advies per map ----------
+function renderAgentAdvice(app,act){
+  let h='<div class="g2" style="grid-template-columns:repeat(auto-fit,minmax(520px,1fr))">';let any=false;
+  act.forEach(p=>{
+    const rs=allRowsFor(p);const maps={};rs.forEach(r=>{(maps[r.map]=maps[r.map]||{})[r.agent]=(maps[r.map][r.agent]||[]).concat([r])});
+    const lines=Object.entries(maps).filter(([mp,ags])=>Object.values(ags).flat().length>=2).sort((a,b)=>Object.values(b[1]).flat().length-Object.values(a[1]).flat().length).map(([mp,ags])=>{
+      const list=Object.entries(ags).map(([ag,r])=>({ag,n:r.length,w:wr(r),acs:acsOf(r)}));
+      const most=list.slice().sort((a,b)=>b.n-a.n)[0];
+      const cand=list.filter(x=>x.n>=3);
+      const best=cand.sort((a,b)=>(b.w*100+b.acs/10)-(a.w*100+a.acs/10))[0];
+      let adv;
+      if(!best)adv=`<span style="color:var(--mute)">nog te weinig data</span>`;
+      else if(best.ag===most.ag)adv=`Blijf bij <b>${best.ag}</b>`;
+      else adv=`Probeer vaker <b>${best.ag}</b>`;
+      return `<tr><td>${mp}</td><td>${most.ag} <span style="color:var(--mute)">(${most.n}x, ${pc(most.w)})</span></td><td>${best?`${best.ag} <span style="color:var(--mute)">(${pc(best.w)}, ACS ${n0(best.acs)})</span>`:'–'}</td><td>${adv}</td></tr>`});
+    if(!lines.length)return;any=true;
+    h+=`<div class="panel scroll"><h3 style="color:${p.color}">${p.name}</h3><table><thead><tr><th>Map</th><th>Meest gespeeld</th><th>Beste agent</th><th>Advies</th></tr></thead><tbody>${lines.join('')}</tbody></table></div>`;
+  });
+  if(any)app.insertAdjacentHTML('beforeend',sectionWrap('Agent-advies per map','Per map je meest gespeelde agent en de agent waarmee je het best presteert (minstens 3 matches, op winrate en ACS).',h+'</div>'));
 }
 </script>
 </body>

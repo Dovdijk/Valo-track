@@ -12,18 +12,21 @@ android {
         buildConfigField 'String', 'SITE_URL', '"' + (System.getenv('SITE_URL') ?: 'https://dovdijk.github.io/Valo-track/') + '"'
     }
     buildFeatures { buildConfig true }
+    def ksPw = System.getenv('KEYSTORE_PASSWORD')
     signingConfigs {
-        release {
-            storeFile file(System.getenv('KEYSTORE_FILE') ?: 'release.keystore')
-            storePassword System.getenv('KEYSTORE_PASSWORD')
-            keyAlias 'squad'
-            keyPassword System.getenv('KEYSTORE_PASSWORD')
+        if (ksPw) {
+            release {
+                storeFile file(System.getenv('KEYSTORE_FILE') ?: 'release.keystore')
+                storePassword ksPw
+                keyAlias 'squad'
+                keyPassword ksPw
+            }
         }
     }
     buildTypes {
         release {
             minifyEnabled false
-            signingConfig signingConfigs.release
+            if (ksPw) signingConfig signingConfigs.release
         }
     }
     compileOptions {

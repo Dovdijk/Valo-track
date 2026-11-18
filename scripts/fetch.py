@@ -172,6 +172,48 @@ def find_puuid(player):
     return None
 
 
+MMR_DIR = ROOT / "data" / "mmr"
+
+
+def slug(player):
+    return "".join(c if c.isalnum() else "_" for c in f"{player['name']}_{player['tag']}".lower())
+
+
+def fetch_mmr(player):
+    """Rank en RR-geschiedenis (competitive). Alles wordt bewaard en aangevuld, ook als de API later minder teruggeeft."""
+    pu = player.get("puuid") or find_puuid(player)
+    if not pu:
+        print(f"{player['name']}#{player['tag']}: geen account-ID gevonden voor rankdata.")
+        return
+    MMR_DIR.mkdir(parents=True, exist_ok=True)
+    f = MMR_DIR / f"{slug(player)}.json"
+    store = json.loads(f.read_text(encoding="utf-8")) if f.exists() else {"current": None, "history": {}}
+    reg, plat = CONFIG["region"], CONFIG["platform"]
+    try:
+        cur = get(f"/valorant/v3/by-puuid/mmr/{reg}/{plat}/{pu}").get("data")
+        if cur:
+            store["current"] = cur
+            store["current_at"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    except Exception as e:
+        print(f"  huidige rank niet opgehaald: {str(e)[:160]}")
+    new = 0
+    for path, params in ((f"/valorant/v2/by-puuid/stored-mmr-history/{reg}/{plat}/{pu}", None),
+                         (f"/valorant/v2/by-puuid/mmr-history/{reg}/{plat}/{pu}", None)):
+        try:
+            res = get(path, params).get("data")
+            items = res.get("history") if isinstance(res, dict) else res
+            for h in items or []:
+                mid = h.get("match_id")
+                if mid and mid not in store["history"]:
+                    new += 1
+                if mid:
+                    store["history"][mid] = {**store["history"].get(mid, {}), **h}
+        except Exception as e:
+            print(f"  RR-geschiedenis ({path.split('/')[3]}) niet opgehaald: {str(e)[:160]}")
+    f.write_text(json.dumps(store, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    print(f"{player['name']}#{player['tag']} [rank]: {len(store['history'])} RR-updates ({new} nieuw)")
+
+
 def main():
     if not KEY:
         sys.exit("HENRIK_API_KEY ontbreekt. Zet hem als omgevingsvariabele of GitHub secret.")
@@ -224,6 +266,13 @@ def main():
         if out_of_time():
             print("Tijdslimiet bijna bereikt. De volgende run gaat verder waar deze stopte.")
             break
+    for player in CONFIG["players"]:
+        if out_of_time():
+            break
+        try:
+            fetch_mmr(player)
+        except Exception as e:
+            print(f"Rankdata van {player['name']} overgeslagen: {e}")
     FAILED_FILE.write_text(json.dumps(failed))
     STATE_FILE.write_text(json.dumps(state, indent=1))
     print(f"Klaar: {total} nieuwe matches, {len(known)} in totaal.")

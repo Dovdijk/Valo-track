@@ -83,12 +83,12 @@ input[type=number]{width:74px}
 
 /* ---------- navigatie ---------- */
 .topbar{position:sticky;top:0;z-index:15;background:rgba(11,17,24,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-.tb-in{max-width:1220px;margin:0 auto;padding:0 22px;display:flex;align-items:center;gap:18px;height:60px}
+.tb-in{max-width:1220px;margin:0 auto;padding:0 22px;display:flex;align-items:center;gap:12px;height:60px}
 .brand{font-family:Anton,Impact,sans-serif;font-size:24px;color:var(--txt);text-decoration:none;white-space:nowrap;letter-spacing:.5px}
 .brand span{color:var(--red)}
 .tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1;height:100%}
 .tabs::-webkit-scrollbar{display:none}
-.tabs a{display:flex;align-items:center;padding:0 10px;color:var(--mute);text-decoration:none;font-family:Rajdhani,'Arial Narrow',sans-serif;font-weight:700;letter-spacing:1px;text-transform:uppercase;font-size:13px;white-space:nowrap;border-bottom:3px solid transparent}
+.tabs a{display:flex;align-items:center;padding:0 8px;color:var(--mute);text-decoration:none;font-family:Rajdhani,'Arial Narrow',sans-serif;font-weight:700;letter-spacing:1px;text-transform:uppercase;font-size:12.5px;white-space:nowrap;border-bottom:3px solid transparent}
 .tabs a:hover{color:var(--txt)}
 .tabs a.on{color:#fff;border-bottom-color:var(--red)}
 .tb-r{display:flex;align-items:center;gap:8px}
@@ -177,6 +177,7 @@ body.inmatch #fToggle{display:none}
   .cmp .cv{display:grid;grid-template-columns:96px 70px 1fr;gap:8px;align-items:center}
   .cmp .cv::before{content:attr(data-p);font-size:12.5px;color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .cmp .cv b{min-width:0;text-align:right;font-size:17px}
+  .cmp .cv.nb{grid-template-columns:96px 1fr}.cmp .cv.nb b{text-align:left !important}
   /* heatmaps en grafieken */
   .mcard b{font-size:20px}
   .hp{cursor:pointer}
@@ -284,13 +285,13 @@ function agg(rows){
 
 const PAGES=[
  ['overzicht','Overzicht','⌂'],['vergelijk','Vergelijken','⇆'],['speelstijl','Speelstijl','◎'],['samen','Samen','👥'],
- ['heatmap','Heatmap','▦'],['maps','Maps & agents','◈'],['economie','Economie','¤'],['tilt','Tilt-check','↯'],['matches','Matches','≡']];
+ ['heatmap','Heatmap','▦'],['maps','Maps & agents','◈'],['economie','Economie','¤'],['tilt','Tilt-check','↯'],['rank','Rank','▲'],['matches','Matches','≡']];
 const PAGE_INTRO={
  overzicht:'Jullie belangrijkste cijfers in één oogopslag.',vergelijk:'Alle statistieken naast elkaar, met een kroon voor wie het best scoort.',
  speelstijl:'Wat jullie statistieken zeggen over hoe jullie spelen.',samen:'Spelen jullie beter samen? En welke potjes speelden jullie samen.',
  heatmap:'Waar jullie kills maken en doodgaan, per map.',maps:'Winrate per map, jullie agents en advies welke agent je waar beter kunt spelen.',
  economie:'Rondewinst per kooptype en kills per wapen.',tilt:'Hoe jullie presteren naarmate de avond vordert en na winst of verlies.',
- matches:'Alle matches. Tik of klik op een match voor het volledige verslag.'};
+ matches:'Alle matches. Tik of klik op een match voor het volledige verslag.',rank:'Jullie rank, het RR-verloop per potje en per act. Alleen competitive.'};
 let PAGE='overzicht';
 function go(p){PAGE=p;CUR=null;if(location.hash!=='#/'+p)history.pushState(null,'','#/'+p);closeSheets();render();window.scrollTo({top:0})}
 function closeSheets(){document.body.classList.remove('sheet-more','sheet-filter')}
@@ -301,7 +302,7 @@ window.addEventListener('popstate',()=>{parseRoute();closeSheets();render()});
 function buildNav(){
   const SHORT={maps:'Maps',tilt:'Tilt',vergelijk:'Vergelijk'};
   $('#navTabs').innerHTML=PAGES.map(([k,l])=>`<a href="#/${k}" data-p="${k}" class="${!CUR&&PAGE===k?'on':''}">${SHORT[k]||l}</a>`).join('');
-  const main=['overzicht','vergelijk','speelstijl','matches'];
+  const main=['overzicht','vergelijk','rank','matches'];
   $('#bnav').innerHTML=main.map(k=>{const p=PAGES.find(x=>x[0]===k);return `<a href="#/${k}" data-p="${k}" class="${!CUR&&PAGE===k?'on':''}"><i>${p[2]}</i><span>${p[1]==='Vergelijken'?'Vergelijk':p[1]}</span></a>`}).join('')+
     `<a href="#" id="bMore" class="${!CUR&&!main.includes(PAGE)?'on':''}"><i>⋯</i><span>Meer</span></a>`;
   $('#moreList').innerHTML=PAGES.map(([k,l,ic])=>`<a href="#/${k}" data-p="${k}" class="${!CUR&&PAGE===k?'on':''}"><i>${ic}</i>${l}</a>`).join('')+`<a href="#" id="mGloss"><i>?</i>Legenda</a>`;
@@ -343,6 +344,7 @@ function render(){
     app.appendChild(cards);
   
   }
+  if(PAGE==='rank'){renderRank(app,P);return}
   if(!act.length){if(PAGE!=='overzicht')app.insertAdjacentHTML('beforeend','<div class="panel empty"><b>Geen matches</b>Er zijn geen matches binnen deze filters.</div>');return}
   if(PAGE==='overzicht'){
   // trend
@@ -449,6 +451,7 @@ function render(){
       renderPistolLoss(app,act);
   }
   if(PAGE==='tilt') renderTilt(app,act);
+  if(PAGE==='rank'){renderRank(app,P);return}
   if(PAGE==='matches'){
   // match list
   let ml='<section><h2>Laatste matches</h2><p class="lead">Klik op een match voor het volledige verslag: ronde voor ronde, timing, duels, economie en positionering.</p><div class="g2" style="grid-template-columns:1fr">';
@@ -1080,6 +1083,12 @@ const GLOSS=[
  ['Speelstijl','mvp','MVP','Most Valuable Player: de speler met de hoogste ACS in de match of in de week.'],
  ['Speelstijl','form','Vorm','Hoe je de laatste tijd speelt. De vormgrafiek toont je ACS per match. Een gevuld bolletje is een gewonnen match.'],
  ['Rank en modus','rank','Rank','Je niveau in competitive, van Iron tot Radiant. Op de site staat de rank uit je laatste match.'],
+ ['Rank en modus','rr','RR (Rank Rating)','Punten binnen je rank, van 0 tot 100. Bij 100 promoveer je naar de volgende rank. Na elk competitive potje win of verlies je RR, afhankelijk van winst, verlies en prestatie.'],
+ ['Rank en modus','mmr','MMR / elo','Je verborgen niveau waarop Valorant je tegenstanders kiest. Op de site gebruiken we de elo van Riot: je rank en RR als één getal (elke rank is 100 punten). Zo kun je de RR-tijdlijn over meerdere ranks heen volgen.'],
+ ['Rank en modus','act','Act en episode','Valorant is opgedeeld in episodes, met daarin acts van een paar weken tot maanden. Per act krijg je een eindrank. Afkorting e11a6 = episode 11, act 6.'],
+ ['Rank en modus','actwins','Beste overwinningen (act-driehoek)','De ranks waarop je je beste overwinningen van een act behaalde. In de game staan ze in een driehoek in je carrière-overzicht en bepalen ze je act-badge.'],
+ ['Rank en modus','shield','Rank-schild (derank protection)','Een bescherming die voorkomt dat je na één verlies direct een rank zakt. "Rank-schild gebruikt" telt hoe vaak dat gebeurde.'],
+ ['Rank en modus','peak','Peak rank','De hoogste rank die je ooit bereikte, met het seizoen erbij.'],
  ['Rank en modus','mode','Modus: competitive, unrated','Competitive telt mee voor je rank, unrated niet. Bovenaan kun je per modus filteren.'],
  ['Rank en modus','season','Seizoen (bijv. e11a6)','Episode en act van Valorant. e11a6 betekent episode 11, act 6.'],
  ['Termen','peek','Peek','Om een hoek kijken of stappen om een tegenstander te vinden of aan te vallen.'],
@@ -1188,6 +1197,144 @@ function renderPistolLoss(app,act){
       <details style="margin-top:14px"><summary style="cursor:pointer;color:var(--mute);font-size:13px">Alle ${ev.length} rondes bekijken</summary><div class="scroll" style="margin-top:8px"><table><thead><tr><th>Datum</th><th>Map</th><th>Ronde</th><th>Situatie</th><th>Wapen</th><th>Uitslag</th><th>Kills</th><th>Dood</th><th>Volgende</th></tr></thead><tbody>${list}</tbody></table></div></details></div>`;
   });
   if(any)app.insertAdjacentHTML('beforeend',sectionWrap('Na een verloren pistolronde',`Ronde 2 en ronde 14 als jullie de pistolronde verloren hebben. Normaal spaart het team dan voor ronde 3. "Koopt" betekent een loadout van ¤${2000} of meer, of een ander wapen dan een pistool. "Team spaart" betekent dat hoogstens één teamgenoot ook koopt. Gebaseerd op alle matches binnen de filters (niet alleen de laatste ${N||'x'}).`,h+'</div>'));
+}
+
+// ================= RANK =================
+const TIER_BASE=['Unranked','Unused','Unused','Iron 1','Iron 2','Iron 3','Bronze 1','Bronze 2','Bronze 3','Silver 1','Silver 2','Silver 3','Gold 1','Gold 2','Gold 3','Platinum 1','Platinum 2','Platinum 3','Diamond 1','Diamond 2','Diamond 3','Ascendant 1','Ascendant 2','Ascendant 3','Immortal 1','Immortal 2','Immortal 3','Radiant'];
+const TIER_COL={Iron:'#5c5f63',Bronze:'#a6824c',Silver:'#bbc2c2',Gold:'#eccf56',Platinum:'#59a9b6',Diamond:'#b489c4',Ascendant:'#6ae2af',Immortal:'#bb3d65',Radiant:'#ffffaa',Unranked:'#8696a7'};
+const tierName=id=>(DATA.tiers&&DATA.tiers[id]&&DATA.tiers[id].name)||TIER_BASE[id]||'Onbekend';
+const tierColor=id=>{const n=tierName(id).split(' ')[0];return TIER_COL[n]||'#8696a7'};
+const tierIcon=id=>DATA.tiers&&DATA.tiers[id]&&DATA.tiers[id].icon;
+const eloOf=h=>h.elo!=null?h.elo:h.tier!=null?(Math.max(0,h.tier-3))*100+(h.rr||0):null;
+const tierFromElo=e=>Math.min(27,Math.floor(e/100)+3);
+function badge(id,size=44){const ic=tierIcon(id);const c=tierColor(id);
+  return ic?`<img src="${ic}" alt="${tierName(id)}" title="${tierName(id)}" width="${size}" height="${size}" style="display:block">`:
+  `<div title="${tierName(id)}" style="width:${size}px;height:${size}px;border-radius:50%;background:radial-gradient(circle at 35% 30%,${c},${c}55 70%);display:flex;align-items:center;justify-content:center;font-family:Anton,Impact,sans-serif;color:#0b1118;font-size:${size*0.36}px">${(tierName(id).match(/\d/)||[''])[0]}</div>`}
+const actSort=s=>{const m=/e(\d+)a(\d+)/.exec(s||'');return m?(+m[1])*10+(+m[2]):0};
+const actLabel=s=>{const m=/e(\d+)a(\d+)/.exec(s||'');return m?`Episode ${m[1]} · Act ${m[2]}`:(s||'?')};
+let RK={act:'all',range:0};
+
+function rankHistory(p){const M=DATA.mmr&&DATA.mmr[p.key];return M?M.history.filter(h=>h.date&&eloOf(h)!=null):[]}
+function streaks(hs){let w=0,l=0,cw=0,cl=0;hs.forEach(h=>{if(h.change>0){cw++;cl=0}else if(h.change<0){cl++;cw=0}else{cw=0;cl=0}w=Math.max(w,cw);l=Math.max(l,cl)});
+  let cur=0;for(let i=hs.length-1;i>=0;i--){const s=Math.sign(hs[i].change);if(!s)break;if(!cur)cur=s;else if(s!==Math.sign(cur))break;cur+=s>0?(cur>0?0:0):0;}
+  let c=0,sg=0;for(let i=hs.length-1;i>=0;i--){const s=Math.sign(hs[i].change);if(!s)break;if(!sg)sg=s;if(s!==sg)break;c++}
+  return {w,l,cur:c*sg}}
+
+function renderRank(app,P){
+  const withData=P.filter(p=>rankHistory(p).length||(DATA.mmr&&DATA.mmr[p.key]&&DATA.mmr[p.key].current));
+  if(!DATA.mmr||!withData.length){app.insertAdjacentHTML('beforeend',`<div class="panel empty"><b>Nog geen rankdata</b>De rank en RR-geschiedenis worden bij de volgende run opgehaald. Kom over een uur terug.</div>`);
+    P.filter(p=>!withData.includes(p)).length&&0;return}
+  const missing=P.filter(p=>!withData.includes(p));
+  // ---------- huidige rank ----------
+  let h=`<section><h2>Huidige rank</h2><div class="cards">`;
+  withData.forEach(p=>{const M=DATA.mmr[p.key],c=M.current&&M.current.current,pk=M.current&&M.current.peak,hs=rankHistory(p);const last=hs[hs.length-1];
+    const tid=c?c.tier.id:last?last.tier:0,rr=c?c.rr:last?last.rr:0,ch=c?c.last_change:last?last.change:0;
+    const shields=c&&c.rank_protection_shields;
+    h+=`<div class="panel card" style="--c:${p.color}"><div style="display:flex;gap:16px;align-items:center">${badge(tid,84)}
+      <div style="min-width:0"><div class="nm" style="font-size:28px">${p.name}</div><div style="font-family:Anton,Impact,sans-serif;font-size:26px;color:${tierColor(tid)};line-height:1.1">${tierName(tid)}</div>
+      <div style="font-family:Rajdhani,'Arial Narrow',sans-serif;font-weight:700;font-size:18px">${rr} RR <span style="color:${ch>0?'var(--win)':ch<0?'var(--loss)':'var(--mute)'};font-size:15px">${ch>0?'+':''}${ch} laatste potje</span></div></div></div>
+      <div style="height:8px;background:#0d151e;border-radius:4px;margin:14px 0 4px;overflow:hidden"><i style="display:block;height:100%;width:${Math.min(100,rr)}%;background:${tierColor(tid)}"></i></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--mute)"><span>0</span><span>${100-rr} RR tot ${tid<27?tierName(tid+1):'top'}</span><span>100</span></div>
+      <div class="kv" style="margin-top:14px;grid-template-columns:repeat(3,1fr)">
+        <div><b style="color:${pk?tierColor(pk.tier.id):''}">${pk?tierName(pk.tier.id):'–'}</b><span>Peak${pk?' · '+pk.season.short:''}</span></div>
+        <div><b>${shields!=null?shields:'–'}</b><span>Rank-schilden</span></div>
+        <div><b>${c&&c.games_needed_for_rating?c.games_needed_for_rating:'0'}</b><span>Placement nodig</span></div></div>
+      ${M.current_at?`<div style="color:#5d6d7e;font-size:11px;margin-top:10px">Rank opgehaald ${new Date(M.current_at).toLocaleString('nl-NL',{dateStyle:'medium',timeStyle:'short'})}</div>`:''}</div>`});
+  missing.forEach(p=>h+=`<div class="panel card" style="--c:${p.color}"><div class="nm">${p.name}</div><div style="color:var(--mute);margin-top:8px">Nog geen rankdata. De API kent dit account pas weer na een nieuw potje.</div></div>`);
+  h+='</div></section>';
+  app.insertAdjacentHTML('beforeend',h);
+
+  // ---------- tijdlijn ----------
+  const acts=[...new Set(withData.flatMap(p=>rankHistory(p).map(x=>x.season)).filter(Boolean))].sort((a,b)=>actSort(b)-actSort(a));
+  const sec=document.createElement('section');app.appendChild(sec);
+  const drawTL=()=>{
+    const series=withData.map(p=>{let hs=rankHistory(p);if(RK.act!=='all')hs=hs.filter(x=>x.season===RK.act);if(RK.range)hs=hs.slice(-RK.range);return {p,hs}}).filter(s=>s.hs.length);
+    const btn=(v,l)=>`<button class="btn ${RK.range===v?'on':''}" data-rr="${v}">${l}</button>`;
+    let ctl=`<div class="frow" style="gap:8px;margin-bottom:12px"><select id="rkAct"><option value="all">Alle acts</option>${acts.map(a=>`<option value="${a}" ${RK.act===a?'selected':''}>${actLabel(a)}</option>`).join('')}</select>${btn(20,'Laatste 20')}${btn(50,'50')}${btn(100,'100')}${btn(0,'Alles')}</div>`;
+    if(!series.length){sec.innerHTML=`<h2>RR-tijdlijn</h2>${ctl}<div class="panel empty"><b>Geen potjes</b>Niets in deze selectie.</div>`;bind();return}
+    const all=series.flatMap(s=>s.hs.map(eloOf));let lo=Math.floor((Math.min(...all)-30)/100)*100,hi=Math.ceil((Math.max(...all)+30)/100)*100;if(hi-lo<200)hi=lo+200;
+    const allT=[...new Set(series.flatMap(s=>s.hs.map(x=>x.date)))].sort();const idxOf={};allT.forEach((d,i)=>idxOf[d]=i);const t0=0,t1=Math.max(1,allT.length-1);
+    const W=1100,H=380,x0=110,x1=W-20,y0=H-40,y1=16;
+    const X=d=>x0+(idxOf[d]||0)/t1*(x1-x0),Y=e=>y0-(e-lo)/(hi-lo)*(y0-y1);
+    let g='';
+    for(let e=lo;e<hi;e+=100){const tid=tierFromElo(e);g+=`<rect x="${x0}" y="${Y(e+100)}" width="${x1-x0}" height="${Y(e)-Y(e+100)}" fill="${tierColor(tid)}" fill-opacity=".05"/><line x1="${x0}" x2="${x1}" y1="${Y(e)}" y2="${Y(e)}" stroke="#1f2b38"/>`;
+      g+=`<text x="${x0-10}" y="${(Y(e)+Y(e+100))/2+4}" fill="${tierColor(tid)}" font-size="12" text-anchor="end">${tierName(tid)}</text>`}
+    // act-grenzen
+    const seen={};let lastLab=-99;allT.forEach(dt=>{const x=series.map(s=>s.hs.find(h=>h.date===dt)).find(Boolean);if(!x||seen[x.season])return;seen[x.season]=1;const xx=X(dt);g+=`<line x1="${xx}" x2="${xx}" y1="${y1}" y2="${y0}" stroke="#3a4a5c" stroke-dasharray="3 5"/>`;if(xx-lastLab>46){g+=`<text x="${xx+4}" y="${y0+16}" fill="#5d6d7e" font-size="11">${x.season||''}</text>`;lastLab=xx}});
+    series.forEach(({p,hs})=>{g+=`<polyline points="${hs.map(x=>X(x.date)+','+Y(eloOf(x))).join(' ')}" fill="none" stroke="${p.color}" stroke-width="2.4" stroke-linejoin="round"/>`;
+      hs.forEach(x=>{const cx=X(x.date),cy=Y(eloOf(x));const col=x.change>0?'#3ee6a0':x.change<0?'#ff4655':'#8696a7';
+        g+=`<circle class="rp" cx="${cx}" cy="${cy}" r="${hs.length>120?2.5:4}" fill="${col}" stroke="${p.color}" stroke-width="1.5" data-h="${esc(`<b style='color:${p.color}'>${p.name}</b> · ${new Date(x.date).toLocaleDateString('nl-NL',{day:'numeric',month:'short',year:'numeric'})}<br>${x.map||''}${x.agent?' · '+x.agent:''}${x.score?' · '+x.score:''}<br><b style='color:${col}'>${x.change>0?'+':''}${x.change} RR</b> → ${tierName(x.tier)} ${x.rr} RR${x.k!=null?`<br>${x.k}/${x.d}/${x.a} · ACS ${x.acs}`:''}${x.protected?'<br>Rank-schild gebruikt':''}${x.refunded?'<br>'+x.refunded+' RR terug':''}${x.bonus?'<br>Prestatiebonus '+x.bonus:''}`)}" ${x.match&&DATA.details[x.match]?`onclick="openMatch('${x.match}')" style="cursor:pointer"`:''}/>`})});
+    sec.innerHTML=`<h2>RR-tijdlijn</h2><p class="lead">Je rank en RR na elk competitive potje, van oud naar nieuw. Elk bolletje is één potje. Groen bolletje = RR gewonnen, rood = verloren. Klik op een bolletje om de match te openen.</p>${ctl}<div class="panel"><div class="scroll"><svg viewBox="0 0 ${W} ${H}" width="100%" style="min-width:760px">${g}</svg></div><div class="legend">${series.map(s=>`<span><i class="dot" style="background:${s.p.color}"></i>${s.p.name} (${s.hs.length} potjes)</span>`).join('')}</div></div>`;
+    sec.querySelectorAll('.rp').forEach(c=>bindTip(c,c.dataset.h));bind();
+    function bind(){sec.querySelector('#rkAct').onchange=e=>{RK.act=e.target.value;drawTL()};sec.querySelectorAll('[data-rr]').forEach(b=>b.onclick=()=>{RK.range=+b.dataset.rr;drawTL()})}
+  };
+  drawTL();
+
+  // ---------- RR-statistieken ----------
+  const st=withData.map(p=>{const hs=rankHistory(p);const w=hs.filter(x=>x.change>0),l=hs.filter(x=>x.change<0);const sum=a=>a.reduce((s,x)=>s+x,0);const s=streaks(hs);
+    const last30=hs.filter(x=>Date.now()-new Date(x.date)<30*864e5);
+    return {p,n:hs.length,net:sum(hs.map(x=>x.change||0)),avgW:w.length?sum(w.map(x=>x.change))/w.length:NaN,avgL:l.length?sum(l.map(x=>x.change))/l.length:NaN,
+      best:hs.reduce((b,x)=>!b||x.change>b.change?x:b,null),worst:hs.reduce((b,x)=>!b||x.change<b.change?x:b,null),ws:s.w,ls:s.l,cur:s.cur,
+      prot:hs.filter(x=>x.protected).length,ref:sum(hs.map(x=>x.refunded||0)),bonus:sum(hs.map(x=>x.bonus||0)),afk:hs.filter(x=>x.afk).length,
+      n30:last30.length,net30:sum(last30.map(x=>x.change||0)),
+      promo:hs.filter((x,i)=>i&&x.tier>hs[i-1].tier).length,demo:hs.filter((x,i)=>i&&x.tier<hs[i-1].tier).length}});
+  const rows=[['Potjes met RR-data',s=>s.n],['Netto RR (alles)',s=>`<b style="color:${s.net>=0?'var(--win)':'var(--loss)'}">${s.net>0?'+':''}${s.net}</b>`],['Netto RR laatste 30 dagen',s=>`<b style="color:${s.net30>=0?'var(--win)':'var(--loss)'}">${s.net30>0?'+':''}${s.net30}</b> <span style="color:var(--mute)">(${s.n30} potjes)</span>`],
+    ['Gem. RR bij winst',s=>isFinite(s.avgW)?'+'+s.avgW.toFixed(1):'–'],['Gem. RR bij verlies',s=>isFinite(s.avgL)?s.avgL.toFixed(1):'–'],
+    ['Grootste winst',s=>s.best?`+${s.best.change} <span style="color:var(--mute)">${s.best.map||''}</span>`:'–'],['Grootste verlies',s=>s.worst?`${s.worst.change} <span style="color:var(--mute)">${s.worst.map||''}</span>`:'–'],
+    ['Langste winreeks',s=>s.ws],['Langste verliesreeks',s=>s.ls],['Huidige reeks',s=>s.cur>0?`<span style="color:var(--win)">${s.cur}x winst</span>`:s.cur<0?`<span style="color:var(--loss)">${-s.cur}x verlies</span>`:'–'],
+    ['Gepromoveerd / gedegradeerd',s=>`${s.promo} / ${s.demo}`],['Rank-schild gebruikt',s=>s.prot],['RR teruggekregen',s=>s.ref],['Prestatiebonus RR',s=>s.bonus||'–'],['AFK-straf',s=>s.afk]];
+  app.insertAdjacentHTML('beforeend',sectionWrap('RR-statistieken','Over alle opgeslagen competitive potjes.',`<div class="panel scroll"><table class="cmp"><thead><tr><th></th>${st.map(s=>`<th style="color:${s.p.color}">${s.p.name}</th>`).join('')}</tr></thead><tbody>${rows.map(([l,f])=>`<tr><td class="stat">${l}</td>${st.map(s=>`<td class="val"><div class="cv nb" data-p="${s.p.name}"><b style="color:${s.p.color};min-width:0;text-align:left">${f(s)}</b></div></td>`).join('')}</tr>`).join('')}</tbody></table></div>`));
+
+  // ---------- per act ----------
+  let ah='<div class="g2" style="grid-template-columns:1fr">';
+  withData.forEach(p=>{const M=DATA.mmr[p.key],seas=(M.current&&M.current.seasonal)||[],hs=rankHistory(p);
+    const byAct={};hs.forEach(x=>(byAct[x.season]=byAct[x.season]||[]).push(x));
+    const keys=[...new Set([...seas.map(s=>s.season.short),...Object.keys(byAct)])].filter(Boolean).sort((a,b)=>actSort(b)-actSort(a));
+    if(!keys.length)return;
+    const tr=keys.map(a=>{const s=seas.find(x=>x.season.short===a),l=byAct[a]||[];const net=l.reduce((t,x)=>t+(x.change||0),0);
+      const peak=l.reduce((b,x)=>eloOf(x)>(b?eloOf(b):-1)?x:b,null);const first=l[0],lastH=l[l.length-1];
+      const games=s?s.games:l.length,wins=s?s.wins:l.filter(x=>x.change>0).length;
+      const endT=s?s.end_tier.id:lastH?lastH.tier:0,endRR=s?s.end_rr:lastH?lastH.rr:0;
+      const aw=s&&s.act_wins?s.act_wins.slice().sort((x,y)=>y.id-x.id).slice(0,9):[];
+      return `<tr><td><b>${a}</b><div style="color:var(--mute);font-size:12px">${actLabel(a)}</div></td><td>${games}</td><td>${wins} <span style="color:var(--mute)">(${games?Math.round(wins/games*100):0}%)</span></td>
+        <td>${first?`<div style="display:flex;align-items:center;gap:6px">${badge(first.tier,28)}${tierName(first.tier)}</div>`:'–'}</td>
+        <td><div style="display:flex;align-items:center;gap:6px">${badge(endT,28)}<span>${tierName(endT)} <span style="color:var(--mute)">${endRR} RR</span></span></div></td>
+        <td>${peak?tierName(peak.tier):'–'}</td><td>${l.length?`<b style="color:${net>=0?'var(--win)':'var(--loss)'}">${net>0?'+':''}${net}</b>`:'–'}</td>
+        <td><div style="display:flex;gap:2px;flex-wrap:wrap;max-width:240px">${aw.map(t=>badge(t.id,22)).join('')||'<span style="color:var(--mute)">–</span>'}</div></td></tr>`}).join('');
+    ah+=`<div class="panel scroll"><h3 style="color:${p.color}">${p.name}</h3><table><thead><tr><th>Act</th><th>Potjes</th><th>Gewonnen</th><th>Begin</th><th>Eind</th><th>Hoogste</th><th>Netto RR</th><th>Beste overwinningen</th></tr></thead><tbody>${tr}</tbody></table></div>`});
+  app.insertAdjacentHTML('beforeend',sectionWrap('Per act','Per act je aantal potjes, winst, begin- en eindrank, hoogste rank en netto RR. "Beste overwinningen" zijn de ranks waarop je je beste wins van die act behaalde (de driehoek in je carrière-overzicht in de game). Potjes en winst komen van Riot; bij oudere acts zonder samenvatting tellen we de opgeslagen potjes.',ah+'</div>'));
+
+  // ---------- RR per map, agent, met/zonder vrienden ----------
+  const groupTable=(title,keyFn,minN=2)=>{let out='<div class="g2" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr))">';
+    withData.forEach(p=>{const g={};rankHistory(p).forEach(x=>{const k=keyFn(x,p);if(!k)return;(g[k]=g[k]||[]).push(x)});
+      const list=Object.entries(g).filter(([k,l])=>l.length>=minN).map(([k,l])=>({k,n:l.length,net:l.reduce((s,x)=>s+(x.change||0),0),w:l.filter(x=>x.change>0).length})).sort((a,b)=>b.net/b.n-a.net/a.n);
+      out+=`<div class="panel scroll"><h3 style="color:${p.color}">${p.name}</h3><table><thead><tr><th>${title}</th><th>Potjes</th><th>Winst</th><th>Netto RR</th><th>RR / potje</th></tr></thead><tbody>${list.map(x=>`<tr><td>${x.k}</td><td>${x.n}</td><td>${Math.round(x.w/x.n*100)}%</td><td><b style="color:${x.net>=0?'var(--win)':'var(--loss)'}">${x.net>0?'+':''}${x.net}</b></td><td>${(x.net/x.n).toFixed(1)}</td></tr>`).join('')||'<tr><td colspan="5" style="color:var(--mute)">Te weinig data</td></tr>'}</tbody></table></div>`});
+    return out+'</div>'};
+  app.insertAdjacentHTML('beforeend',sectionWrap('RR per map','Waar win en verlies je de meeste RR? Gesorteerd op RR per potje, minimaal 2 potjes.',groupTable('Map',x=>x.map)));
+  app.insertAdjacentHTML('beforeend',sectionWrap('RR per agent','Alleen potjes die ook in de matchgeschiedenis staan.',groupTable('Agent',x=>x.agent)));
+  const names=Object.fromEntries(DATA.players.map(p=>[p.key,p.name]));
+  app.insertAdjacentHTML('beforeend',sectionWrap('RR solo en met vrienden','Win je meer RR als je met de anderen speelt?',groupTable('Samen met',(x,p)=>x.with_==null?null:x.with_.length?x.with_.map(k=>names[k]).join(' + '):'Zonder vrienden',1)));
+
+  // ---------- lobby ----------
+  let lh='<div class="g2" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr))">';let anyL=false;
+  withData.forEach(p=>{const rows=[];rankHistory(p).forEach(x=>{const d=DATA.details[x.match];if(!d)return;const me=d.players.find(q=>q.fk===p.key);if(!me)return;
+      const tid=n=>{const i=TIER_BASE.indexOf(n);return i>2?i:null};
+      const opp=d.players.filter(q=>q.tm!==me.tm).map(q=>tid(q.tier)).filter(Boolean),mates=d.players.filter(q=>q.tm===me.tm&&q!==me).map(q=>tid(q.tier)).filter(Boolean);
+      if(opp.length>=3)rows.push({x,opp:opp.reduce((s,v)=>s+v,0)/opp.length,mates:mates.length?mates.reduce((s,v)=>s+v,0)/mates.length:null})});
+    if(rows.length<3)return;anyL=true;
+    const avg=a=>a.reduce((s,v)=>s+v,0)/a.length,own=avg(rows.map(r=>r.x.tier)),op=avg(rows.map(r=>r.opp)),mt=avg(rows.filter(r=>r.mates).map(r=>r.mates));
+    const harder=rows.filter(r=>r.opp>r.x.tier+0.5),easier=rows.filter(r=>r.opp<r.x.tier-0.5);
+    const wr2=l=>l.length?Math.round(l.filter(r=>r.x.change>0).length/l.length*100)+'% ('+l.length+')':'–';
+    lh+=`<div class="panel"><h3 style="color:${p.color}">${p.name} <small>${rows.length} potjes</small></h3><table><tbody>
+      <tr><td>Je eigen rank (gem.)</td><td><b>${tierName(Math.round(own))}</b></td></tr><tr><td>Tegenstanders (gem.)</td><td><b>${tierName(Math.round(op))}</b></td></tr><tr><td>Teamgenoten (gem.)</td><td><b>${isFinite(mt)?tierName(Math.round(mt)):'–'}</b></td></tr>
+      <tr><td>Winst tegen hogere lobby</td><td>${wr2(harder)}</td></tr><tr><td>Winst tegen lagere lobby</td><td>${wr2(easier)}</td></tr></tbody></table></div>`});
+  if(anyL)app.insertAdjacentHTML('beforeend',sectionWrap('Lobby-niveau','Tegen welk niveau speel je? Gemiddelde rank van tegenstanders en teamgenoten in je potjes, op basis van hun rank in die match.',lh+'</div>'));
+
+  // ---------- verdeling ----------
+  let dh='<div class="g2" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr))">';
+  withData.forEach(p=>{const c={};rankHistory(p).forEach(x=>c[x.tier]=(c[x.tier]||0)+1);const ks=Object.keys(c).map(Number).sort((a,b)=>b-a);const mx=Math.max(...Object.values(c));
+    dh+=`<div class="panel"><h3 style="color:${p.color}">${p.name}</h3>${ks.map(k=>`<div style="display:grid;grid-template-columns:30px 110px 1fr 34px;gap:8px;align-items:center;margin:5px 0;font-size:13px">${badge(k,24)}<span>${tierName(k)}</span><div style="height:10px;background:#0d151e;border-radius:2px"><i style="display:block;height:100%;width:${c[k]/mx*100}%;background:${tierColor(k)};border-radius:2px"></i></div><b style="font-family:Rajdhani,'Arial Narrow',sans-serif;text-align:right">${c[k]}</b></div>`).join('')}</div>`});
+  app.insertAdjacentHTML('beforeend',sectionWrap('Tijd per rank','In hoeveel potjes je op elke rank stond.',dh+'</div>'));
 }
 </script>
 </body>

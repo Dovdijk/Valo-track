@@ -361,6 +361,64 @@ def team_behaviour(m, mp):
     return out
 
 
+TIERS_FILE = ROOT / "data" / "tiers.json"
+MMR_DIR = ROOT / "data" / "mmr"
+
+
+def load_tiers():
+    """Ranknamen, kleuren en iconen van valorant-api.com (nieuwste episode), met cache."""
+    import urllib.request
+    cache = json.loads(TIERS_FILE.read_text(encoding="utf-8")) if TIERS_FILE.exists() else {}
+    try:
+        req = urllib.request.Request("https://valorant-api.com/v1/competitivetiers", headers={"User-Agent": "valo-squad-tracker"})
+        with urllib.request.urlopen(req, timeout=60) as r:
+            data = json.load(r)["data"]
+        latest = data[-1]
+        tiers = {}
+        for t in latest["tiers"]:
+            if t.get("largeIcon") or t["tier"] == 0:
+                tiers[str(t["tier"])] = dict(name=t["tierName"].title(), division=(t.get("divisionName") or "").title(),
+                                             color="#" + (t.get("color") or "8696a7ff")[:6], icon=t.get("largeIcon") or t.get("smallIcon"))
+        if tiers:
+            TIERS_FILE.write_text(json.dumps(tiers, ensure_ascii=False), encoding="utf-8")
+            return tiers
+    except Exception as e:
+        print(f"Rank-iconen niet opgehaald ({e}), cache gebruikt.")
+    return cache
+
+
+def slug_of(p):
+    return "".join(c if c.isalnum() else "_" for c in f"{p['name']}_{p['tag']}".lower())
+
+
+def load_mmr(per_player):
+    out = {}
+    for p in CONFIG["players"]:
+        k = key(p["name"], p["tag"])
+        f = MMR_DIR / f"{slug_of(p)}.json"
+        if not f.exists():
+            continue
+        st = json.loads(f.read_text(encoding="utf-8"))
+        rows = {r["match"]: r for r in per_player.get(k, [])}
+        hist = []
+        for mid, h in st.get("history", {}).items():
+            r = rows.get(mid)
+            hist.append(dict(
+                match=mid, date=h.get("date"), tier=(h.get("tier") or {}).get("id"), tier_name=(h.get("tier") or {}).get("name"),
+                rr=h.get("rr"), change=h.get("last_change"), elo=h.get("elo"), map=(h.get("map") or {}).get("name"),
+                season=(h.get("season") or {}).get("short"), refunded=h.get("refunded_rr") or 0,
+                protected=bool(h.get("was_derank_protected")), bonus=h.get("rr_performance_bonus"),
+                afk=h.get("afk_penalty"), penalty=h.get("rr_penalty"), placement=h.get("is_placement_match"),
+                movement=h.get("competitive_movement"), forgiven=h.get("new_map_incentive_rr_forgiven"),
+                tier_before=(h.get("tier_before_update") or {}).get("id"), rr_before=h.get("rr_before_update"),
+                agent=r["agent"] if r else None, result=r["result"] if r else None, score=r["score"] if r else None,
+                k=r["k"] if r else None, d=r["d"] if r else None, a=r["a"] if r else None,
+                acs=round(r["acs_sum"] / r["rounds"]) if r else None, with_=r.get("with") if r else None))
+        hist.sort(key=lambda x: x["date"] or "")
+        out[k] = dict(current=st.get("current"), current_at=st.get("current_at"), history=hist)
+    return out
+
+
 def short_weapon(w):
     n = (w or {}).get("name")
     return n or "Ability"
@@ -480,7 +538,7 @@ def main():
         generated_at=datetime.now(timezone.utc).isoformat(timespec="seconds"),
         players=[dict(key=key(p["name"], p["tag"]), name=p["name"], tag=p["tag"],
                       label=p.get("label", p["name"]), color=p.get("color", "#ff4655")) for p in CONFIG["players"]],
-        matches=per_player, shared=shared, details=details, maps=maps, pistol_loss=pistol_loss,
+        matches=per_player, shared=shared, details=details, maps=maps, pistol_loss=pistol_loss, mmr=load_mmr(per_player), tiers=load_tiers(),
         settings=dict(trade_ms=TRADE_MS, early_s=EARLY_S, alone_units=ALONE_UNITS),
     )
     OUT.write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")

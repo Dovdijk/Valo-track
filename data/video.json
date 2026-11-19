@@ -1,0 +1,33 @@
+{
+  "3c8793d2-5e2d-4a3b-9bb7-c16d7ffc615a": {
+    "marciebeur#euw": {
+      "analysed": "2026-11-19",
+      "source": "OBS-opname, hele match",
+      "focus": {
+        "title": "Je mikt te laag",
+        "what": "Van je 56 raakschoten waren er maar 5 headshots (9%). In de video staat je richtkruis tijdens het lopen vaak op borst- of grondhoogte. In ronde 4 en 11 moest je eerst omhoog corrigeren toen de tegenstander verscheen, en in ronde 11 kwam je maar aan één kogel toe.",
+        "todo": "Houd je crosshair altijd op hoofdhoogte, ook als je gewoon loopt. Kijk naar de rand van de hoek waar een hoofd zou verschijnen. Doe 10 minuten deathmatch voor je eerste potje en let alleen daarop.",
+        "goal": "15% headshots of meer."
+      },
+      "deaths": [
+        {"r": 1, "tags": ["aim"], "hp": 100, "wpn": "Ghost", "text": "Duel op lange afstand op B met een Ghost tegen een Neon. Twee schoten, geen kill.", "tip": "Met een pistool op afstand win je zelden. Wacht op je team of zoek een kortere hoek."},
+        {"r": 2, "tags": ["no_shots", "alone", "early"], "hp": 100, "wpn": "Classic", "text": "Na 8 seconden alleen door het open stuk van A Main om een ult-orb te pakken. De Reyna hield die hoek al.", "tip": "Pak orbs pas als de hoek gecleard is of je team erbij staat."},
+        {"r": 3, "tags": ["no_shots"], "hp": 100, "wpn": "Phantom", "text": "Tijdens het roteren over B verrast vanaf een hoek die je niet checkte. Volle Phantom, geen schot.", "tip": "Check bij het roteren eerst de hoeken waar de tegenstander kan staan, en loop niet met je wapen omlaag."},
+        {"r": 4, "tags": ["crosshair_low", "early"], "hp": 100, "wpn": "Ares", "text": "Op A Link kwam een Phoenix van dichtbij. Je richtkruis stond te laag en je verloor het duel.", "tip": "Crosshair op hoofdhoogte bij elke hoek, zeker met een Ares die traag op gang komt."},
+        {"r": 5, "tags": ["ability_under_fire"], "hp": 100, "wpn": "Classic", "text": "Healen en reviven op A tijdens de retake, terwijl er nog tegenstanders op je schoten. Van 100 naar 0 HP.", "tip": "Revive of heal pas als het gevecht voorbij is of er dekking is."},
+        {"r": 8, "tags": ["no_shots", "could_save"], "hp": 100, "wpn": "Vandal", "text": "Na de plant met 2 tegen 4 een passieve hoek op A Link gehouden. Van opzij gepakt zonder een schot.", "tip": "In een 2 tegen 4 met een full buy: bewaar je wapen voor de volgende ronde."},
+        {"r": 10, "tags": ["low_hp", "utility_damage"], "hp": 33, "wpn": "Vandal", "text": "Op A Site door de molly van de Phoenix gelopen. Met 33 HP verder gevochten.", "tip": "Loop om een molly heen of wacht tot hij uit is. Elke HP telt in het volgende duel."},
+        {"r": 11, "tags": ["crosshair_low"], "hp": 100, "wpn": "Vandal", "text": "Op Mid Top verscheen een Reyna in de boog. Je richtkruis stond te laag en je schoot maar één kogel.", "tip": "Vooraf je richtkruis op de rand van de boog zetten, op hoofdhoogte."},
+        {"r": 13, "tags": ["low_hp", "reload"], "hp": 53, "wpn": "Ghost", "text": "Met 53 HP op B Main doorgevochten, midden in het gevecht herladen en een Sheriff opgepakt met 0 kogels.", "tip": "Herlaad en wissel van wapen alleen achter dekking."},
+        {"r": 14, "tags": ["low_hp"], "hp": 24, "wpn": "Classic", "text": "Met 24 HP op A Main langs je eigen wall gepeekt in een eco-ronde.", "tip": "Onder de 60 HP eerst terug en healen. Als Sage kan dat."},
+        {"r": 16, "tags": ["ability_under_fire"], "hp": 91, "wpn": "Phantom", "text": "Op B Site een revive gedaan terwijl er nog vijanden stonden. Daarna van 91 naar 0 HP.", "tip": "Zorg dat de hoek veilig is voordat je je ult gebruikt."},
+        {"r": 19, "tags": ["low_hp", "ability_under_fire"], "hp": 38, "wpn": "Vandal", "text": "Met 38 HP op B Main een teamgenoot gehealed terwijl er een tegenstander vlakbij stond.", "tip": "Eerst het gevecht winnen of terug, dan pas healen."}
+      ],
+      "good": [
+        "49 abilities in 19 rondes en 4 keer je ult. Je walls en slows zette je op goede momenten in.",
+        "Ronde 18: drie kills achter elkaar met de Vandal, waarmee je de ronde binnenhaalde.",
+        "Op ronde 2 na geen zinloze vroege deaths: je meeste deaths vielen pas toen je team al vocht."
+      ]
+    }
+  }
+}

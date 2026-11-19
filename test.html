@@ -607,6 +607,7 @@ function renderMatch(id){
       <div class="label">${n} rondes</div></div></div>`;
 
   h+=matchFeedbackHTML(d,F,per,ST);
+  h+=videoMatchHTML(d,F);
   // ---- scoreboard
   const sb=team=>{const ps=d.players.map((p,i)=>({...p,i})).filter(p=>p.tm===team).sort((a,b)=>b.acs-a.acs);
     return `<table><thead><tr><th>Speler</th><th>Agent</th><th>ACS</th><th>K</th><th>D</th><th>A</th><th>K/D</th><th>ADR</th><th>HS%</th><th>Rank</th></tr></thead><tbody>`+
@@ -871,6 +872,7 @@ function renderStyle(app,act){
   // profielkaart
   h+=`<section><h2>Profielkaart</h2><p class="lead">Alle kenmerken die we uit jullie potjes kunnen halen, op een rij.</p><div class="g2" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr))">`+
     S.map(({p,s})=>`<div class="panel" style="border-top:3px solid ${p.color}"><h3 style="color:${p.color}">${p.name}</h3><table class="traits"><tbody>${s.traits.map(([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`).join('')}</tbody></table></div>`).join('')+'</div></section>';
+  h+=videoStatsHTML();
   app.insertAdjacentHTML('beforeend',h);
 }
 
@@ -1685,6 +1687,50 @@ function matchFeedbackHTML(d,F){
 .co-hw{margin-top:14px;border-top:1px solid var(--line);padding-top:12px;font-size:13.5px;line-height:1.5;color:#d4d4d8}.co-hw span{display:block;font-size:12.5px;color:var(--mute);margin-bottom:3px}
 .co-hw.up b{color:var(--win)}.co-hw.down b{color:#fbbf24}
 @media(max-width:820px){.co-l{grid-template-columns:1fr;gap:2px}}
+</style>`)})();
+// ================= VIDEO-ANALYSE =================
+const VTAG={crosshair_low:['Crosshair te laag','Richtkruis niet op hoofdhoogte toen de vijand verscheen'],
+  no_shots:['Dood zonder te schieten','Verrast, nog voordat je kon reageren'],
+  low_hp:['Gevochten met weinig HP','Duel genomen met minder dan 60 HP'],
+  ability_under_fire:['Ability onder vuur','Healen of reviven terwijl er nog op je geschoten werd'],
+  alone:['Alleen','Geen teamgenoot in de buurt'],early:['Vroeg','In de eerste 20 seconden van de ronde'],
+  aim:['Duel verloren','Een eerlijk duel dat je niet won'],reload:['Herladen in gevecht','Herladen of van wapen wisselen midden in een duel'],
+  could_save:['Had kunnen saven','Full buy weggegeven in een verloren ronde'],utility_damage:['Door utility','Schade van een molly of andere ability']};
+function vidFor(d,fk){return DATA.video&&DATA.video[d.id]&&DATA.video[d.id][fk]}
+function videoMatchHTML(d,F){
+  const rows=F.map(f=>({f,v:vidFor(d,f.fk)})).filter(x=>x.v);if(!rows.length)return '';
+  return `<section><h2>Video-analyse</h2><p class="lead">Uit de opname van deze match: wat er gebeurde vlak voor elke death.</p>`+rows.map(({f,v})=>{
+    const col=colorOf(f.fk),cnt={};v.deaths.forEach(x=>x.tags.forEach(t=>cnt[t]=(cnt[t]||0)+1));
+    const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,4);
+    return `<div class="panel co" style="--pc:${col};margin-bottom:14px"><div class="co-h"><b style="color:${col}">${f.n}</b><span>${f.ag} · ${v.deaths.length} deaths bekeken · ${v.source||''}</span></div>
+      <div class="co-focus"><div class="co-tag">Focuspunt uit de video</div><div class="co-t">${v.focus.title}</div><p>${v.focus.what}</p>
+        <div class="co-l"><span>Volgende keer</span><div>${v.focus.todo}</div></div><div class="co-goal"><span>Doel</span>${v.focus.goal}</div></div>
+      <div class="vd-chips">${top.map(([t,n])=>`<span><b>${n}x</b> ${VTAG[t]?VTAG[t][0]:t}</span>`).join('')}</div>
+      <div class="co-sub">Elke death</div>
+      <div class="vd-list">${v.deaths.map(x=>`<div class="vd-row"><div class="vd-r">R${x.r}</div><div><div class="vd-tags">${x.tags.map(t=>`<span>${VTAG[t]?VTAG[t][0]:t}</span>`).join('')}<em>${x.wpn} · ${x.hp} HP</em></div><div>${x.text}</div><div class="co-do">${x.tip}</div></div></div>`).join('')}</div>
+      ${v.good&&v.good.length?`<div class="co-sub">Ging goed</div>`+v.good.map(g=>`<div class="co-item good">${g}</div>`).join(''):''}
+    </div>`}).join('')+`</section>`;
+}
+function videoStatsHTML(){
+  if(!DATA.video)return '';
+  const P=DATA.players.map(p=>{const ms=[];Object.entries(DATA.video).forEach(([id,o])=>{if(o[p.key])ms.push({id,v:o[p.key]})});return {p,ms}}).filter(x=>x.ms.length);
+  if(!P.length)return '';
+  return `<section><h2>Uit video-analyse</h2><p class="lead">Patronen uit de opgenomen matches. Hoe meer matches er zijn opgenomen, hoe betrouwbaarder.</p><div class="g2" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr))">`+P.map(({p,ms})=>{
+    const D=ms.flatMap(m=>m.v.deaths),n=D.length,cnt={};D.forEach(x=>x.tags.forEach(t=>cnt[t]=(cnt[t]||0)+1));
+    const rows=(DATA.matches[p.key]||[]).filter(r=>ms.some(m=>m.id===r.match));const sh=rows.reduce((s,r)=>s+r.hs+r.bs+r.ls,0),hs=sh?Math.round(rows.reduce((s,r)=>s+r.hs,0)/sh*100):null;
+    const lines=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).map(([t,c])=>{const pc=Math.round(c/n*100);return `<div class="vd-bar"><div><b>${VTAG[t]?VTAG[t][0]:t}</b><span>${VTAG[t]?VTAG[t][1]:''}</span></div><div class="vd-num">${pc}%<small>${c} van ${n}</small></div><i><u style="width:${pc}%;background:${p.color}"></u></i></div>`}).join('');
+    return `<div class="panel" style="border-top:3px solid ${p.color}"><h3 style="color:${p.color}">${p.name}</h3><div style="color:var(--mute);font-size:13px;margin:2px 0 12px">${ms.length} ${ms.length>1?'matches':'match'} opgenomen · ${n} deaths bekeken${hs!=null?` · ${hs}% headshots in die matches`:''}</div>${lines}</div>`}).join('')+`</div></section>`;
+}
+(function(){document.head.insertAdjacentHTML('beforeend',`<style>
+.vd-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}.vd-chips span{font-size:12.5px;padding:4px 10px;border-radius:99px;background:rgba(255,255,255,.05);border:1px solid var(--line)}.vd-chips b{color:var(--pc)}
+.vd-list{display:flex;flex-direction:column;gap:6px}
+.vd-row{display:grid;grid-template-columns:42px 1fr;gap:10px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.03);font-size:14px;line-height:1.5}
+.vd-r{font-weight:700;color:var(--mute);font-size:13px;padding-top:2px}
+.vd-tags{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-bottom:3px}.vd-tags span{font-size:11.5px;font-weight:600;padding:1px 8px;border-radius:99px;background:rgba(251,113,133,.12);color:#fda4af}.vd-tags em{font-style:normal;font-size:12px;color:var(--mute)}
+.vd-bar{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.vd-bar b{display:block;font-size:14px;font-weight:600}.vd-bar span{font-size:12.5px;color:var(--mute)}
+.vd-num{text-align:right;font-weight:700;font-size:18px}.vd-num small{display:block;font-size:11.5px;font-weight:400;color:var(--mute)}
+.vd-bar i{grid-column:1/-1;height:5px;border-radius:9px;background:rgba(255,255,255,.07);display:block}.vd-bar u{display:block;height:5px;border-radius:9px}
 </style>`)})();
 </script>
 </body>

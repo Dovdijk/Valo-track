@@ -540,9 +540,19 @@ def main():
                       label=p.get("label", p["name"]), color=p.get("color", "#ff4655")) for p in CONFIG["players"]],
         matches=per_player, shared=shared, details=details, maps=maps, pistol_loss=pistol_loss, mmr=load_mmr(per_player), tiers=load_tiers(),
         settings=dict(trade_ms=TRADE_MS, early_s=EARLY_S, alone_units=ALONE_UNITS),
+        video=load_video(),
     )
     OUT.write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     print(f"stats.json geschreven: {len(files)} matches, {len(shared)} samen gespeeld.")
+
+
+def load_video():
+    p = OUT.parent / "video.json"
+    try:
+        return json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
+    except Exception as e:
+        print("video.json niet leesbaar:", e)
+        return {}
 
 
 if __name__ == "__main__":

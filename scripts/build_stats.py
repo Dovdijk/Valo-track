@@ -145,7 +145,7 @@ def analyse(m):
             death = next((k for k in rk if k["victim"]["puuid"] == pu), None)
             row[f"{side}_k"] += len(my_kills)
             for k in my_kills:
-                weapons[(k.get("weapon") or {}).get("name") or "Ability/overig"] += 1
+                weapons[weapon_label(k.get("weapon"))] += 1
             n = len(my_kills)
             if n >= 2:
                 row[f"mk{min(n, 5)}"] += 1
@@ -419,9 +419,19 @@ def load_mmr(per_player):
     return out
 
 
+def weapon_label(w):
+    """Wapennaam voor de kill-telling. Mes-kills hebben geen naam, alleen type 'Melee'."""
+    w = w or {}
+    if w.get("type") == "Melee":
+        return "Mes"
+    return w.get("name") or "Ability/overig"
+
+
 def short_weapon(w):
-    n = (w or {}).get("name")
-    return n or "Ability"
+    w = w or {}
+    if w.get("type") == "Melee":
+        return "Mes"
+    return w.get("name") or "Ability"
 
 
 def detail(m, maps=None):

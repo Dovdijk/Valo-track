@@ -1695,14 +1695,14 @@ const VTAG={crosshair_low:['Crosshair te laag','Richtkruis niet op hoofdhoogte t
   ability_under_fire:['Ability onder vuur','Healen of reviven terwijl er nog op je geschoten werd'],
   alone:['Alleen','Geen teamgenoot in de buurt'],early:['Vroeg','In de eerste 20 seconden van de ronde'],
   aim:['Duel verloren','Een eerlijk duel dat je niet won'],reload:['Herladen in gevecht','Herladen of van wapen wisselen midden in een duel'],
-  could_save:['Had kunnen saven','Full buy weggegeven in een verloren ronde'],repeek:['Zelfde hoek opnieuw gepeekt','Na een duel dezelfde hoek nog een keer gepeekt'],clutch:['Clutch verloren','Laatste man en het duel verloren'],wrong_angle:['Verkeerde hoek','Je keek een andere kant op dan waar de vijand kwam'],utility_damage:['Door utility','Schade van een molly of andere ability']};
+  could_save:['Had kunnen saven','Full buy weggegeven in een verloren ronde'],repeek:['Zelfde hoek opnieuw gepeekt','Na een duel dezelfde hoek nog een keer gepeekt'],clutch:['Clutch verloren','Laatste man en het duel verloren'],wrong_angle:['Verkeerde hoek','Je keek een andere kant op dan waar de vijand kwam'],knife_out:['Mes in de hand','Geen wapen klaar op het moment van contact'],flashed:['Geflasht','Verblind door een vijandelijke flash'],self_flash:['Zichzelf geflasht','Verblind door de eigen flash'],wrong_weapon:['Verkeerd wapen','Wapen dat niet past bij de afstand'],utility_damage:['Door utility','Schade van een molly of andere ability']};
 function vidFor(d,fk){return DATA.video&&DATA.video[d.id]&&DATA.video[d.id][fk]}
 function videoMatchHTML(d,F){
   const rows=F.map(f=>({f,v:vidFor(d,f.fk)})).filter(x=>x.v);if(!rows.length)return '';
   return `<section><h2>Video-analyse</h2><p class="lead">Uit de opname van deze match: wat er gebeurde vlak voor elke death.</p>`+rows.map(({f,v})=>{
     const col=colorOf(f.fk),cnt={};v.deaths.forEach(x=>x.tags.forEach(t=>cnt[t]=(cnt[t]||0)+1));
     const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,4);
-    return `<div class="panel co" style="--pc:${col};margin-bottom:14px"><div class="co-h"><b style="color:${col}">${f.n}</b><span>${f.ag} · ${v.deaths.length} deaths bekeken · ${v.source||''}</span></div>
+    return `<div class="panel co" style="--pc:${col};margin-bottom:14px"><div class="co-h"><b style="color:${col}">${f.n}</b><span>${f.ag} · ${v.deaths.length} deaths bekeken · ${v.source||''}</span></div>${v.self_flash!=null?`<div class="vd-flash"><b>${v.self_flash}x</b> zichzelf geflasht in deze match${v.partial?' (in de opgenomen rondes)':''}</div>`:''}${v.note?`<p style="color:var(--mute);font-size:13.5px;margin:0 0 10px">${v.note}</p>`:''}
       <div class="co-focus"><div class="co-tag">Focuspunt uit de video</div><div class="co-t">${v.focus.title}</div><p>${v.focus.what}</p>
         <div class="co-l"><span>Volgende keer</span><div>${v.focus.todo}</div></div><div class="co-goal"><span>Doel</span>${v.focus.goal}</div></div>
       <div class="vd-chips">${top.map(([t,n])=>`<span><b>${n}x</b> ${VTAG[t]?VTAG[t][0]:t}</span>`).join('')}</div>
@@ -1719,9 +1719,11 @@ function videoStatsHTML(){
     const D=ms.flatMap(m=>m.v.deaths),n=D.length,cnt={};D.forEach(x=>x.tags.forEach(t=>cnt[t]=(cnt[t]||0)+1));
     const rows=(DATA.matches[p.key]||[]).filter(r=>ms.some(m=>m.id===r.match));const sh=rows.reduce((s,r)=>s+r.hs+r.bs+r.ls,0),hs=sh?Math.round(rows.reduce((s,r)=>s+r.hs,0)/sh*100):null;
     const lines=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).map(([t,c])=>{const pc=Math.round(c/n*100);return `<div class="vd-bar"><div><b>${VTAG[t]?VTAG[t][0]:t}</b><span>${VTAG[t]?VTAG[t][1]:''}</span></div><div class="vd-num">${pc}%<small>${c} van ${n}</small></div><i><u style="width:${pc}%;background:${p.color}"></u></i></div>`}).join('');
-    return `<div class="panel" style="border-top:3px solid ${p.color}"><h3 style="color:${p.color}">${p.name}</h3><div style="color:var(--mute);font-size:13px;margin:2px 0 12px">${ms.length} ${ms.length>1?'matches':'match'} opgenomen · ${n} deaths bekeken${hs!=null?` · ${hs}% headshots in die matches`:''}</div>${lines}</div>`}).join('')+`</div></section>`;
+    const sf=ms.reduce((t,m)=>t+(m.v.self_flash||0),0),sfn=ms.filter(m=>m.v.self_flash!=null).length;
+    return `<div class="panel" style="border-top:3px solid ${p.color}"><h3 style="color:${p.color}">${p.name}</h3>${sfn?`<div class="vd-flash big"><b>${sf}x</b> zichzelf geflasht<small>in ${sfn} opgenomen ${sfn>1?'matches':'match'}</small></div>`:''}<div style="color:var(--mute);font-size:13px;margin:2px 0 12px">${ms.length} ${ms.length>1?'matches':'match'} opgenomen · ${n} deaths bekeken${hs!=null?` · ${hs}% headshots in die matches`:''}</div>${lines}</div>`}).join('')+`</div></section>`;
 }
 (function(){document.head.insertAdjacentHTML('beforeend',`<style>
+.vd-flash{display:inline-flex;align-items:baseline;gap:6px;margin:0 0 12px;padding:6px 12px;border-radius:10px;background:rgba(245,196,81,.12);color:#fde68a;font-size:13.5px}.vd-flash b{font-size:17px;color:#f5c451}.vd-flash.big{display:flex;flex-wrap:wrap}.vd-flash.big b{font-size:26px}.vd-flash small{width:100%;color:var(--mute);font-size:12px}
 .vd-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}.vd-chips span{font-size:12.5px;padding:4px 10px;border-radius:99px;background:rgba(255,255,255,.05);border:1px solid var(--line)}.vd-chips b{color:var(--pc)}
 .vd-list{display:flex;flex-direction:column;gap:6px}
 .vd-row{display:grid;grid-template-columns:42px 1fr;gap:10px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.03);font-size:14px;line-height:1.5}

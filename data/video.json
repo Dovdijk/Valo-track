@@ -318,5 +318,236 @@
     "45 abilities en 2 keer je ult. Ronde 3 tot en met 5 achter elkaar gewonnen."
    ]
   }
+ },
+ "86a24cbf-8215-4b2c-8497-3b692a695e22": {
+  "marciebeur#euw": {
+   "analysed": "2026-11-22",
+   "source": "OBS-opname, hele match",
+   "focus": {
+    "title": "Clutches als laatste man",
+    "what": "Je was in 5 rondes de laatste levende speler van je team (ronde 4, 5, 9, 10 en 14) en verloor ze alle vijf. In je vorige match ging dat ook 3 keer mis. In ronde 5 en 9 liep je naar het geluid toe in plaats van één hoek vast te houden.",
+    "todo": "Kies in een clutch één goede hoek, kijk eerst naar de minimap en luister. Laat de tijd voor je werken: na de plant moeten zij naar jou toe komen. Is het 1 tegen 3 of meer met een full buy, bewaar dan je wapen.",
+    "goal": "Minstens één clutch winnen, of je wapen bewaren als het niet te winnen is."
+   },
+   "deaths": [
+    {
+     "r": 1,
+     "tags": [
+      "ability_under_fire"
+     ],
+     "hp": 100,
+     "wpn": "Ghost",
+     "text": "Pistol: door de Clove-smoke gelopen en daarna een slow orb gegooid terwijl de Sage al dichtbij stond.",
+     "tip": "Gooi je orb voordat je de hoek om komt, niet erna."
+    },
+    {
+     "r": 4,
+     "tags": [
+      "clutch",
+      "low_hp"
+     ],
+     "hp": 18,
+     "wpn": "Vandal",
+     "text": "Retake 1 tegen 3: met 18 HP door de smoke heen gevochten.",
+     "tip": "1 tegen 3 met 18 HP is niet te winnen. Bewaar je Vandal."
+    },
+    {
+     "r": 5,
+     "tags": [
+      "clutch"
+     ],
+     "hp": 100,
+     "wpn": "Vandal",
+     "text": "1 tegen 1: achter de box gewacht, maar de Sage kwam van de kant die je niet in de gaten hield.",
+     "tip": "Kijk op de minimap waar je laatst geluid hoorde en hou die kant vast."
+    },
+    {
+     "r": 6,
+     "tags": [
+      "aim"
+     ],
+     "hp": 100,
+     "wpn": "Vandal",
+     "text": "Duel op afstand op A tegen de Iso verloren. Je HP ging van 100 naar 79 voordat je raakte.",
+     "tip": "Op afstand: tikken of korte bursts, niet sprayen."
+    },
+    {
+     "r": 7,
+     "tags": [
+      "aim"
+     ],
+     "hp": 93,
+     "wpn": "Vandal",
+     "text": "Dichtbij verrast door de Chamber. Wel meteen getrade.",
+     "tip": "Hou je crosshair op de rand waar iemand kan verschijnen."
+    },
+    {
+     "r": 8,
+     "tags": [
+      "ability_under_fire"
+     ],
+     "hp": 100,
+     "wpn": "Vandal",
+     "text": "Na de plant 2 tegen 1: eerst een teamgenoot gehealed en een wall gezet, daarna door de Sage gepakt.",
+     "tip": "In een 2v1 eerst samen de laatste vijand zoeken, daarna pas healen."
+    },
+    {
+     "r": 9,
+     "tags": [
+      "clutch"
+     ],
+     "hp": 89,
+     "wpn": "Vandal",
+     "text": "1 tegen 2 op B: naar het geluid toe gelopen en de Sage met de Guardian won het duel.",
+     "tip": "In een 1v2 laat je hen komen. Twee tegelijk peeken is bijna altijd verlies."
+    },
+    {
+     "r": 10,
+     "tags": [
+      "clutch"
+     ],
+     "hp": 100,
+     "wpn": "Vandal",
+     "text": "1 tegen 2: door een smoke geschoten en daarna van opzij gepakt door de Clove.",
+     "tip": "Na een schot door smoke weten ze waar je bent. Verplaats je meteen."
+    },
+    {
+     "r": 12,
+     "tags": [
+      "aim"
+     ],
+     "hp": 100,
+     "wpn": "Vandal",
+     "text": "Wide gepeekt op A Main en het duel met de Sage verloren.",
+     "tip": "Peek een smalle hoek en hou dekking naast je."
+    },
+    {
+     "r": 13,
+     "tags": [
+      "knife_out"
+     ],
+     "hp": 100,
+     "wpn": "Ghost",
+     "text": "Pistol: met je mes in de hand door B Main gelopen. De Sage met een Classic was sneller.",
+     "tip": "Op het moment dat je contact kunt verwachten heb je je wapen in de hand, nooit je mes."
+    },
+    {
+     "r": 14,
+     "tags": [
+      "flashed",
+      "clutch"
+     ],
+     "hp": 100,
+     "wpn": "Classic",
+     "text": "Eco, als laatste man 1 tegen 5: geflasht en daarna gestorven.",
+     "tip": "In een 1v5 op een eco valt er niets te winnen. Verstop je of draai weg van de flash."
+    },
+    {
+     "r": 15,
+     "tags": [
+      "wrong_angle"
+     ],
+     "hp": 100,
+     "wpn": "Vandal",
+     "text": "Lang een raam vastgehouden, de Iso kwam van links.",
+     "tip": "Wissel na een paar seconden zonder info van positie, of zet een wall op de andere kant."
+    },
+    {
+     "r": 16,
+     "tags": [
+      "knife_out"
+     ],
+     "hp": 92,
+     "wpn": "Marshal",
+     "text": "Na de plant met je mes en abilities in de hand over A gelopen. De Chamber met de Operator schoot je neer.",
+     "tip": "Bij een Operator in de ronde loop je nooit zonder wapen door zijn zichtlijn."
+    }
+   ],
+   "good": [
+    "14 assists, net zoveel als je kills. Je utility (51 abilities, 3 ults) hielp je team veel.",
+    "Gewonnen 13-8, inclusief de pistol-ronde.",
+    "Maar één keer gevochten met weinig HP (ronde 4)."
+   ],
+   "note": "PakSher (Sage) pakte je 6 van de 13 keer."
+  },
+  "dennisvg#3745": {
+   "analysed": "2026-11-22",
+   "source": "OBS-opname, ronde 1 tot en met 7 (opname stopte om 16:45)",
+   "partial": true,
+   "self_flash": 1,
+   "focus": {
+    "title": "Je Curveball beter gebruiken",
+    "what": "In de hele match gooide je maar 5 Curveballs, en in ronde 1 verblindde je jezelf ermee. Daarna stierf je terwijl je nog grijs zag.",
+    "todo": "Gooi je Curveball om een hoek heen, zodat hij aan de andere kant knalt. Kijk weg of draai je om op het moment dat hij afgaat. Gebruik hem in elke ronde voordat je een duel neemt.",
+    "goal": "Minstens één Curveball per ronde, en nul keer jezelf flashen."
+   },
+   "deaths": [
+    {
+     "r": 1,
+     "tags": [
+      "self_flash"
+     ],
+     "hp": 93,
+     "wpn": "Classic",
+     "text": "Je eigen Curveball knalde in je gezicht. Je scherm werd grijs en de Sage schoot je neer. Je werd wel getrade.",
+     "tip": "Gooi hem om de hoek en kijk weg als hij afgaat."
+    },
+    {
+     "r": 2,
+     "tags": [
+      "wrong_weapon"
+     ],
+     "hp": 100,
+     "wpn": "Marshal",
+     "text": "Met een Marshal ingezoomd, terwijl de Neon van dichtbij op je af rende.",
+     "tip": "Met een Marshal speel je een lange hoek. Komt er iemand dichtbij, dan wissel je naar je pistool."
+    },
+    {
+     "r": 4,
+     "tags": [
+      "aim"
+     ],
+     "hp": 100,
+     "wpn": "Phantom",
+     "text": "2 tegen 3: na een paar schoten van de Sage met de Guardian verloren.",
+     "tip": "Met een Phantom tegen een Guardian win je het dichtbij. Zoek een kortere hoek."
+    },
+    {
+     "r": 5,
+     "tags": [
+      "early"
+     ],
+     "hp": 100,
+     "wpn": "Phantom",
+     "text": "Je gebruikte Run It Back en ging daarna toch onder vuur door de Iso.",
+     "tip": "Gebruik je ult om info te halen en kom terug voordat hij afloopt."
+    },
+    {
+     "r": 6,
+     "tags": [
+      "aim"
+     ],
+     "hp": 79,
+     "wpn": "Phantom",
+     "text": "3 tegen 1: alleen het duel met de Clove aangegaan en verloren.",
+     "tip": "In een 3v1 wacht je op je teamgenoten en peek je samen."
+    },
+    {
+     "r": 7,
+     "tags": [
+      "wrong_angle",
+      "early"
+     ],
+     "hp": 100,
+     "wpn": "Phantom",
+     "text": "Eerste death na 16 seconden: je keek naar voren, de Iso kwam van rechts.",
+     "tip": "Check eerst de dichtstbijzijnde hoek, dan pas de verre."
+    }
+   ],
+   "good": [
+    "In ronde 1 tot en met 7 werden twee van je zes deaths getrade, je speelde dicht bij je team.",
+    "Run It Back in ronde 5 bracht je team info over de site."
+   ]
+  }
  }
 }

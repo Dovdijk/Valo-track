@@ -607,6 +607,7 @@ function renderMatch(id){
       <div class="label">${n} rondes</div></div></div>`;
 
   h+=matchFeedbackHTML(d,F,per,ST);
+  h+=videoMatchHTML(d,F);
   // ---- scoreboard
   const sb=team=>{const ps=d.players.map((p,i)=>({...p,i})).filter(p=>p.tm===team).sort((a,b)=>b.acs-a.acs);
     return `<table><thead><tr><th>Speler</th><th>Agent</th><th>ACS</th><th>K</th><th>D</th><th>A</th><th>K/D</th><th>ADR</th><th>HS%</th><th>Rank</th></tr></thead><tbody>`+
@@ -871,6 +872,7 @@ function renderStyle(app,act){
   // profielkaart
   h+=`<section><h2>Profielkaart</h2><p class="lead">Alle kenmerken die we uit jullie potjes kunnen halen, op een rij.</p><div class="g2" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr))">`+
     S.map(({p,s})=>`<div class="panel" style="border-top:3px solid ${p.color}"><h3 style="color:${p.color}">${p.name}</h3><table class="traits"><tbody>${s.traits.map(([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`).join('')}</tbody></table></div>`).join('')+'</div></section>';
+  h+=videoStatsHTML();
   app.insertAdjacentHTML('beforeend',h);
 }
 
@@ -970,49 +972,6 @@ function drawMatchHeat(d,F,myTeam){
 }
 
 // ---------- COACH-FEEDBACK PER MATCH ----------
-function matchFeedbackHTML(d,F,per,ST){
-  const m=mapOf(d), n=d.rounds.length;
-  const byAcs=d.players.map((p,i)=>({i,acs:p.acs})).sort((a,b)=>b.acs-a.acs);
-  const blocks=F.map(f=>{
-    const s=ST[f.i], col=colorOf(f.fk), G=[], B=[];
-    const hist=(DATA.matches[f.fk]||[]).filter(r=>r.match!==d.id);
-    const avg=k=>{const R=hist.reduce((a,r)=>a+r.rounds,0);return R?hist.reduce((a,r)=>a+(r[k]||0),0)/R:null};
-    const hAcs=avg('acs_sum'),hAdr=avg('dmg');
-    const rank=byAcs.findIndex(x=>x.i===f.i)+1;
-    if(rank===1)G.push([30,`<b>MVP van de lobby</b> met de hoogste ACS (${f.acs}).`]);
-    else if(rank<=3)G.push([18,`<b>Top ${rank}</b> van de lobby op ACS (${f.acs}).`]);
-    else if(rank>=8)B.push([16,`<b>Plek ${rank} van 10</b> op ACS (${f.acs}). Een lastig potje.`]);
-    if(hAcs){const df=(f.acs-hAcs)/hAcs*100;if(df>=15)G.push([df*0.6,`ACS <b>${Math.round(df)}% hoger</b> dan je gemiddelde (${Math.round(hAcs)}).`]);else if(df<=-15)B.push([-df*0.6,`ACS <b>${Math.round(-df)}% lager</b> dan je gemiddelde (${Math.round(hAcs)}).`])}
-    if(s.fb-s.fd>=2)G.push([12+(s.fb-s.fd)*3,`Je won de openingsduels: <b>${s.fb} first bloods</b> tegenover ${s.fd} first deaths.`]);
-    if(s.fd-s.fb>=2)B.push([12+(s.fd-s.fb)*3,`<b>${s.fd} keer als eerste neer</b> tegenover ${s.fb} first bloods. Daarmee begon je team ${s.fd} rondes met 4 tegen 5.`]);
-    if(s.d&&s.early/s.d>=0.3&&s.early>=3)B.push([10+s.early*2,`<b>${s.early} van je ${s.d} deaths</b> vielen in de eerste 20 seconden.`]);
-    if(s.aloneKnown>=4){const ap=s.alone/s.aloneKnown;if(ap>=0.6)B.push([10+ap*15,`Bij <b>${s.alone} van de ${s.aloneKnown}</b> deaths stond er geen teamgenoot in de buurt. ${s.traded} daarvan werden getrade.`]);else if(ap<=0.3)G.push([10,`Je bleef dicht bij je team: maar ${s.alone} van de ${s.aloneKnown} deaths zonder teamgenoot in de buurt.`])}
-    if(s.tradeK>=3)G.push([8+s.tradeK*2,`<b>${s.tradeK} trade-kills</b>: je wreekte je teamgenoten snel.`]);
-    if(s.best>=3)G.push([10+s.best*4,`Een ronde met <b>${s.best} kills</b>.`]);
-    if(s.kast>=0.8)G.push([12,`KAST van <b>${Math.round(s.kast*100)}%</b>: in bijna elke ronde droeg je iets bij.`]);else if(s.kast<=0.6)B.push([10,`KAST van <b>${Math.round(s.kast*100)}%</b>: in ${Math.round((1-s.kast)*n)} rondes geen kill, assist, trade of overleving.`]);
-    const ak=s.atkK/Math.max(1,s.atkD),dk=s.defK/Math.max(1,s.defD);if(s.atkN>=6&&s.defN>=6&&Math.abs(ak-dk)>=0.6){(ak<dk?B:G).push([9,`In de ${ak<dk?'aanval':'verdediging'} een K/D van <b>${(ak<dk?ak:dk).toFixed(2)}</b> tegenover ${(ak<dk?dk:ak).toFixed(2)} aan de andere kant.`])}
-    // plekken
-    if(m){const dc={};per[f.i].forEach(x=>{if(x.death&&x.death[6]!=null){const c=callout(m,x.death[6],x.death[7]);dc[c]=(dc[c]||0)+1}});
-      const w=Object.entries(dc).sort((a,b)=>b[1]-a[1])[0];if(w&&w[1]>=3)B.push([8+w[1]*3,`Je ging <b>${w[1]} keer dood in ${w[0]}</b>. Probeer daar een andere timing of hoek.`]);}
-    // clutch
-    const cl=per[f.i].map((x,ri)=>{const r=d.rounds[ri];const alive=new Set(d.players.map((p,i)=>i));let c=0;for(const e of r.ev){alive.delete(e[2]);const mine=[...alive].filter(i=>d.players[i].tm===f.tm),th=[...alive].filter(i=>d.players[i].tm!==f.tm);if(!c&&mine.length===1&&mine[0]===f.i&&th.length)c=th.length}return c?{n:c,win:x.win}:null}).filter(Boolean);
-    const cw=cl.filter(c=>c.win);if(cw.length)G.push([14+Math.max(...cw.map(c=>c.n))*4,`<b>Clutch gewonnen</b>${cw.length>1?` (${cw.length}x)`:''}: 1 tegen ${Math.max(...cw.map(c=>c.n))}.`]);
-    // economie
-    const forceL=per[f.i].filter((x,i)=>i!==0&&i!==12&&x.eco[0]>=1500&&x.eco[0]<3600&&!x.win).length;if(forceL>=3)B.push([7+forceL,`<b>${forceL} force buys verloren</b>. Samen sparen geeft vaak een sterkere volgende ronde.`]);
-    // utility t.o.v. eigen gemiddelde op deze agent
-    const same=hist.filter(r=>r.agent===f.ag&&r.util!=null);if(same.length>=3&&f.ut!=null){const avgU=same.reduce((a,r)=>a+r.util,0)/same.reduce((a,r)=>a+r.rounds,0);
-      if(f.ut<=avgU*0.7)B.push([9,`Maar <b>${f.ut.toFixed(1)} abilities per ronde</b>, terwijl je op ${f.ag} gemiddeld ${avgU.toFixed(1)} gebruikt.`]);
-      else if(f.ut>=avgU*1.3)G.push([8,`Veel utility: <b>${f.ut.toFixed(1)} abilities per ronde</b> (normaal ${avgU.toFixed(1)} op ${f.ag}).`])}
-    if(f.hs>=25)G.push([10+(f.hs-25)/2,`Headshotpercentage van <b>${f.hs}%</b>.`]);
-    G.sort((a,b)=>b[0]-a[0]);B.sort((a,b)=>b[0]-a[0]);
-    const g=G.slice(0,3),b=B.slice(0,2);
-    return `<div class="panel" style="border-top:3px solid ${col}"><h3 style="color:${col}">${f.n} <small>${f.ag} · ${f.k}/${f.d}/${f.a}</small></h3>
-      ${g.length?`<div class="label" style="color:var(--win);margin-top:4px">Ging goed</div>`+g.map(x=>`<div style="padding:7px 0 7px 12px;border-left:3px solid var(--win);margin:6px 0;background:rgba(62,230,160,.05)">${x[1]}</div>`).join(''):''}
-      ${b.length?`<div class="label" style="color:var(--loss);margin-top:10px">Kan beter</div>`+b.map(x=>`<div style="padding:7px 0 7px 12px;border-left:3px solid var(--loss);margin:6px 0;background:rgba(255,70,85,.05)">${x[1]}</div>`).join(''):''}
-      ${!g.length&&!b.length?'<div style="color:var(--mute)">Een gemiddeld potje, niets wat er echt uitspringt.</div>':''}</div>`;
-  });
-  return `<section><h2>Coach-feedback</h2><p class="lead">Wat ging er goed en wat kan beter in deze match. Vergeleken met de rest van de lobby en met jullie eigen gemiddelde.</p><div class="g2" style="grid-template-columns:repeat(${Math.min(F.length,3)},1fr)">${blocks.join('')}</div></section>`;
-}
 
 // ================= DUO-SYNERGIE, TILT, AGENT-ADVIES, UTILITY =================
 const allRowsFor=p=>(DATA.matches[p.key]||[]).filter(baseFilter);   // zonder "laatste N": voor advies en trends
@@ -1547,6 +1506,234 @@ function showCrowning(){
 @keyframes crUp{from{transform:translateY(16px);opacity:0}}
 @media (prefers-reduced-motion:reduce){.cr-crown,.cr-hail,.cr-name,.cr-quote,.cr-score,.cr-tap{animation:none}}`;
 document.head.insertAdjacentHTML('beforeend',`<style>${css}</style>`)})();
+// ================= COACH-FEEDBACK v2 =================
+const AG_ROLE={Jett:'D',Raze:'D',Reyna:'D',Phoenix:'D',Yoru:'D',Neon:'D',Iso:'D',Waylay:'D',
+  Sova:'I',Breach:'I',Skye:'I','KAY/O':'I',Fade:'I',Gekko:'I',Tejo:'I',
+  Brimstone:'C',Omen:'C',Viper:'C',Astra:'C',Harbor:'C',Clove:'C',Miks:'C',
+  Sage:'S',Cypher:'S',Killjoy:'S',Chamber:'S',Deadlock:'S',Vyse:'S',Veto:'S'};
+const ROLE_NM={D:'duelist',I:'initiator',C:'controller',S:'sentinel'};
+const ROLE_KAST={D:[50,60],I:[53,62],C:[64,69],S:[63,68]}; // goed-grens, sterk-grens (ranked, iets onder pro)
+const fmtR=a=>{a=[...new Set(a)].sort((x,y)=>x-y);return a.length>1?a.slice(0,-1).join(', ')+' en '+a.slice(-1):String(a[0]||'')};
+const COACH_CACHE={};
+function coachRoundsOf(d,fi){
+  const me=d.players[fi];
+  return d.rounds.map((r,ri)=>{
+    const kills=r.ev.filter(e=>e[1]===fi&&d.players[e[2]].tm!==me.tm);
+    const di=r.ev.findIndex(e=>e[2]===fi), death=di>=0?r.ev[di]:null;
+    const assist=r.ev.some(e=>e[4].includes(fi));
+    const traded=!!death&&r.ev.some(e=>e[2]===death[1]&&e[1]!=null&&d.players[e[1]].tm===me.tm&&e[0]>=death[0]&&e[0]-death[0]<=5);
+    const tradeK=kills.filter(k=>r.ev.some(e=>e[1]===k[2]&&d.players[e[2]].tm===me.tm&&k[0]>=e[0]&&k[0]-e[0]<=5)).length;
+    let mates=4,foes=5,clutch=0;
+    const alive=new Set(d.players.map((p,i)=>i));
+    for(let j=0;j<r.ev.length;j++){const e=r.ev[j];
+      if(j===di){mates=[...alive].filter(i=>i!==fi&&d.players[i].tm===me.tm).length;foes=[...alive].filter(i=>d.players[i].tm!==me.tm).length}
+      alive.delete(e[2]);
+      const mn=[...alive].filter(i=>d.players[i].tm===me.tm),th=[...alive].filter(i=>d.players[i].tm!==me.tm);
+      if(!clutch&&mn.length===1&&mn[0]===fi&&th.length)clutch=th.length}
+    const atk=isAtk(me.tm,ri,d.fha), win=r.w===me.tm, eco=r.eco[fi]||[0,null,null,0];
+    const planted=!!r.pl;
+    return {ri:ri+1,kills,death,assist,traded,tradeK,mates,foes,clutch,atk,win,eco,planted,
+      fb:!!r.ev[0]&&r.ev[0][1]===fi,fd:!!r.ev[0]&&r.ev[0][2]===fi,pistol:ri===0||ri===12,
+      kast:kills.length>0||assist||!death||traded};
+  });
+}
+function coachMetrics(d,fi){
+  const key=d.id+':'+fi;if(COACH_CACHE[key])return COACH_CACHE[key];
+  const p=d.players[fi],R=coachRoundsOf(d,fi),n=R.length,AU=DATA.settings.alone_units||1500;
+  const ds=R.filter(x=>x.death);
+  const untr=ds.filter(x=>!x.traded), alone=ds.filter(x=>x.death[5]!=null&&x.death[5]>AU);
+  const empty=ds.filter(x=>!x.traded&&!x.kills.length&&!x.assist);
+  const early=ds.filter(x=>x.death[0]<=20);
+  const fds=R.filter(x=>x.fd),fbs=R.filter(x=>x.fb);
+  const save=R.filter(x=>x.death&&!x.win&&x.eco[0]>=3900&&x.mates<=1&&x.foes>=x.mates+3&&!(x.atk&&x.planted));
+  const force=R.filter(x=>!x.pistol&&x.eco[0]>=1500&&x.eco[0]<3600&&!x.win);
+  const sniperCheap=R.filter(x=>!x.pistol&&['Marshal','Outlaw'].includes(x.eco[1])&&x.eco[0]<3600&&!x.win);
+  // ongelijke buys met de andere vrienden
+  const fr=d.players.map((q,i)=>i).filter(i=>i!==fi&&d.players[i].fk&&d.players[i].tm===p.tm);
+  const mis=R.filter((x,ri)=>!x.pistol&&!x.win&&fr.some(j=>{const o=d.rounds[ri].eco[j];if(!o)return false;
+    return (x.eco[0]>=3900&&o[0]<2000)||(x.eco[0]<2000&&o[0]>=3900)}));
+  const m=mapOf(d);let spot=null;
+  if(m){const dc={};ds.forEach(x=>{if(x.death[6]!=null){const c=callout(m,x.death[6],x.death[7]);if(c){(dc[c]=dc[c]||[]).push(x.ri)}}});
+    const w=Object.entries(dc).sort((a,b)=>b[1].length-a[1].length)[0];if(w&&w[1].length>=3)spot={c:w[0],r:w[1]}}
+  const lob=lobbyTrade(d),myT=ds.length?(ds.length-untr.length)/ds.length*100:null;
+  const out={p,R,n,lob,myT,role:AG_ROLE[p.ag]||'?',ds,untr,alone,empty,early,fds,fbs,save,force,sniperCheap,mis,spot,
+    kast:R.filter(x=>x.kast).length/n*100,tradeK:R.reduce((s,x)=>s+x.tradeK,0),
+    multi:R.filter(x=>x.kills.length>=3),clutchW:R.filter(x=>x.clutch&&x.win),win:d.teams[p.tm]&&d.teams[p.tm][2]};
+  COACH_CACHE[key]=out;return out;
+}
+function lobbyTrade(d){const c='lob:'+d.id;if(COACH_CACHE[c]!=null)return COACH_CACHE[c];let D=0,T=0;
+  d.rounds.forEach(r=>r.ev.forEach(e=>{const v=d.players[e[2]];if(!v||e[1]==null)return;D++;
+    if(r.ev.some(x=>x[2]===e[1]&&x[1]!=null&&d.players[x[1]].tm===v.tm&&x[0]>=e[0]&&x[0]-e[0]<=5))T++}));
+  return COACH_CACHE[c]=D?Math.round(T/D*100):null}
+// historie: welke matches van deze vriend (nieuwste eerst)
+function coachHist(fk){
+  return Object.values(DATA.details).map(d=>{const i=d.players.findIndex(q=>q.fk===fk);return i>=0?{d,i}:null}).filter(Boolean)
+    .sort((a,b)=>new Date(b.d.date)-new Date(a.d.date));
+}
+function fbfdWin(fk){
+  const c='fbfd:'+fk;if(COACH_CACHE[c])return COACH_CACHE[c];
+  let fb=[0,0],fd=[0,0];coachHist(fk).forEach(({d,i})=>{const tm=d.players[i].tm;d.rounds.forEach(r=>{if(!r.ev[0])return;const w=r.w===tm;
+    if(r.ev[0][1]===i){fb[0]+=w;fb[1]++}if(r.ev[0][2]===i){fd[0]+=w;fd[1]++}})});
+  return COACH_CACHE[c]={fb:fb[1]>=10?Math.round(fb[0]/fb[1]*100):null,fd:fd[1]>=10?Math.round(fd[0]/fd[1]*100):null};
+}
+// detectors: geeft {sev,val} of null. val = de meetwaarde voor de huiswerk-check
+const ISSUES={
+  untraded:{nm:'Deaths die niets opleverden',test:M=>{const r=M.untr.length/Math.max(1,M.ds.length);return M.ds.length>=8&&M.lob!=null&&M.myT<=M.lob-8?{sev:14+(M.lob-M.myT)*0.8,val:M.ds.length-M.untr.length,txt:`${M.ds.length-M.untr.length} van ${M.ds.length} getrade`}:null}},
+  firstdeath:{nm:'Te vaak als eerste neer',test:M=>{const lim=M.role==='D'?4:3,ex=M.fds.length-M.fbs.length;
+    const trd=M.fds.filter(x=>x.traded).length;if(M.fds.length>=lim&&ex>=(M.role==='D'?2:1)&&!(M.role==='D'&&trd>=M.fds.length/2))return {sev:16+ex*4,val:M.fds.length,txt:`${M.fds.length} first deaths`};return null}},
+  early:{nm:'Vroeg in de ronde dood',test:M=>M.early.length>=3&&M.early.length/Math.max(1,M.ds.length)>=0.3?{sev:12+M.early.length*3,val:M.early.length,txt:`${M.early.length} keer binnen 20 seconden`}:null},
+  spot:{nm:'Steeds op dezelfde plek dood',test:M=>M.spot?{sev:10+M.spot.r.length*4,val:M.spot.r.length,txt:`${M.spot.r.length} keer in ${M.spot.c}`}:null},
+  save:{nm:'Wapen weggegooid in verloren rondes',test:M=>M.save.length>=2?{sev:10+M.save.length*5,val:M.save.length,txt:`${M.save.length} keer`}:null},
+  eco:{nm:'Koopgedrag',test:M=>{const x=Math.max(M.mis.length,M.force.length,M.sniperCheap.length*1.5);return x>=2?{sev:9+x*3,val:M.mis.length+M.force.length,txt:`${M.mis.length+M.force.length} slechte buys`}:null}},
+  kast:{nm:'Te weinig rondes met impact',test:M=>{const b=ROLE_KAST[M.role];if(!b)return null;const gap=b[0]-M.kast;return gap>=5?{sev:8+gap,val:Math.round(M.kast),txt:`KAST ${Math.round(M.kast)}%`}:null}},
+};
+function issueHTML(key,M,fk){
+  const r=ROLE_NM[M.role]||'speler',ag=M.p.ag,W=fbfdWin(fk);
+  const why=W.fb!=null&&W.fd!=null?`In jullie eigen potjes win je <b>${W.fb}%</b> van de rondes waarin jij de first blood pakt, maar maar <b>${W.fd}%</b> als jij als eerste sterft.`:'Elke death zonder trade betekent dat je team de rest van de ronde met een man minder speelt.';
+  const L=(t,c)=>`<div class="co-l"><span>${t}</span><div>${c}</div></div>`;
+  switch(key){
+    case 'untraded':{const al=M.alone.map(x=>x.ri);return {
+      what:`<b>${M.untr.length} van je ${M.ds.length} deaths</b> werden niet getrade. In deze lobby werd gemiddeld <b>${M.lob}%</b> van de deaths getrade, bij jou ${Math.round(M.myT)}%${al.length?`. In ${al.length} daarvan stond er niemand binnen 15 meter (ronde ${fmtR(al)})`:''}.`,
+      why,
+      todo:{D:`Als ${ag} maak je ruimte, maar alleen als er iemand achter je aan komt. Wacht op de flash of smoke van je team en vraag om een trade voordat je erin gaat.`,
+        I:`Gebruik eerst je info-utility en peek daarna samen met een teamgenoot, niet in je eentje.`,
+        C:`Als ${ag} ben je te waardevol om alleen te sterven: zonder jou zijn er geen smokes meer. Blijf een stap achter de entry en trade hem.`,
+        S:`Als ${ag} speel je achter of naast het team. Neem pas een duel als een teamgenoot binnen schootsafstand staat en jou kan traden.`}[M.role]||'Blijf dicht bij een teamgenoot.',
+      goal:`Minstens ${M.lob}% van je deaths getrade, net als de lobby (nu ${Math.round(M.myT)}%).`}}
+    case 'firstdeath':return {
+      what:`<b>${M.fds.length} keer als eerste neer</b> (ronde ${fmtR(M.fds.map(x=>x.ri))}), tegenover ${M.fbs.length} first blood${M.fbs.length===1?'':'s'}. ${M.fds.filter(x=>x.traded).length} daarvan werden getrade.`,
+      why,
+      todo:M.role==='D'?`First deaths horen bij een ${r}, maar dan moet je getrade worden. Ga niet droog: flash, dash of smoke eerst, en zorg dat er een tweede speler direct achter je zit.`:`Als ${r} hoor je niet het eerste contact te maken. Laat de duelist of je utility de eerste info geven, en hou de hoeken die al gecleard zijn.`,
+      goal:`Maximaal ${Math.max(1,Math.floor(M.fds.length/2))} first deaths, of minstens de helft ervan getrade.`};
+    case 'early':return {
+      what:`<b>${M.early.length} van je ${M.ds.length} deaths</b> vielen in de eerste 20 seconden (ronde ${fmtR(M.early.map(x=>x.ri))}).`,
+      why:`Vroeg in de ronde weet je nog niets. Een death dan geeft de tegenstander gratis een numeriek voordeel en vaak je wapen.`,
+      todo:`Peek in het begin geen lange hoeken zonder info. Wacht op een call, utility of geluid, en kies een hoek waar je na één schot weg kunt.`,
+      goal:`Maximaal 1 death in de eerste 20 seconden.`};
+    case 'spot':return {
+      what:`Je ging <b>${M.spot.r.length} keer dood in ${M.spot.c}</b> (ronde ${fmtR(M.spot.r)}).`,
+      why:`De tegenstander leert snel. Wie daar één keer wint, zet zijn crosshair de volgende ronde al op jouw hoofdhoogte.`,
+      todo:`Na één keer sterven op een plek: wissel van hoek, kom later of eerder, of gooi daar eerst utility. Op defense mag je ook een andere positie spelen.`,
+      goal:`Nooit meer dan 2 keer op dezelfde plek dood.`};
+    case 'save':return {
+      what:`In ronde ${fmtR(M.save.map(x=>x.ri))} ging je met een full buy dood terwijl de ronde al verloren was (jij plus hooguit één teamgenoot tegen ${Math.max(...M.save.map(x=>x.foes))} of meer).`,
+      why:`Een bewaard wapen scheelt de volgende ronde ¤2.900 of meer. Zo kan je team weer volledig kopen.`,
+      todo:`Zie je dat je met 1 of 2 tegen 4 staat en de spike ligt er niet voor jou? Verstop je en bewaar je wapen, en zeg het tegen je team.`,
+      goal:`Geen enkele full buy meer weggeven in een verloren ronde.`};
+    case 'eco':{const parts=[];if(M.mis.length)parts.push(`in ronde ${fmtR(M.mis.map(x=>x.ri))} kocht je anders dan je vrienden (de een full, de ander spaarde)`);
+      if(M.sniperCheap.length)parts.push(`in ronde ${fmtR(M.sniperCheap.map(x=>x.ri))} kocht je een ${M.sniperCheap[0].eco[1]} zonder genoeg geld voor armor en utility`);
+      else if(M.force.length)parts.push(`${M.force.length} force buys gingen verloren (ronde ${fmtR(M.force.map(x=>x.ri))})`);
+      return {what:parts.map(s=>s[0].toUpperCase()+s.slice(1)).join('. ')+'. Al die rondes gingen verloren.',
+      why:`Een team dat half koopt en half spaart verliest bijna altijd. Na een verloren pistol is samen sparen in ronde 2 en full kopen in ronde 3 de standaard.`,
+      todo:`Spreek voor elke ronde af: kopen, sparen of forcen, en doe dat samen. Wil je forcen, koop dan een Spectre of Stinger met armor in plaats van een sniper.`,
+      goal:`Geen enkele ronde meer waarin jullie verschillend kopen.`}}
+    case 'kast':{const b=ROLE_KAST[M.role];return {
+      what:`KAST van <b>${Math.round(M.kast)}%</b>. Voor een ${r} is ${b[0]}% of hoger goed.`,
+      why:`KAST telt in hoeveel rondes je iets bijdroeg. Het is een van de beste voorspellers van winnen, beter dan je kills.`,
+      todo:{D:`Je hoeft niet elke ronde te fraggen, maar zorg dat je death altijd iets oplevert: info, schade of een trade.`,I:`Gebruik je flashes en recon voor je teamgenoten. Elke assist telt mee.`,C:`Overleven is jouw belangrijkste bijdrage: blijf achter, smoke en speel voor de trade.`,S:`Blijf leven en hou je flank. Een overleefde ronde telt ook.`}[M.role],
+      goal:`KAST van ${b[0]}% of hoger.`}}
+  }
+}
+const GOODS=[
+  M=>M.multi.length?{sev:14+M.multi.length*6,html:`<b>${M.multi.length} ${M.multi.length>1?'rondes':'ronde'} met 3 of meer kills</b> (ronde ${fmtR(M.multi.map(x=>x.ri))}).`,keep:'Kijk waarom dat lukte: welke hoek, welke utility, welke timing. Dat wil je vaker opzoeken.'}:null,
+  M=>M.clutchW.length?{sev:22,html:`<b>Clutch gewonnen</b>: 1 tegen ${Math.max(...M.clutchW.map(x=>x.clutch))} in ronde ${fmtR(M.clutchW.map(x=>x.ri))}.`,keep:'Rustig blijven en één duel tegelijk nemen. Precies goed.'}:null,
+  M=>M.tradeK>=3?{sev:10+M.tradeK*3,html:`<b>${M.tradeK} trade-kills</b>: je stond dichtbij genoeg om je teamgenoten te wreken.`,keep:M.role==='D'?'Zo maak je als duelist het verschil, ook als je niet als eerste gaat.':'Dit is precies wat je rol vraagt. Blijf zo spelen.'}:null,
+  M=>M.fbs.length-M.fds.length>=2?{sev:12+(M.fbs.length-M.fds.length)*4,html:`Je won de openingsduels: <b>${M.fbs.length} first bloods</b> tegenover ${M.fds.length} first death${M.fds.length===1?'':'s'}.`,keep:'Jullie team won daardoor veel rondes met 5 tegen 4.'}:null,
+  M=>{const b=ROLE_KAST[M.role];return b&&M.kast>=b[1]+8?{sev:12,html:`KAST van <b>${Math.round(M.kast)}%</b>, sterk voor een ${ROLE_NM[M.role]}.`,keep:'Je droeg in bijna elke ronde iets bij.'}:null},
+  M=>M.ds.length>=8&&M.lob!=null&&M.myT>=M.lob+12?{sev:12,html:`<b>${M.ds.length-M.untr.length} van je ${M.ds.length} deaths</b> werden getrade, ruim boven de lobby (${M.lob}%).`,keep:'Je speelde dicht bij je team, zodat je death meteen werd beantwoord.'}:null,
+];
+function coachEval(d,fi){
+  const fk=d.players[fi].fk,M=coachMetrics(d,fi);
+  const hist=coachHist(fk),pos=hist.findIndex(h=>h.d.id===d.id),prev=hist.slice(pos+1,pos+11);
+  const issues=Object.entries(ISSUES).map(([k,I])=>{const t=I.test(M);if(!t)return null;
+    const rep=prev.filter(h=>I.test(coachMetrics(h.d,h.i))).length;return {k,...t,rep,sev:t.sev*(rep>=4?1.35:rep>=2?1.15:1)}}).filter(Boolean).sort((a,b)=>b.sev-a.sev);
+  const goods=GOODS.map(g=>g(M)).filter(Boolean).sort((a,b)=>b.sev-a.sev).slice(0,2);
+  return {M,issues,goods,prev,fk};
+}
+function coachBlock(d,f){
+  const E=coachEval(d,f.i),M=E.M,col=colorOf(f.fk),top=E.issues[0],more=E.issues.slice(1,3);
+  let h=`<div class="panel co" style="--pc:${col}"><div class="co-h"><b style="color:${col}">${f.n}</b><span>${f.ag} · ${ROLE_NM[M.role]||''} · ${f.k}/${f.d}/${f.a}</span></div>`;
+  if(top){const x=issueHTML(top.k,M,E.fk);
+    h+=`<div class="co-focus"><div class="co-tag">Focuspunt</div><div class="co-t">${ISSUES[top.k].nm}</div>
+      <p>${x.what}</p>${top.rep>=2?`<p class="co-rep">Dit kwam ook terug in <b>${top.rep} van je laatste ${E.prev.length}</b> potjes.</p>`:''}
+      <div class="co-l"><span>Waarom</span><div>${x.why}</div></div>
+      <div class="co-l"><span>Volgende keer</span><div>${x.todo}</div></div>
+      <div class="co-goal"><span>Doel</span>${x.goal}</div></div>`}
+  if(more.length)h+=`<div class="co-sub">Ook letten op</div>`+more.map(i=>{const x=issueHTML(i.k,M,E.fk);return `<div class="co-item bad"><b>${ISSUES[i.k].nm}.</b> ${x.what} <span class="co-do">${x.todo}</span></div>`}).join('');
+  if(E.goods.length)h+=`<div class="co-sub">Ging goed</div>`+E.goods.map(g=>`<div class="co-item good">${g.html} <span class="co-do">${g.keep}</span></div>`).join('');
+  // huiswerk-check
+  const pv=E.prev[0];if(pv){const P=coachEval(pv.d,pv.i),pt=P.issues[0];if(pt){const now=ISSUES[pt.k].test(M);
+    const thenTxt=pt.txt,better=!now||(pt.k==='untraded'||pt.k==='kast'?now.val>pt.val:now.val<pt.val);
+    h+=`<div class="co-hw ${better?'up':'down'}"><span>Huiswerk van vorig potje</span><div><b>${ISSUES[pt.k].nm}</b> (${pv.d.map}): toen ${thenTxt}, nu ${now?now.txt:'geen probleem meer'}. ${better?'Dat gaat beter.':'Nog niet beter, blijf hierop letten.'}</div></div>`}}
+  if(!top&&!E.goods.length)h+=`<p style="color:var(--mute);margin-top:8px">Een degelijk potje zonder duidelijke uitschieters.</p>`;
+  return h+`</div>`;
+}
+function matchFeedbackHTML(d,F){
+  return `<section><h2>Coach-feedback</h2><p class="lead">Per speler één focuspunt met de oorzaak en wat je volgende keer anders doet. Beoordeeld tegen je rol en je eigen laatste 10 potjes.</p><div class="g2" style="grid-template-columns:repeat(${Math.min(F.length,3)},minmax(0,1fr))">${F.map(f=>coachBlock(d,f)).join('')}</div></section>`;
+}
+(function(){document.head.insertAdjacentHTML('beforeend',`<style>
+.co-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:12px}.co-h b{font-size:20px;font-weight:700;letter-spacing:-.02em}.co-h span{color:var(--mute);font-size:13px}
+.co-focus{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.co-tag{display:inline-block;font-size:11.5px;font-weight:600;color:#09090b;background:var(--pc);border-radius:99px;padding:2px 10px}
+.co-t{font-size:17px;font-weight:700;letter-spacing:-.01em;margin:8px 0 6px}
+.co-focus p{font-size:14.5px;line-height:1.55;color:#e4e4e7}.co-rep{color:#fbbf24 !important;font-size:13.5px !important;margin-top:6px}
+.co-l{display:grid;grid-template-columns:104px 1fr;gap:10px;margin-top:10px;font-size:14px;line-height:1.55;color:#d4d4d8}.co-l span{color:var(--mute);font-size:12.5px;padding-top:1px}
+.co-goal{margin-top:12px;padding:9px 12px;border-radius:10px;background:color-mix(in srgb,var(--pc) 12%,transparent);font-size:14px}.co-goal span{font-weight:600;margin-right:8px;color:var(--pc)}
+.co-sub{font-size:12.5px;color:var(--mute);margin:16px 0 6px;font-weight:500}
+.co-item{font-size:14px;line-height:1.5;padding:9px 12px;border-radius:10px;margin:6px 0;background:rgba(255,255,255,.03);position:relative;padding-left:16px}
+.co-item:before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0}
+.co-item.bad:before{background:var(--loss)}.co-item.good:before{background:var(--win)}
+.co-do{display:block;color:var(--mute);font-size:13px;margin-top:3px}
+.co-hw{margin-top:14px;border-top:1px solid var(--line);padding-top:12px;font-size:13.5px;line-height:1.5;color:#d4d4d8}.co-hw span{display:block;font-size:12.5px;color:var(--mute);margin-bottom:3px}
+.co-hw.up b{color:var(--win)}.co-hw.down b{color:#fbbf24}
+@media(max-width:820px){.co-l{grid-template-columns:1fr;gap:2px}}
+</style>`)})();
+// ================= VIDEO-ANALYSE =================
+const VTAG={crosshair_low:['Crosshair te laag','Richtkruis niet op hoofdhoogte toen de vijand verscheen'],
+  no_shots:['Dood zonder te schieten','Verrast, nog voordat je kon reageren'],
+  low_hp:['Gevochten met weinig HP','Duel genomen met minder dan 60 HP'],
+  ability_under_fire:['Ability onder vuur','Healen of reviven terwijl er nog op je geschoten werd'],
+  alone:['Alleen','Geen teamgenoot in de buurt'],early:['Vroeg','In de eerste 20 seconden van de ronde'],
+  aim:['Duel verloren','Een eerlijk duel dat je niet won'],reload:['Herladen in gevecht','Herladen of van wapen wisselen midden in een duel'],
+  could_save:['Had kunnen saven','Full buy weggegeven in een verloren ronde'],repeek:['Zelfde hoek opnieuw gepeekt','Na een duel dezelfde hoek nog een keer gepeekt'],clutch:['Clutch verloren','Laatste man en het duel verloren'],wrong_angle:['Verkeerde hoek','Je keek een andere kant op dan waar de vijand kwam'],knife_out:['Mes in de hand','Geen wapen klaar op het moment van contact'],flashed:['Geflasht','Verblind door een vijandelijke flash'],self_flash:['Zichzelf geflasht','Verblind door de eigen flash'],wrong_weapon:['Verkeerd wapen','Wapen dat niet past bij de afstand'],utility_damage:['Door utility','Schade van een molly of andere ability']};
+function vidFor(d,fk){return DATA.video&&DATA.video[d.id]&&DATA.video[d.id][fk]}
+function videoMatchHTML(d,F){
+  const rows=F.map(f=>({f,v:vidFor(d,f.fk)})).filter(x=>x.v);if(!rows.length)return '';
+  return `<section><h2>Video-analyse</h2><p class="lead">Uit de opname van deze match: wat er gebeurde vlak voor elke death.</p>`+rows.map(({f,v})=>{
+    const col=colorOf(f.fk),cnt={};v.deaths.forEach(x=>x.tags.forEach(t=>cnt[t]=(cnt[t]||0)+1));
+    const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,4);
+    return `<div class="panel co" style="--pc:${col};margin-bottom:14px"><div class="co-h"><b style="color:${col}">${f.n}</b><span>${f.ag} · ${v.deaths.length} deaths bekeken · ${v.source||''}</span></div>${v.self_flash!=null?`<div class="vd-flash"><b>${v.self_flash}x</b> zichzelf geflasht in deze match${v.partial?' (in de opgenomen rondes)':''}</div>`:''}${v.note?`<p style="color:var(--mute);font-size:13.5px;margin:0 0 10px">${v.note}</p>`:''}
+      <div class="co-focus"><div class="co-tag">Focuspunt uit de video</div><div class="co-t">${v.focus.title}</div><p>${v.focus.what}</p>
+        <div class="co-l"><span>Volgende keer</span><div>${v.focus.todo}</div></div><div class="co-goal"><span>Doel</span>${v.focus.goal}</div></div>
+      <div class="vd-chips">${top.map(([t,n])=>`<span><b>${n}x</b> ${VTAG[t]?VTAG[t][0]:t}</span>`).join('')}</div>
+      <div class="co-sub">Elke death</div>
+      <div class="vd-list">${v.deaths.map(x=>`<div class="vd-row"><div class="vd-r">R${x.r}</div><div><div class="vd-tags">${x.tags.map(t=>`<span>${VTAG[t]?VTAG[t][0]:t}</span>`).join('')}<em>${x.wpn} · ${x.hp} HP</em></div><div>${x.text}</div><div class="co-do">${x.tip}</div></div></div>`).join('')}</div>
+      ${v.good&&v.good.length?`<div class="co-sub">Ging goed</div>`+v.good.map(g=>`<div class="co-item good">${g}</div>`).join(''):''}
+    </div>`}).join('')+`</section>`;
+}
+function videoStatsHTML(){
+  if(!DATA.video)return '';
+  const P=DATA.players.map(p=>{const ms=[];Object.entries(DATA.video).forEach(([id,o])=>{if(o[p.key])ms.push({id,v:o[p.key]})});return {p,ms}}).filter(x=>x.ms.length);
+  if(!P.length)return '';
+  return `<section><h2>Uit video-analyse</h2><p class="lead">Patronen uit de opgenomen matches. Hoe meer matches er zijn opgenomen, hoe betrouwbaarder.</p><div class="g2" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr))">`+P.map(({p,ms})=>{
+    const D=ms.flatMap(m=>m.v.deaths),n=D.length,cnt={};D.forEach(x=>x.tags.forEach(t=>cnt[t]=(cnt[t]||0)+1));
+    const rows=(DATA.matches[p.key]||[]).filter(r=>ms.some(m=>m.id===r.match));const sh=rows.reduce((s,r)=>s+r.hs+r.bs+r.ls,0),hs=sh?Math.round(rows.reduce((s,r)=>s+r.hs,0)/sh*100):null;
+    const lines=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).map(([t,c])=>{const pc=Math.round(c/n*100);return `<div class="vd-bar"><div><b>${VTAG[t]?VTAG[t][0]:t}</b><span>${VTAG[t]?VTAG[t][1]:''}</span></div><div class="vd-num">${pc}%<small>${c} van ${n}</small></div><i><u style="width:${pc}%;background:${p.color}"></u></i></div>`}).join('');
+    const sf=ms.reduce((t,m)=>t+(m.v.self_flash||0),0),sfn=ms.filter(m=>m.v.self_flash!=null).length;
+    return `<div class="panel" style="border-top:3px solid ${p.color}"><h3 style="color:${p.color}">${p.name}</h3>${sfn?`<div class="vd-flash big"><b>${sf}x</b> zichzelf geflasht<small>in ${sfn} opgenomen ${sfn>1?'matches':'match'}</small></div>`:''}<div style="color:var(--mute);font-size:13px;margin:2px 0 12px">${ms.length} ${ms.length>1?'matches':'match'} opgenomen · ${n} deaths bekeken${hs!=null?` · ${hs}% headshots in die matches`:''}</div>${lines}</div>`}).join('')+`</div></section>`;
+}
+(function(){document.head.insertAdjacentHTML('beforeend',`<style>
+.vd-flash{display:inline-flex;align-items:baseline;gap:6px;margin:0 0 12px;padding:6px 12px;border-radius:10px;background:rgba(245,196,81,.12);color:#fde68a;font-size:13.5px}.vd-flash b{font-size:17px;color:#f5c451}.vd-flash.big{display:flex;flex-wrap:wrap}.vd-flash.big b{font-size:26px}.vd-flash small{width:100%;color:var(--mute);font-size:12px}
+.vd-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}.vd-chips span{font-size:12.5px;padding:4px 10px;border-radius:99px;background:rgba(255,255,255,.05);border:1px solid var(--line)}.vd-chips b{color:var(--pc)}
+.vd-list{display:flex;flex-direction:column;gap:6px}
+.vd-row{display:grid;grid-template-columns:42px 1fr;gap:10px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.03);font-size:14px;line-height:1.5}
+.vd-r{font-weight:700;color:var(--mute);font-size:13px;padding-top:2px}
+.vd-tags{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-bottom:3px}.vd-tags span{font-size:11.5px;font-weight:600;padding:1px 8px;border-radius:99px;background:rgba(251,113,133,.12);color:#fda4af}.vd-tags em{font-style:normal;font-size:12px;color:var(--mute)}
+.vd-bar{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.vd-bar b{display:block;font-size:14px;font-weight:600}.vd-bar span{font-size:12.5px;color:var(--mute)}
+.vd-num{text-align:right;font-weight:700;font-size:18px}.vd-num small{display:block;font-size:11.5px;font-weight:400;color:var(--mute)}
+.vd-bar i{grid-column:1/-1;height:5px;border-radius:9px;background:rgba(255,255,255,.07);display:block}.vd-bar u{display:block;height:5px;border-radius:9px}
+</style>`)})();
 </script>
 </body>
 </html>

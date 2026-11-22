@@ -1695,7 +1695,7 @@ const VTAG={crosshair_low:['Crosshair te laag','Richtkruis niet op hoofdhoogte t
   ability_under_fire:['Ability onder vuur','Healen of reviven terwijl er nog op je geschoten werd'],
   alone:['Alleen','Geen teamgenoot in de buurt'],early:['Vroeg','In de eerste 20 seconden van de ronde'],
   aim:['Duel verloren','Een eerlijk duel dat je niet won'],reload:['Herladen in gevecht','Herladen of van wapen wisselen midden in een duel'],
-  could_save:['Had kunnen saven','Full buy weggegeven in een verloren ronde'],utility_damage:['Door utility','Schade van een molly of andere ability']};
+  could_save:['Had kunnen saven','Full buy weggegeven in een verloren ronde'],repeek:['Zelfde hoek opnieuw gepeekt','Na een duel dezelfde hoek nog een keer gepeekt'],clutch:['Clutch verloren','Laatste man en het duel verloren'],wrong_angle:['Verkeerde hoek','Je keek een andere kant op dan waar de vijand kwam'],utility_damage:['Door utility','Schade van een molly of andere ability']};
 function vidFor(d,fk){return DATA.video&&DATA.video[d.id]&&DATA.video[d.id][fk]}
 function videoMatchHTML(d,F){
   const rows=F.map(f=>({f,v:vidFor(d,f.fk)})).filter(x=>x.v);if(!rows.length)return '';

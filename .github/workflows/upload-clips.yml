@@ -14,4 +14,5 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release view clips >/dev/null 2>&1 || gh release create clips --title "Clips" --notes "Highlights en compilaties voor de Squad Tracker" --latest=false
-          gh release upload clips clips/*.mp4 --clobber
+          if ls clips/*.mp4 >/dev/null 2>&1; then gh release upload clips clips/*.mp4 --clobber; fi
+          if [ -f clips/delete.txt ]; then while read -r f; do [ -n "$f" ] && gh release delete-asset clips "$f" -y || true; done < clips/delete.txt; fi

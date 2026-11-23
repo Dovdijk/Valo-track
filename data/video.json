@@ -77,13 +77,12 @@
     {
      "r": 10,
      "tags": [
-      "low_hp",
       "utility_damage"
      ],
-     "hp": 33,
+     "hp": 100,
      "wpn": "Vandal",
-     "text": "Op A Site door de molly van de Phoenix gelopen. Met 33 HP verder gevochten.",
-     "tip": "Loop om een molly heen of wacht tot hij uit is. Elke HP telt in het volgende duel."
+     "text": "Op A Site door de molly van de Phoenix gelopen en daarna gestorven.",
+     "tip": "Loop om een molly heen of wacht tot hij uit is."
     },
     {
      "r": 11,
@@ -109,12 +108,12 @@
     {
      "r": 14,
      "tags": [
-      "low_hp"
+      "aim"
      ],
-     "hp": 24,
+     "hp": 100,
      "wpn": "Classic",
-     "text": "Met 24 HP op A Main langs je eigen wall gepeekt in een eco-ronde.",
-     "tip": "Onder de 60 HP eerst terug en healen. Als Sage kan dat."
+     "text": "Eco-ronde: op A Main langs je eigen wall gepeekt met een Classic en het duel verloren.",
+     "tip": "Op een eco speel je achter je wall voor één kill, niet eromheen."
     },
     {
      "r": 16,
@@ -151,7 +150,7 @@
    "source": "OBS-opname, hele match",
    "focus": {
     "title": "Dezelfde hoek opnieuw peeken",
-    "what": "In ronde 7, 8 en 19 nam je een duel, kwam je terug achter dekking en peekte je daarna precies dezelfde hoek opnieuw. De tegenstander wist dan waar je zou verschijnen en had zijn crosshair al klaar. In ronde 7 deed je dat zelfs met nog 1 kogel in je Vandal.",
+    "what": "In ronde 7, 8 en 19 nam je een duel, kwam je terug achter dekking en peekte je daarna precies dezelfde hoek opnieuw. De tegenstander wist dan waar je zou verschijnen en had zijn crosshair al klaar. In ronde 7 deed je dat zelfs met nog 2 kogels in je Vandal.",
     "todo": "Na een duel: verplaats je, wissel van hoek of wacht op utility of een teamgenoot. Herlaad achter dekking voordat je opnieuw peekt. Twee keer dezelfde hoek is meestal één keer te veel.",
     "goal": "Geen enkele death meer na het opnieuw peeken van dezelfde hoek."
    },
@@ -195,7 +194,7 @@
      ],
      "hp": 100,
      "wpn": "Vandal",
-     "text": "A Link: eerst op de Jett geschoten, daarna steeds dezelfde deuropening opnieuw gepeekt. Je stierf met 1 kogel over zonder te herladen.",
+     "text": "A Link: eerst op de Jett geschoten, daarna steeds dezelfde deuropening opnieuw gepeekt. Je stierf met nog 2 kogels zonder te herladen.",
      "tip": "Herlaad achter dekking en peek daarna een andere hoek."
     },
     {
@@ -314,7 +313,7 @@
    ],
    "good": [
     "Headshots van 9% naar 13% (7 van 56). Nog niet je doel van 15%, maar het gaat de goede kant op.",
-    "Je vocht maar één keer met weinig HP, tegenover vier keer vorige match.",
+    "Je vocht maar één keer met weinig HP, tegenover twee keer vorige match.",
     "45 abilities en 2 keer je ult. Ronde 3 tot en met 5 achter elkaar gewonnen."
    ]
   }
@@ -325,7 +324,7 @@
    "source": "OBS-opname, hele match",
    "focus": {
     "title": "Clutches als laatste man",
-    "what": "Je was in 5 rondes de laatste levende speler van je team (ronde 4, 5, 9, 10 en 14) en verloor ze alle vijf. In je vorige match ging dat ook 3 keer mis. In ronde 5 en 9 liep je naar het geluid toe in plaats van één hoek vast te houden.",
+    "what": "Je was in 3 rondes de laatste levende speler van je team (ronde 4, 9 en 14) en verloor ze alle drie. In Haven ging dat ook 3 keer mis. In ronde 9 liep je naar het geluid toe in plaats van één hoek vast te houden.",
     "todo": "Kies in een clutch één goede hoek, kijk eerst naar de minimap en luister. Laat de tijd voor je werken: na de plant moeten zij naar jou toe komen. Is het 1 tegen 3 of meer met een full buy, bewaar dan je wapen.",
     "goal": "Minstens één clutch winnen, of je wapen bewaren als het niet te winnen is."
    },
@@ -354,11 +353,11 @@
     {
      "r": 5,
      "tags": [
-      "clutch"
+      "aim"
      ],
      "hp": 100,
      "wpn": "Vandal",
-     "text": "1 tegen 1: achter de box gewacht, maar de Sage kwam van de kant die je niet in de gaten hield.",
+     "text": "Op 2 tegen 1 achter de box gewacht, maar de Sage kwam van de kant die je niet in de gaten hield.",
      "tip": "Kijk op de minimap waar je laatst geluid hoorde en hou die kant vast."
     },
     {
@@ -383,13 +382,11 @@
     },
     {
      "r": 8,
-     "tags": [
-      "ability_under_fire"
-     ],
+     "tags": [],
      "hp": 100,
      "wpn": "Vandal",
-     "text": "Na de plant 2 tegen 1: eerst een teamgenoot gehealed en een wall gezet, daarna door de Sage gepakt.",
-     "tip": "In een 2v1 eerst samen de laatste vijand zoeken, daarna pas healen."
+     "text": "Na de plant 2 tegen 1 op A gestorven tegen de Sage.",
+     "tip": "In een 2v1 eerst samen de laatste vijand zoeken."
     },
     {
      "r": 9,
@@ -398,17 +395,17 @@
      ],
      "hp": 89,
      "wpn": "Vandal",
-     "text": "1 tegen 2 op B: naar het geluid toe gelopen en de Sage met de Guardian won het duel.",
-     "tip": "In een 1v2 laat je hen komen. Twee tegelijk peeken is bijna altijd verlies."
+     "text": "1 tegen 3 op B: naar het geluid toe gelopen en de Sage met de Guardian won het duel.",
+     "tip": "In een 1v3 laat je hen komen. Meerdere tegenstanders tegelijk peeken is bijna altijd verlies."
     },
     {
      "r": 10,
      "tags": [
-      "clutch"
+      "wrong_angle"
      ],
      "hp": 100,
      "wpn": "Vandal",
-     "text": "1 tegen 2: door een smoke geschoten en daarna van opzij gepakt door de Clove.",
+     "text": "2 tegen 2: door een smoke geschoten en daarna van opzij gepakt door de Clove.",
      "tip": "Na een schot door smoke weten ze waar je bent. Verplaats je meteen."
     },
     {

@@ -4,148 +4,32 @@
   {
    "match": "3c8793d2-5e2d-4a3b-9bb7-c16d7ffc615a",
    "player": "marciebeur#euw",
-   "round": 18,
-   "kind": "3K",
+   "round": 12,
+   "kind": "Clutch 1v1",
    "win": true,
-   "note": "",
+   "note": "gewonnen, daarna gedefused",
    "kills": [
     [
-     "Xymah",
-     "Vandal",
-     47.2
+     "meow brev",
+     "Phantom",
+     40.1
     ],
     [
      "IFL BadRed92",
-     "Vandal",
-     55.8
-    ],
-    [
-     "meow brev",
-     "Vandal",
-     57.4
+     "Phantom",
+     69.7
     ]
    ],
-   "file": "Sunset_R18_marciebeur_3K.mp4",
-   "slomo": "Sunset_R18_marciebeur_3K_slomo.mp4",
+   "file": "Sunset_R12_marciebeur_clutch.mp4",
+   "slomo": "Sunset_R12_marciebeur_clutch_slomo.mp4",
    "len": 18,
-   "thumb": "clips/thumbs/Sunset_R18_marciebeur_3K.jpg"
-  },
-  {
-   "match": "86a24cbf-8215-4b2c-8497-3b692a695e22",
-   "player": "marciebeur#euw",
-   "round": 17,
-   "kind": "3K",
-   "win": true,
-   "note": "",
-   "kills": [
-    [
-     "PakSher",
-     "Vandal",
-     18.9
-    ],
-    [
-     "Damon Salvatore",
-     "Vandal",
-     82.9
-    ],
-    [
-     "sorry",
-     "Vandal",
-     93.8
-    ]
-   ],
-   "file": "Lotus_R17_marciebeur_3K.mp4",
-   "slomo": "Lotus_R17_marciebeur_3K_slomo.mp4",
-   "len": 83,
-   "thumb": "clips/thumbs/Lotus_R17_marciebeur_3K.jpg"
-  },
-  {
-   "match": "86a24cbf-8215-4b2c-8497-3b692a695e22",
-   "player": "marciebeur#euw",
-   "round": 18,
-   "kind": "Clutch 1v2",
-   "win": true,
-   "note": "",
-   "kills": [
-    [
-     "EDi SHQiPE10",
-     "Vandal",
-     44.5
-    ]
-   ],
-   "file": "Lotus_R18_marciebeur_Clutch1v2.mp4",
-   "slomo": "Lotus_R18_marciebeur_Clutch1v2_slomo.mp4",
-   "len": 8,
-   "thumb": "clips/thumbs/Lotus_R18_marciebeur_Clutch1v2.jpg"
-  },
-  {
-   "match": "86a24cbf-8215-4b2c-8497-3b692a695e22",
-   "player": "dennisvg#3745",
-   "round": 3,
-   "kind": "3K",
-   "win": true,
-   "note": "",
-   "kills": [
-    [
-     "sorry",
-     "Phantom",
-     24.5
-    ],
-    [
-     "PakSher",
-     "Phantom",
-     35.6
-    ],
-    [
-     "the cursed one",
-     "Phantom",
-     45.8
-    ]
-   ],
-   "file": "Lotus_R3_dennisvg_3K.mp4",
-   "slomo": "Lotus_R3_dennisvg_3K_slomo.mp4",
-   "len": 29,
-   "thumb": "clips/thumbs/Lotus_R3_dennisvg_3K.jpg"
-  },
-  {
-   "match": "b3c53113-80ad-4210-85e0-cbed8e169934",
-   "player": "marciebeur#euw",
-   "round": 22,
-   "kind": "4K",
-   "win": true,
-   "note": "",
-   "kills": [
-    [
-     "PixaDoctor",
-     "Vandal",
-     45.6
-    ],
-    [
-     "Iamclutch",
-     "Vandal",
-     47.8
-    ],
-    [
-     "DIVINELucaslindo",
-     "Vandal",
-     57.0
-    ],
-    [
-     "Astaroth0",
-     "Vandal",
-     58.6
-    ]
-   ],
-   "file": "Bind_R22_marciebeur_4K.mp4",
-   "slomo": "Bind_R22_marciebeur_4K_slomo.mp4",
-   "len": 21,
-   "thumb": "clips/thumbs/Bind_R22_marciebeur_4K.jpg"
+   "thumb": "clips/thumbs/Sunset_R12_marciebeur_clutch.jpg"
   },
   {
    "match": "b3c53113-80ad-4210-85e0-cbed8e169934",
    "player": "marciebeur#euw",
    "round": 23,
-   "kind": "3K",
+   "kind": "Clutch 1v3",
    "win": false,
    "note": "13 ms te laat",
    "kills": [
@@ -165,10 +49,10 @@
      100.0
     ]
    ],
-   "file": "Bind_R23_marciebeur_3K.mp4",
-   "slomo": "Bind_R23_marciebeur_3K_slomo.mp4",
-   "len": 31,
-   "thumb": "clips/thumbs/Bind_R23_marciebeur_3K.jpg"
+   "file": "Bind_R23_marciebeur_clutch.mp4",
+   "slomo": "Bind_R23_marciebeur_clutch_slomo.mp4",
+   "len": 34,
+   "thumb": "clips/thumbs/Bind_R23_marciebeur_clutch.jpg"
   }
  ],
  "compilations": [
@@ -177,7 +61,7 @@
    "tag": "no_shots",
    "title": "Dood zonder te schieten",
    "count": 5,
-   "file": "Compilatie_Don_no_shots.mp4",
+   "file": "Compilatie_Don_no_shots_v2.mp4",
    "items": [
     {
      "map": "Sunset",
@@ -205,14 +89,14 @@
      "text": "Alleen via de Sewer naar A gelopen en bij de uitgang van dichtbij verrast door een Spectre."
     }
    ],
-   "thumb": "clips/thumbs/Compilatie_Don_no_shots.jpg"
+   "thumb": "clips/thumbs/Compilatie_Don_no_shots_v2.jpg"
   },
   {
    "player": "marciebeur#euw",
    "tag": "ability_under_fire",
    "title": "Ability onder vuur",
-   "count": 7,
-   "file": "Compilatie_Don_ability_under_fire.mp4",
+   "count": 6,
+   "file": "Compilatie_Don_ability_under_fire_v2.mp4",
    "items": [
     {
      "map": "Sunset",
@@ -243,36 +127,21 @@
      "map": "Lotus",
      "round": 1,
      "text": "Pistol: door de Clove-smoke gelopen en daarna een slow orb gegooid terwijl de Sage al dichtbij stond."
-    },
-    {
-     "map": "Lotus",
-     "round": 8,
-     "text": "Na de plant 2 tegen 1: eerst een teamgenoot gehealed en een wall gezet, daarna door de Sage gepakt."
     }
    ],
-   "thumb": "clips/thumbs/Compilatie_Don_ability_under_fire.jpg"
+   "thumb": "clips/thumbs/Compilatie_Don_ability_under_fire_v2.jpg"
   },
   {
    "player": "marciebeur#euw",
    "tag": "low_hp",
    "title": "Gevochten met weinig HP",
-   "count": 6,
-   "file": "Compilatie_Don_low_hp.mp4",
+   "count": 4,
+   "file": "Compilatie_Don_low_hp_v2.mp4",
    "items": [
-    {
-     "map": "Sunset",
-     "round": 10,
-     "text": "Op A Site door de molly van de Phoenix gelopen. Met 33 HP verder gevochten."
-    },
     {
      "map": "Sunset",
      "round": 13,
      "text": "Met 53 HP op B Main doorgevochten, midden in het gevecht herladen en een Sheriff opgepakt met 0 kogels."
-    },
-    {
-     "map": "Sunset",
-     "round": 14,
-     "text": "Met 24 HP op A Main langs je eigen wall gepeekt in een eco-ronde."
     },
     {
      "map": "Sunset",
@@ -290,14 +159,14 @@
      "text": "Retake 1 tegen 3: met 18 HP door de smoke heen gevochten."
     }
    ],
-   "thumb": "clips/thumbs/Compilatie_Don_low_hp.jpg"
+   "thumb": "clips/thumbs/Compilatie_Don_low_hp_v2.jpg"
   },
   {
    "player": "marciebeur#euw",
    "tag": "clutch",
    "title": "Clutch verloren",
-   "count": 8,
-   "file": "Compilatie_Don_clutch.mp4",
+   "count": 6,
+   "file": "Compilatie_Don_clutch_v2.mp4",
    "items": [
     {
      "map": "Haven",
@@ -321,18 +190,8 @@
     },
     {
      "map": "Lotus",
-     "round": 5,
-     "text": "1 tegen 1: achter de box gewacht, maar de Sage kwam van de kant die je niet in de gaten hield."
-    },
-    {
-     "map": "Lotus",
      "round": 9,
-     "text": "1 tegen 2 op B: naar het geluid toe gelopen en de Sage met de Guardian won het duel."
-    },
-    {
-     "map": "Lotus",
-     "round": 10,
-     "text": "1 tegen 2: door een smoke geschoten en daarna van opzij gepakt door de Clove."
+     "text": "1 tegen 3 op B: naar het geluid toe gelopen en de Sage met de Guardian won het duel."
     },
     {
      "map": "Lotus",
@@ -340,19 +199,19 @@
      "text": "Eco, als laatste man 1 tegen 5: geflasht en daarna gestorven."
     }
    ],
-   "thumb": "clips/thumbs/Compilatie_Don_clutch.jpg"
+   "thumb": "clips/thumbs/Compilatie_Don_clutch_v2.jpg"
   },
   {
    "player": "marciebeur#euw",
    "tag": "repeek",
    "title": "Zelfde hoek opnieuw gepeekt",
    "count": 3,
-   "file": "Compilatie_Don_repeek.mp4",
+   "file": "Compilatie_Don_repeek_v2.mp4",
    "items": [
     {
      "map": "Haven",
      "round": 7,
-     "text": "A Link: eerst op de Jett geschoten, daarna steeds dezelfde deuropening opnieuw gepeekt. Je stierf met 1 kogel over zonder te herladen."
+     "text": "A Link: eerst op de Jett geschoten, daarna steeds dezelfde deuropening opnieuw gepeekt. Je stierf met nog 2 kogels zonder te herladen."
     },
     {
      "map": "Haven",
@@ -365,7 +224,7 @@
      "text": "Na de plant op C Long steeds dezelfde lange hoek gepeekt met een Bandit tegen een Vandal."
     }
    ],
-   "thumb": "clips/thumbs/Compilatie_Don_repeek.jpg"
+   "thumb": "clips/thumbs/Compilatie_Don_repeek_v2.jpg"
   }
  ]
 }

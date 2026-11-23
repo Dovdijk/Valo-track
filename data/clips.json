@@ -2,6 +2,25 @@
  "base": "https://github.com/Dovdijk/Valo-track/releases/download/clips/",
  "highlights": [
   {
+   "match": "95f900c7-5e66-496b-bb7c-1e5ab1250173",
+   "player": "marciebeur#euw",
+   "round": 11,
+   "kind": "Het was geen headshot",
+   "win": true,
+   "note": "één kogel, laatste kill van de ronde",
+   "kills": [
+    [
+     "biku",
+     "Vandal",
+     62.8
+    ]
+   ],
+   "file": "Corrode_R11_marciebeur_geenheadshot.mp4",
+   "slomo": "Corrode_R11_marciebeur_geenheadshot_slomo.mp4",
+   "len": 13,
+   "thumb": "clips/thumbs/Corrode_R11_marciebeur_geenheadshot.jpg"
+  },
+  {
    "match": "3c8793d2-5e2d-4a3b-9bb7-c16d7ffc615a",
    "player": "marciebeur#euw",
    "round": 12,

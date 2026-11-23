@@ -70,5 +70,7 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
+      - name: Even wachten tot het artefact klaar is
+        run: sleep 20
       - id: deploy
         uses: actions/deploy-pages@v4

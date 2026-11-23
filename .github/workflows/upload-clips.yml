@@ -1,0 +1,17 @@
+name: Clips uploaden
+on:
+  push:
+    branches: [clips-inbox]
+permissions:
+  contents: write
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Upload naar release "clips"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view clips >/dev/null 2>&1 || gh release create clips --title "Clips" --notes "Highlights en compilaties voor de Squad Tracker" --latest=false
+          gh release upload clips clips/*.mp4 --clobber

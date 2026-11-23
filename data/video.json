@@ -876,5 +876,278 @@
     "Geen enkele keer jezelf geflasht."
    ]
   }
+ },
+ "95f900c7-5e66-496b-bb7c-1e5ab1250173": {
+  "marciebeur#euw": {
+   "analysed": "2026-11-23",
+   "source": "OBS-opname, hele match",
+   "focus": {
+    "title": "Duels zonder je team erbij",
+    "what": "8 van je 12 deaths werden niet getrade. Meestal nam je een duel terwijl er geen teamgenoot vlakbij stond, zoals in ronde 5, 13 en 16.",
+    "todo": "Als Sage hoort jouw duel pas te komen nadat de entry is gegaan. Blijf een stap achter een teamgenoot, zodat je hem kunt traden of hij jou.",
+    "goal": "Minstens de helft van je deaths getrade."
+   },
+   "deaths": [
+    {
+     "r": 3,
+     "tags": [
+      "aim"
+     ],
+     "hp": 35,
+     "wpn": "Marshal",
+     "text": "Na de plant met een Marshal van 74 naar 35 HP gegaan en het duel met de Vyse verloren.",
+     "tip": "Mis je de eerste kogel met een Marshal, ga dan meteen terug."
+    },
+    {
+     "r": 4,
+     "tags": [
+      "aim"
+     ],
+     "hp": 100,
+     "wpn": "Vandal",
+     "text": "Maar één kogel geschoten en het duel met de Reyna verloren. Wel getrade.",
+     "tip": "Hou je crosshair klaar op de hoek waar iemand kan komen."
+    },
+    {
+     "r": 5,
+     "tags": [
+      "aim"
+     ],
+     "hp": 85,
+     "wpn": "Vandal",
+     "text": "Na het zetten van een wall het duel met de Fade verloren.",
+     "tip": "Zet je wall en kom pas terug als je team er ook is."
+    },
+    {
+     "r": 6,
+     "tags": [
+      "low_hp"
+     ],
+     "hp": 3,
+     "wpn": "Operator",
+     "text": "Met de Operator van 100 naar 3 HP en toch blijven staan.",
+     "tip": "Met weinig HP eerst terug en healen."
+    },
+    {
+     "r": 9,
+     "tags": [
+      "clutch"
+     ],
+     "hp": 100,
+     "wpn": "Vandal",
+     "text": "1 tegen 3: blijven schieten tot er nog 6 kogels over waren en de ronde verloren.",
+     "tip": "1 tegen 3 is bijna niet te winnen. Bewaar je Vandal."
+    },
+    {
+     "r": 10,
+     "tags": [
+      "aim"
+     ],
+     "hp": 88,
+     "wpn": "Vandal",
+     "text": "Duel met de Fade verloren. Wel getrade.",
+     "tip": "Peek met dekking naast je."
+    },
+    {
+     "r": 12,
+     "tags": [
+      "ability_under_fire"
+     ],
+     "hp": 100,
+     "wpn": "Vandal",
+     "text": "Je ult (resurrect) gebruikt terwijl er nog een tegenstander dichtbij stond. Wel getrade.",
+     "tip": "Zorg dat de hoek veilig is voordat je iemand revivet."
+    },
+    {
+     "r": 13,
+     "tags": [
+      "aim"
+     ],
+     "hp": 100,
+     "wpn": "Ghost",
+     "text": "Eco: duel met de Reyna verloren.",
+     "tip": "Op een eco speel je vanuit een hoek voor één kill."
+    },
+    {
+     "r": 14,
+     "tags": [
+      "aim"
+     ],
+     "hp": 20,
+     "wpn": "Classic",
+     "text": "Wall gezet en daarna met een pistool het duel tegen de Fade verloren.",
+     "tip": "Met een pistool zoek je een korte afstand."
+    },
+    {
+     "r": 15,
+     "tags": [
+      "reload"
+     ],
+     "hp": 48,
+     "wpn": "Classic",
+     "text": "Eco: de Classic leeggeschoten tot 0 kogels en daarna neergeschoten.",
+     "tip": "Herlaad achter dekking voordat je weer peekt."
+    },
+    {
+     "r": 16,
+     "tags": [
+      "aim"
+     ],
+     "hp": 70,
+     "wpn": "Vandal",
+     "text": "Duel met de Vyse verloren.",
+     "tip": "Neem duels samen met een teamgenoot."
+    },
+    {
+     "r": 17,
+     "tags": [
+      "aim"
+     ],
+     "hp": 70,
+     "wpn": "Vandal",
+     "text": "Duel met de Omen verloren. Wel getrade.",
+     "tip": "Na een raak schot even terug en opnieuw peeken vanuit een andere hoek."
+    }
+   ],
+   "good": [
+    "Gewonnen met 13-4.",
+    "Minder vaak doorgevochten met weinig HP dan in je vorige matches: één keer (ronde 6)."
+   ]
+  },
+  "dennisvg#3745": {
+   "analysed": "2026-11-23",
+   "source": "OBS-opname, hele match",
+   "self_flash": 0,
+   "focus": {
+    "title": "Na je Curveball klaar om te schieten",
+    "what": "In ronde 6 en 9 gooide je een Curveball en ging je daarna dood met een volle Phantom, zonder te schieten. De flash werkte, maar je wapen was nog niet terug.",
+    "todo": "Gooi de Curveball, wacht tot je wapen weer in je hand is en peek pas dan. Of laat een teamgenoot de flash gebruiken.",
+    "goal": "Na elke Curveball de eerste kogel schieten."
+   },
+   "deaths": [
+    {
+     "r": 3,
+     "tags": [
+      "aim"
+     ],
+     "hp": 100,
+     "wpn": "Marshal",
+     "text": "Met een Marshal het duel tegen de Vyse verloren.",
+     "tip": "Mis je de eerste kogel, ga dan meteen terug."
+    },
+    {
+     "r": 4,
+     "tags": [],
+     "hp": 46,
+     "wpn": "Phantom",
+     "text": "Met de spike en 46 HP liep de tijd af zonder plant. Daarna neergeschoten.",
+     "tip": "Met de spike ga je eerder naar de site, of geef hem aan een teamgenoot."
+    },
+    {
+     "r": 5,
+     "tags": [
+      "knife_out"
+     ],
+     "hp": 100,
+     "wpn": "Phantom",
+     "text": "Met je mes in de hand gelopen op het moment dat de Fade verscheen.",
+     "tip": "Wapen in de hand zodra je contact kunt verwachten."
+    },
+    {
+     "r": 6,
+     "tags": [
+      "no_shots"
+     ],
+     "hp": 100,
+     "wpn": "Phantom",
+     "text": "Een Curveball gegooid en daarna met een volle Phantom gestorven zonder te schieten.",
+     "tip": "Wacht tot je wapen terug is voordat je peekt."
+    },
+    {
+     "r": 9,
+     "tags": [
+      "no_shots"
+     ],
+     "hp": 100,
+     "wpn": "Phantom",
+     "text": "Na een Curveball neergeschoten door de Omen, zonder een kogel te schieten.",
+     "tip": "Na de flash meteen klaar staan met je wapen."
+    },
+    {
+     "r": 10,
+     "tags": [
+      "aim"
+     ],
+     "hp": 100,
+     "wpn": "Phantom",
+     "text": "Duel met de Hush verloren. Wel getrade.",
+     "tip": "Korte bursts in plaats van sprayen."
+    },
+    {
+     "r": 11,
+     "tags": [
+      "aim"
+     ],
+     "hp": 100,
+     "wpn": "Phantom",
+     "text": "Duel tegen de Omen met een Sheriff verloren.",
+     "tip": "Tegen een Sheriff win je dichtbij, niet op afstand."
+    },
+    {
+     "r": 12,
+     "tags": [
+      "reload"
+     ],
+     "hp": 99,
+     "wpn": "Phantom",
+     "text": "Herladen en direct daarna neergeschoten.",
+     "tip": "Herlaad achter dekking."
+    },
+    {
+     "r": 13,
+     "tags": [
+      "aim"
+     ],
+     "hp": 100,
+     "wpn": "Ghost",
+     "text": "Eco: duel met de Hush verloren.",
+     "tip": "Op een eco speel je vanuit een hoek voor één kill."
+    },
+    {
+     "r": 14,
+     "tags": [
+      "aim"
+     ],
+     "hp": 100,
+     "wpn": "Marshal",
+     "text": "Met een Marshal ingezoomd en neergeschoten door de Omen met een Classic.",
+     "tip": "Na één schot met de Marshal verplaatsen."
+    },
+    {
+     "r": 15,
+     "tags": [
+      "aim"
+     ],
+     "hp": 100,
+     "wpn": "Marshal",
+     "text": "Met een Marshal het duel met de Omen verloren.",
+     "tip": "Speel met de Marshal een lange hoek en ga na elk schot terug."
+    },
+    {
+     "r": 16,
+     "tags": [
+      "aim"
+     ],
+     "hp": 94,
+     "wpn": "Phantom",
+     "text": "Door je eigen firewall gelopen en het duel met de Fade verloren. Wel getrade.",
+     "tip": "Je firewall heelt jou, maar geeft ook je positie weg."
+    }
+   ],
+   "good": [
+    "22 kills, gewonnen met 13-4.",
+    "Je Curveballs gingen netjes om de hoek. Geen enkele keer jezelf geflasht."
+   ]
+  }
  }
 }

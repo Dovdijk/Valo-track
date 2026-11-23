@@ -90,7 +90,7 @@
    "tag": "no_shots",
    "title": "Dood zonder te schieten",
    "count": 6,
-   "file": "Compilatie_Don_no_shots_v3.mp4",
+   "file": "Compilatie_Don_no_shots_v4.mp4",
    "items": [
     {
      "map": "Sunset",
@@ -123,14 +123,14 @@
      "text": "Een slow orb gegooid en daarna gestorven met een volle Vandal, zonder te schieten."
     }
    ],
-   "thumb": "clips/thumbs/Compilatie_Don_no_shots_v3.jpg"
+   "thumb": "clips/thumbs/Compilatie_Don_no_shots_v4.jpg"
   },
   {
    "player": "marciebeur#euw",
    "tag": "ability_under_fire",
    "title": "Ability onder vuur",
-   "count": 6,
-   "file": "Compilatie_Don_ability_under_fire_v3.mp4",
+   "count": 7,
+   "file": "Compilatie_Don_ability_under_fire_v4.mp4",
    "items": [
     {
      "map": "Sunset",
@@ -161,16 +161,21 @@
      "map": "Lotus",
      "round": 1,
      "text": "Pistol: door de Clove-smoke gelopen en daarna een slow orb gegooid terwijl de Sage al dichtbij stond."
+    },
+    {
+     "map": "Corrode",
+     "round": 12,
+     "text": "Je ult (resurrect) gebruikt terwijl er nog een tegenstander dichtbij stond. Wel getrade."
     }
    ],
-   "thumb": "clips/thumbs/Compilatie_Don_ability_under_fire_v3.jpg"
+   "thumb": "clips/thumbs/Compilatie_Don_ability_under_fire_v4.jpg"
   },
   {
    "player": "marciebeur#euw",
    "tag": "low_hp",
    "title": "Gevochten met weinig HP",
-   "count": 6,
-   "file": "Compilatie_Don_low_hp_v3.mp4",
+   "count": 7,
+   "file": "Compilatie_Don_low_hp_v4.mp4",
    "items": [
     {
      "map": "Sunset",
@@ -201,16 +206,21 @@
      "map": "Lotus",
      "round": 20,
      "text": "Met 19 HP verder gevochten na de plant."
+    },
+    {
+     "map": "Corrode",
+     "round": 6,
+     "text": "Met de Operator van 100 naar 3 HP en toch blijven staan."
     }
    ],
-   "thumb": "clips/thumbs/Compilatie_Don_low_hp_v3.jpg"
+   "thumb": "clips/thumbs/Compilatie_Don_low_hp_v4.jpg"
   },
   {
    "player": "marciebeur#euw",
    "tag": "clutch",
    "title": "Clutch verloren",
    "count": 8,
-   "file": "Compilatie_Don_clutch_v3.mp4",
+   "file": "Compilatie_Don_clutch_v4.mp4",
    "items": [
     {
      "map": "Haven",
@@ -253,14 +263,14 @@
      "text": "1 tegen 4 met een Ares: geschoten en verloren."
     }
    ],
-   "thumb": "clips/thumbs/Compilatie_Don_clutch_v3.jpg"
+   "thumb": "clips/thumbs/Compilatie_Don_clutch_v4.jpg"
   },
   {
    "player": "marciebeur#euw",
    "tag": "repeek",
    "title": "Zelfde hoek opnieuw gepeekt",
    "count": 3,
-   "file": "Compilatie_Don_repeek_v3.mp4",
+   "file": "Compilatie_Don_repeek_v4.mp4",
    "items": [
     {
      "map": "Haven",
@@ -278,7 +288,7 @@
      "text": "Na de plant op C Long steeds dezelfde lange hoek gepeekt met een Bandit tegen een Vandal."
     }
    ],
-   "thumb": "clips/thumbs/Compilatie_Don_repeek_v3.jpg"
+   "thumb": "clips/thumbs/Compilatie_Don_repeek_v4.jpg"
   }
  ]
 }

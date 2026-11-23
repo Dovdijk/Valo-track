@@ -11,7 +11,7 @@ on:
         default: false
   push:
     branches: [main]
-    paths: ["index.html", "test.html", ".github/workflows/update.yml", "config.json", "scripts/**", "sw.js", "manifest.webmanifest", "icons/**"]
+    paths: ["index.html", "test.html", "clips/**", "data/clips.json", ".github/workflows/update.yml", "config.json", "scripts/**", "sw.js", "manifest.webmanifest", "icons/**"]
 
 permissions:
   contents: write
@@ -63,6 +63,7 @@ jobs:
           mkdir -p _site/data
           cp index.html test.html manifest.webmanifest sw.js _site/
           cp -r icons _site/
+          cp -r clips _site/
           cp data/stats.json _site/data/
 
       - uses: actions/configure-pages@v5

@@ -551,9 +551,19 @@ def main():
         matches=per_player, shared=shared, details=details, maps=maps, pistol_loss=pistol_loss, mmr=load_mmr(per_player), tiers=load_tiers(),
         settings=dict(trade_ms=TRADE_MS, early_s=EARLY_S, alone_units=ALONE_UNITS),
         video=load_video(),
+        clips=load_json_file('clips.json'),
     )
     OUT.write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     print(f"stats.json geschreven: {len(files)} matches, {len(shared)} samen gespeeld.")
+
+
+def load_json_file(name):
+    p = OUT.parent / name
+    try:
+        return json.loads(p.read_text(encoding='utf-8')) if p.exists() else {}
+    except Exception as e:
+        print(name, 'niet leesbaar:', e)
+        return {}
 
 
 def load_video():

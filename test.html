@@ -606,6 +606,7 @@ function renderMatch(id){
       <div style="font-family:var(--fd);font-size:80px;line-height:1">${won}<span style="color:var(--mute);font-size:46px;margin:0 8px">:</span>${lost}</div>
       <div class="label">${n} rondes</div></div></div>`;
 
+  h+=clipsMatchHTML(d);
   h+=matchFeedbackHTML(d,F,per,ST);
   h+=videoMatchHTML(d,F);
   // ---- scoreboard
@@ -872,6 +873,7 @@ function renderStyle(app,act){
   // profielkaart
   h+=`<section><h2>Profielkaart</h2><p class="lead">Alle kenmerken die we uit jullie potjes kunnen halen, op een rij.</p><div class="g2" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr))">`+
     S.map(({p,s})=>`<div class="panel" style="border-top:3px solid ${p.color}"><h3 style="color:${p.color}">${p.name}</h3><table class="traits"><tbody>${s.traits.map(([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`).join('')}</tbody></table></div>`).join('')+'</div></section>';
+  h+=clipsStyleHTML();
   h+=videoStatsHTML();
   app.insertAdjacentHTML('beforeend',h);
 }
@@ -1733,6 +1735,61 @@ function videoStatsHTML(){
 .vd-bar b{display:block;font-size:14px;font-weight:600}.vd-bar span{font-size:12.5px;color:var(--mute)}
 .vd-num{text-align:right;font-weight:700;font-size:18px}.vd-num small{display:block;font-size:11.5px;font-weight:400;color:var(--mute)}
 .vd-bar i{grid-column:1/-1;height:5px;border-radius:9px;background:rgba(255,255,255,.07);display:block}.vd-bar u{display:block;height:5px;border-radius:9px}
+</style>`)})();
+
+// ================= CLIPS (highlights en compilaties) =================
+const CLIPS_NAME={'marciebeur#euw':'Don','dennisvg#3745':'Dennis','mr mmlk#euw':'Milan'};
+function clipUrl(f){return (DATA.clips&&DATA.clips.base||'')+encodeURIComponent(f)}
+function clipCard(o){
+  const kills=(o.kills||[]).map(k=>k[0]).join(', ');
+  return `<div class="cl-card">
+    <div class="cl-vid" data-n="${clipUrl(o.file)}" data-s="${o.slomo?clipUrl(o.slomo):''}" onclick="clipPlay(this)">
+      <img src="${o.thumb}" alt="" loading="lazy"><span class="cl-play">▶</span>${o.len?`<span class="cl-len">${o.len}s</span>`:''}
+    </div>
+    <div class="cl-b">
+      <div class="cl-t"><b style="color:${colorOf(o.player)}">${CLIPS_NAME[o.player]||o.player}</b> · ${o.title||('Ronde '+o.round+' · '+o.kind)}</div>
+      ${o.note?`<div class="cl-note">${o.note}</div>`:''}
+      ${kills?`<div class="cl-sub">${kills}</div>`:''}
+      ${o.sub?`<div class="cl-sub">${o.sub}</div>`:''}
+      ${o.slomo?`<div class="cl-sw"><button class="on" onclick="clipMode(this,'n')">Normaal</button><button onclick="clipMode(this,'s')">Slomo</button></div>`:''}
+    </div></div>`;
+}
+function clipPlay(el,mode){
+  const src=mode==='s'?el.dataset.s:el.dataset.n;
+  el.innerHTML=`<video src="${src}" controls autoplay playsinline preload="auto"></video>`;el.dataset.m=mode||'n';
+}
+function clipMode(btn,mode){
+  const card=btn.closest('.cl-card'),el=card.querySelector('.cl-vid');
+  card.querySelectorAll('.cl-sw button').forEach(b=>b.classList.toggle('on',b===btn));clipPlay(el,mode);
+}
+function clipsMatchHTML(d){
+  if(!DATA.clips)return '';
+  const H=(DATA.clips.highlights||[]).filter(h=>h.match===d.id).sort((a,b)=>a.round-b.round);
+  if(!H.length)return '';
+  return `<section><h2>Highlights</h2><p class="lead">Geknipt uit de opname. Tik op een clip om af te spelen, of kies Slomo voor het beslissende moment.</p><div class="cl-grid">${H.map(clipCard).join('')}</div></section>`;
+}
+function clipsStyleHTML(){
+  if(!DATA.clips)return '';
+  const C=DATA.clips.compilations||[],H=DATA.clips.highlights||[];
+  if(!C.length&&!H.length)return '';
+  const MAPS={};Object.values(DATA.details||{}).forEach(d=>MAPS[d.id]=d.map);
+  let h='';
+  if(C.length)h+=`<section><h2>Compilaties</h2><p class="lead">Terugkerende fouten achter elkaar: steeds de laatste seconden voor een death, met de map en ronde in beeld.</p><div class="cl-grid">${C.map(c=>clipCard({...c,title:c.title,sub:`${c.count} momenten · `+c.items.map(i=>i.map+' R'+i.round).join(', ')})).join('')}</div></section>`;
+  if(H.length)h+=`<section><h2>Alle highlights</h2><div class="cl-grid">${H.map(x=>clipCard({...x,title:`${MAPS[x.match]||''} · Ronde ${x.round} · ${x.kind}`})).join('')}</div></section>`;
+  return h;
+}
+(function(){document.head.insertAdjacentHTML('beforeend',`<style>
+.cl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:14px}
+.cl-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.cl-vid{position:relative;aspect-ratio:16/9;background:#000;cursor:pointer}
+.cl-vid img,.cl-vid video{width:100%;height:100%;object-fit:cover;display:block}
+.cl-play{position:absolute;inset:0;margin:auto;width:54px;height:54px;border-radius:50%;background:rgba(9,9,11,.7);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;padding-left:4px;border:1px solid rgba(255,255,255,.25)}
+.cl-len{position:absolute;right:8px;bottom:8px;background:rgba(9,9,11,.75);color:#fff;font-size:12px;padding:2px 7px;border-radius:6px}
+.cl-b{padding:12px 14px}
+.cl-t{font-size:15px;font-weight:600}.cl-note{color:#f5c451;font-size:13.5px;margin-top:3px}
+.cl-sub{color:var(--mute);font-size:13px;margin-top:4px;line-height:1.45}
+.cl-sw{display:flex;gap:6px;margin-top:10px}.cl-sw button{border:1px solid var(--line);background:rgba(255,255,255,.04);color:#d4d4d8;border-radius:999px;padding:5px 12px;font-size:13px;cursor:pointer;font-family:inherit}
+.cl-sw button.on{background:#fafafa;color:#09090b;border-color:#fafafa}
 </style>`)})();
 </script>
 </body>

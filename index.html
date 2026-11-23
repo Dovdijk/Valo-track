@@ -1753,6 +1753,7 @@ function clipCard(o){
       ${kills?`<div class="cl-sub">${kills}</div>`:''}
       ${o.sub?`<div class="cl-sub">${o.sub}</div>`:''}
       ${o.slomo?`<div class="cl-sw"><button class="on" onclick="clipMode(this,'n')">Normaal</button><button onclick="clipMode(this,'s')">Slomo</button></div>`:''}
+      <div class="cl-dl"><a href="${clipUrl(o.file)}" download target="_blank" rel="noopener">⤓ Download${o.slomo?'':' video'}</a>${o.slomo?`<a href="${clipUrl(o.slomo)}" download target="_blank" rel="noopener">⤓ Download slomo</a>`:''}</div>
     </div></div>`;
 }
 function clipPlay(el,mode){
@@ -1791,6 +1792,7 @@ function clipsStyleHTML(){
 .cl-sub{color:var(--mute);font-size:13px;margin-top:4px;line-height:1.45}
 .cl-sw{display:flex;gap:6px;margin-top:10px}.cl-sw button{border:1px solid var(--line);background:rgba(255,255,255,.04);color:#d4d4d8;border-radius:999px;padding:5px 12px;font-size:13px;cursor:pointer;font-family:inherit}
 .cl-sw button.on{background:#fafafa;color:#09090b;border-color:#fafafa}
+.cl-dl{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px}.cl-dl a{color:#a1a1aa;font-size:13px;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.15);padding-bottom:1px}.cl-dl a:hover{color:#fafafa}
 </style>`)})();
 
 // ================= TAB: HIGHLIGHTS =================

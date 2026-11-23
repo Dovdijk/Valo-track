@@ -546,5 +546,335 @@
     "Run It Back in ronde 5 bracht je team info over de site."
    ]
   }
+ },
+ "e494e3e9-494a-422e-b40e-1a6173d0867c": {
+  "marciebeur#euw": {
+   "analysed": "2026-11-23",
+   "source": "OBS-opname, hele match",
+   "focus": {
+    "title": "Clutches als laatste man",
+    "what": "Je was in ronde 8 (1 tegen 3) en ronde 15 (1 tegen 4) de laatste levende speler en verloor beide. Dit is nu de vierde match op rij waarin clutches je rondes kosten. In ronde 19 liet je wel zien hoe het moet: rustig 1 tegen 2 gewonnen.",
+    "todo": "Doe wat je in ronde 19 deed: kies één hoek, laat de tegenstander naar jou komen en neem één duel tegelijk. Is het 1 tegen 3 of meer met een full buy, bewaar dan je wapen.",
+    "goal": "Een clutch winnen, of je wapen bewaren als hij niet te winnen is."
+   },
+   "deaths": [
+    {
+     "r": 6,
+     "tags": [
+      "early",
+      "aim"
+     ],
+     "hp": 100,
+     "wpn": "Odin",
+     "text": "Na 13 seconden door een smoke heen gekeken en het duel met de Reyna verloren. Wel getrade.",
+     "tip": "Wacht tot de smoke wegtrekt of kijk een andere hoek."
+    },
+    {
+     "r": 8,
+     "tags": [
+      "clutch"
+     ],
+     "hp": 92,
+     "wpn": "Odin",
+     "text": "1 tegen 3 na de plant: in je eentje het duel gezocht en verloren.",
+     "tip": "1 tegen 3 is bijna niet te winnen. Speel op tijd of bewaar je Odin."
+    },
+    {
+     "r": 9,
+     "tags": [
+      "reload"
+     ],
+     "hp": 100,
+     "wpn": "Vandal",
+     "text": "Na de plant met nog maar 3 kogels in je Vandal opnieuw gepeekt. Wel getrade.",
+     "tip": "Herlaad achter dekking voordat je weer peekt."
+    },
+    {
+     "r": 10,
+     "tags": [
+      "no_shots"
+     ],
+     "hp": 100,
+     "wpn": "Vandal",
+     "text": "Een slow orb gegooid en daarna gestorven met een volle Vandal, zonder te schieten.",
+     "tip": "Utility gooien en meteen weer klaarstaan met je wapen."
+    },
+    {
+     "r": 11,
+     "tags": [
+      "aim"
+     ],
+     "hp": 100,
+     "wpn": "Sheriff",
+     "text": "Halve buy met een Sheriff: alle kogels verschoten en het duel tegen de Omen met Phantom verloren. Wel getrade.",
+     "tip": "Met een Sheriff tik je één schot per keer, gericht op het hoofd."
+    },
+    {
+     "r": 13,
+     "tags": [
+      "aim"
+     ],
+     "hp": 100,
+     "wpn": "Ghost",
+     "text": "Eco-ronde: duel met de Jett op afstand verloren.",
+     "tip": "Op een eco speel je dichtbij een hoek voor één verrassingskill."
+    },
+    {
+     "r": 15,
+     "tags": [
+      "clutch"
+     ],
+     "hp": 100,
+     "wpn": "Ares",
+     "text": "1 tegen 4 met een Ares: geschoten en verloren.",
+     "tip": "1 tegen 4 is niet te winnen. Bewaar je Ares voor de volgende ronde."
+    },
+    {
+     "r": 17,
+     "tags": [
+      "low_hp"
+     ],
+     "hp": 19,
+     "wpn": "Vandal",
+     "text": "Van 93 naar 19 HP gegaan en toch doorgevochten.",
+     "tip": "Onder de 60 HP eerst terug en healen. Als Sage kan dat."
+    },
+    {
+     "r": 18,
+     "tags": [
+      "flashed"
+     ],
+     "hp": 100,
+     "wpn": "Vandal",
+     "text": "Geflasht en daarna door de Gekko met een Bucky neergeschoten. Wel getrade.",
+     "tip": "Draai weg bij een flash en kom terug als je weer ziet."
+    },
+    {
+     "r": 20,
+     "tags": [
+      "low_hp"
+     ],
+     "hp": 19,
+     "wpn": "Vandal",
+     "text": "Met 19 HP verder gevochten na de plant.",
+     "tip": "Eerst healen of op afstand blijven, elke kogel is raak."
+    },
+    {
+     "r": 21,
+     "tags": [
+      "aim"
+     ],
+     "hp": 100,
+     "wpn": "Marshal",
+     "text": "Met een Marshal ingezoomd en het duel tegen de Reyna verloren.",
+     "tip": "Mis je de eerste kogel met een Marshal, ga dan meteen terug achter dekking."
+    },
+    {
+     "r": 22,
+     "tags": [
+      "aim"
+     ],
+     "hp": 99,
+     "wpn": "Vandal",
+     "text": "Na de plant het duel met de Reyna verloren. De ronde werd wel gewonnen.",
+     "tip": "Na de plant hoef je niet te peeken. Laat hen naar de spike komen."
+    }
+   ],
+   "good": [
+    "Ronde 19: clutch 1 tegen 2 gewonnen, eerst met de Marshal en daarna met de Odin.",
+    "22 kills en 13 assists, gewonnen met 13-9.",
+    "65 abilities en 4 ults: je zat steeds in het spel met je utility."
+   ],
+   "note": "In ronde 19 stierf je na de winst nog door de ontploffing van de spike. Dat had geen gevolgen."
+  },
+  "dennisvg#3745": {
+   "analysed": "2026-11-23",
+   "source": "OBS-opname, hele match",
+   "self_flash": 0,
+   "focus": {
+    "title": "Vroeg in de ronde dood",
+    "what": "In ronde 7, 15 en 21 ging je binnen de eerste 5 seconden dood, en 14 van je 17 deaths werden niet getrade. Je stond vaak ver voor je team uit.",
+    "todo": "Wacht in het begin van de ronde op de rest. Gebruik je Curveball voordat je een hoek neemt, en zorg dat iemand vlak achter je staat.",
+    "goal": "Geen deaths meer in de eerste 10 seconden en minstens de helft getrade."
+   },
+   "deaths": [
+    {
+     "r": 1,
+     "tags": [
+      "low_hp"
+     ],
+     "hp": 9,
+     "wpn": "Ghost",
+     "text": "Pistol: van 100 naar 9 HP gegaan en toch doorgevochten. Wel getrade.",
+     "tip": "Met weinig HP eerst terug achter dekking."
+    },
+    {
+     "r": 3,
+     "tags": [
+      "aim"
+     ],
+     "hp": 60,
+     "wpn": "Marshal",
+     "text": "Met een Marshal het duel tegen de Sage verloren.",
+     "tip": "Mis je de eerste kogel, ga dan meteen terug."
+    },
+    {
+     "r": 4,
+     "tags": [
+      "flashed"
+     ],
+     "hp": 100,
+     "wpn": "Phantom",
+     "text": "Volledig geflasht en daarna neergeschoten.",
+     "tip": "Draai weg bij een flash en peek pas als je weer ziet."
+    },
+    {
+     "r": 6,
+     "tags": [
+      "aim"
+     ],
+     "hp": 20,
+     "wpn": "Phantom",
+     "text": "Een lang duel met de Reyna verloren. Wel getrade.",
+     "tip": "Kortere bursts schieten in plaats van sprayen."
+    },
+    {
+     "r": 7,
+     "tags": [
+      "early"
+     ],
+     "hp": 100,
+     "wpn": "Phantom",
+     "text": "Na 5 seconden al neergeschoten.",
+     "tip": "Begin de ronde niet met een duel. Wacht op je team."
+    },
+    {
+     "r": 8,
+     "tags": [
+      "no_shots"
+     ],
+     "hp": 100,
+     "wpn": "Phantom",
+     "text": "Met een volle Phantom gestorven zonder te schieten.",
+     "tip": "Hou je crosshair op de hoek waar iemand kan verschijnen."
+    },
+    {
+     "r": 9,
+     "tags": [
+      "aim"
+     ],
+     "hp": 35,
+     "wpn": "Phantom",
+     "text": "Het duel met de Gekko met een Odin verloren.",
+     "tip": "Tegen een Odin win je niet op afstand: zoek een hoek."
+    },
+    {
+     "r": 10,
+     "tags": [
+      "aim"
+     ],
+     "hp": 20,
+     "wpn": "Phantom",
+     "text": "Een duel met de Jett verloren na een lange spray.",
+     "tip": "Na een paar kogels even stoppen en opnieuw richten."
+    },
+    {
+     "r": 11,
+     "tags": [
+      "aim"
+     ],
+     "hp": 100,
+     "wpn": "Classic",
+     "text": "Eco: duel tegen een Odin verloren.",
+     "tip": "Op een eco speel je voor één kill vanuit een hoek."
+    },
+    {
+     "r": 12,
+     "tags": [
+      "reload"
+     ],
+     "hp": 90,
+     "wpn": "Phantom",
+     "text": "Midden in het gevecht herladen en daarna neergeschoten.",
+     "tip": "Herlaad achter dekking."
+    },
+    {
+     "r": 14,
+     "tags": [
+      "aim"
+     ],
+     "hp": 100,
+     "wpn": "Marshal",
+     "text": "Met een Marshal ingezoomd en neergeschoten door de Jett.",
+     "tip": "Na één schot met de Marshal verplaatsen."
+    },
+    {
+     "r": 15,
+     "tags": [
+      "early"
+     ],
+     "hp": 100,
+     "wpn": "Odin",
+     "text": "Twee seconden na de start van de ronde al neergeschoten.",
+     "tip": "In de eerste seconden blijf je uit de zichtlijnen."
+    },
+    {
+     "r": 17,
+     "tags": [
+      "aim"
+     ],
+     "hp": 100,
+     "wpn": "Phantom",
+     "text": "Door een smoke heen gekeken en het duel verloren.",
+     "tip": "Wacht tot de smoke wegtrekt of kies een andere hoek."
+    },
+    {
+     "r": 19,
+     "tags": [
+      "low_hp"
+     ],
+     "hp": 33,
+     "wpn": "Phantom",
+     "text": "Na de plant met 33 HP verder gevochten.",
+     "tip": "Met weinig HP blijf je op afstand van de spike."
+    },
+    {
+     "r": 20,
+     "tags": [
+      "aim"
+     ],
+     "hp": 1,
+     "wpn": "Phantom",
+     "text": "Een duel tegen de Reyna verloren nadat je bijna dood was.",
+     "tip": "Met 1 HP eerst terug."
+    },
+    {
+     "r": 21,
+     "tags": [
+      "early",
+      "no_shots"
+     ],
+     "hp": 100,
+     "wpn": "Spectre",
+     "text": "Na 5 seconden neergeschoten zonder te schieten.",
+     "tip": "Begin de ronde niet met een duel."
+    },
+    {
+     "r": 22,
+     "tags": [
+      "aim"
+     ],
+     "hp": 87,
+     "wpn": "Phantom",
+     "text": "Na de plant het duel met de Jett verloren. De ronde werd wel gewonnen.",
+     "tip": "Na de plant hoef je niet te peeken."
+    }
+   ],
+   "good": [
+    "20 kills, gewonnen met 13-9.",
+    "Je ult (Run It Back) bracht in ronde 4 je team info.",
+    "Geen enkele keer jezelf geflasht."
+   ]
+  }
  }
 }

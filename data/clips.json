@@ -53,6 +53,35 @@
    "slomo": "Bind_R23_marciebeur_clutch_slomo.mp4",
    "len": 34,
    "thumb": "clips/thumbs/Bind_R23_marciebeur_clutch.jpg"
+  },
+  {
+   "match": "e494e3e9-494a-422e-b40e-1a6173d0867c",
+   "player": "marciebeur#euw",
+   "round": 19,
+   "kind": "Clutch 1v2",
+   "win": true,
+   "note": "gewonnen",
+   "kills": [
+    [
+     "sukiluv",
+     "Marshal",
+     75.9
+    ],
+    [
+     "TGNlimitless",
+     "Odin",
+     98.3
+    ],
+    [
+     "marciebeur",
+     null,
+     101.2
+    ]
+   ],
+   "file": "Lotus_R19_marciebeur_clutch.mp4",
+   "slomo": "Lotus_R19_marciebeur_clutch_slomo.mp4",
+   "len": 31,
+   "thumb": "clips/thumbs/Lotus_R19_marciebeur_clutch.jpg"
   }
  ],
  "compilations": [
@@ -60,8 +89,8 @@
    "player": "marciebeur#euw",
    "tag": "no_shots",
    "title": "Dood zonder te schieten",
-   "count": 5,
-   "file": "Compilatie_Don_no_shots_v2.mp4",
+   "count": 6,
+   "file": "Compilatie_Don_no_shots_v3.mp4",
    "items": [
     {
      "map": "Sunset",
@@ -87,16 +116,21 @@
      "map": "Haven",
      "round": 15,
      "text": "Alleen via de Sewer naar A gelopen en bij de uitgang van dichtbij verrast door een Spectre."
+    },
+    {
+     "map": "Lotus",
+     "round": 10,
+     "text": "Een slow orb gegooid en daarna gestorven met een volle Vandal, zonder te schieten."
     }
    ],
-   "thumb": "clips/thumbs/Compilatie_Don_no_shots_v2.jpg"
+   "thumb": "clips/thumbs/Compilatie_Don_no_shots_v3.jpg"
   },
   {
    "player": "marciebeur#euw",
    "tag": "ability_under_fire",
    "title": "Ability onder vuur",
    "count": 6,
-   "file": "Compilatie_Don_ability_under_fire_v2.mp4",
+   "file": "Compilatie_Don_ability_under_fire_v3.mp4",
    "items": [
     {
      "map": "Sunset",
@@ -129,14 +163,14 @@
      "text": "Pistol: door de Clove-smoke gelopen en daarna een slow orb gegooid terwijl de Sage al dichtbij stond."
     }
    ],
-   "thumb": "clips/thumbs/Compilatie_Don_ability_under_fire_v2.jpg"
+   "thumb": "clips/thumbs/Compilatie_Don_ability_under_fire_v3.jpg"
   },
   {
    "player": "marciebeur#euw",
    "tag": "low_hp",
    "title": "Gevochten met weinig HP",
-   "count": 4,
-   "file": "Compilatie_Don_low_hp_v2.mp4",
+   "count": 6,
+   "file": "Compilatie_Don_low_hp_v3.mp4",
    "items": [
     {
      "map": "Sunset",
@@ -157,16 +191,26 @@
      "map": "Lotus",
      "round": 4,
      "text": "Retake 1 tegen 3: met 18 HP door de smoke heen gevochten."
+    },
+    {
+     "map": "Lotus",
+     "round": 17,
+     "text": "Van 93 naar 19 HP gegaan en toch doorgevochten."
+    },
+    {
+     "map": "Lotus",
+     "round": 20,
+     "text": "Met 19 HP verder gevochten na de plant."
     }
    ],
-   "thumb": "clips/thumbs/Compilatie_Don_low_hp_v2.jpg"
+   "thumb": "clips/thumbs/Compilatie_Don_low_hp_v3.jpg"
   },
   {
    "player": "marciebeur#euw",
    "tag": "clutch",
    "title": "Clutch verloren",
-   "count": 6,
-   "file": "Compilatie_Don_clutch_v2.mp4",
+   "count": 8,
+   "file": "Compilatie_Don_clutch_v3.mp4",
    "items": [
     {
      "map": "Haven",
@@ -197,16 +241,26 @@
      "map": "Lotus",
      "round": 14,
      "text": "Eco, als laatste man 1 tegen 5: geflasht en daarna gestorven."
+    },
+    {
+     "map": "Lotus",
+     "round": 8,
+     "text": "1 tegen 3 na de plant: in je eentje het duel gezocht en verloren."
+    },
+    {
+     "map": "Lotus",
+     "round": 15,
+     "text": "1 tegen 4 met een Ares: geschoten en verloren."
     }
    ],
-   "thumb": "clips/thumbs/Compilatie_Don_clutch_v2.jpg"
+   "thumb": "clips/thumbs/Compilatie_Don_clutch_v3.jpg"
   },
   {
    "player": "marciebeur#euw",
    "tag": "repeek",
    "title": "Zelfde hoek opnieuw gepeekt",
    "count": 3,
-   "file": "Compilatie_Don_repeek_v2.mp4",
+   "file": "Compilatie_Don_repeek_v3.mp4",
    "items": [
     {
      "map": "Haven",
@@ -224,7 +278,7 @@
      "text": "Na de plant op C Long steeds dezelfde lange hoek gepeekt met een Bandit tegen een Vandal."
     }
    ],
-   "thumb": "clips/thumbs/Compilatie_Don_repeek_v2.jpg"
+   "thumb": "clips/thumbs/Compilatie_Don_repeek_v3.jpg"
   }
  ]
 }

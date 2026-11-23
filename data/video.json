@@ -474,23 +474,23 @@
    "analysed": "2026-11-22",
    "source": "OBS-opname, ronde 1 tot en met 7 (opname stopte om 16:45)",
    "partial": true,
-   "self_flash": 1,
+   "self_flash": 0,
    "focus": {
-    "title": "Je Curveball beter gebruiken",
-    "what": "In de hele match gooide je maar 5 Curveballs, en in ronde 1 verblindde je jezelf ermee. Daarna stierf je terwijl je nog grijs zag.",
-    "todo": "Gooi je Curveball om een hoek heen, zodat hij aan de andere kant knalt. Kijk weg of draai je om op het moment dat hij afgaat. Gebruik hem in elke ronde voordat je een duel neemt.",
-    "goal": "Minstens één Curveball per ronde, en nul keer jezelf flashen."
+    "title": "Je Curveball vaker gebruiken",
+    "what": "In de hele match gooide je maar 5 Curveballs. In de opgenomen rondes nam je de meeste duels zonder eerst te flashen, zoals in ronde 6 (alleen in een 3 tegen 1) en ronde 7 (eerste death na 16 seconden).",
+    "todo": "Gooi je Curveball om de hoek heen voordat je een duel neemt, zodat hij aan de andere kant knalt. Gebruik hem in elke ronde waarin je als eerste contact maakt.",
+    "goal": "Minstens één Curveball per ronde."
    },
    "deaths": [
     {
      "r": 1,
      "tags": [
-      "self_flash"
+      "early"
      ],
      "hp": 93,
      "wpn": "Classic",
-     "text": "Je eigen Curveball knalde in je gezicht. Je scherm werd grijs en de Sage schoot je neer. Je werd wel getrade.",
-     "tip": "Gooi hem om de hoek en kijk weg als hij afgaat."
+     "text": "In ronde 1 werd je scherm vlak voor je death grijs en daarna schoot de Sage je neer. Je werd wel getrade.",
+     "tip": "Kom na een verblinding eerst terug achter dekking voordat je weer peekt."
     },
     {
      "r": 2,

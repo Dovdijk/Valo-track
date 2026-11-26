@@ -1149,5 +1149,417 @@
     "Je Curveballs gingen netjes om de hoek. Geen enkele keer jezelf geflasht."
    ]
   }
+ },
+ "b8627b6d-2cf7-44c9-8aa0-d17a4c1bc409": {
+  "marciebeur#euw": {
+   "analysed": "2026-11-26",
+   "source": "OBS-opname, hele match",
+   "focus": {
+    "title": "Je wapen bewaren als laatste man",
+    "what": "Je stond in ronde 1, 6, 16 en 17 als laatste man tegen 3 tot 5 tegenstanders, en ging alle vier de keren dood. In ronde 6 en 16 had je een volle Vandal, die daarna weg was.",
+    "todo": "Sta je alleen tegen 3 of meer, verstop je dan en bewaar je wapen. Je team kan de volgende ronde dan beter kopen. Een 1v4 win je bijna nooit.",
+    "goal": "Geen full buy meer weggeven in een 1 tegen 3 of meer."
+   },
+   "deaths": [
+    {
+     "r": 1,
+     "tags": [
+      "clutch"
+     ],
+     "hp": 100,
+     "wpn": "Ghost",
+     "text": "Pistol: als laatste man 1 tegen 4 naar voren gelopen en neergeschoten door de Miks.",
+     "tip": "Speel in een 1v4 voor tijd of laat de ronde gaan."
+    },
+    {
+     "r": 2,
+     "tags": [
+      "aim"
+     ],
+     "hp": 100,
+     "wpn": "Classic",
+     "text": "Eco: in de gang het duel tegen de Hush met een Outlaw verloren.",
+     "tip": "Op een eco speel je vanuit een korte hoek, niet in de zichtlijn van een sniper."
+    },
+    {
+     "r": 4,
+     "tags": [
+      "aim"
+     ],
+     "hp": 100,
+     "wpn": "Vandal",
+     "text": "Na de plant op B het duel tegen de Fade verloren. Wel getrade.",
+     "tip": "Na de plant hoef je niet te peeken. Laat hen naar jou komen."
+    },
+    {
+     "r": 5,
+     "tags": [
+      "low_hp"
+     ],
+     "hp": 3,
+     "wpn": "Vandal",
+     "text": "Met nog 3 HP in de smoke doorgevochten.",
+     "tip": "Met weinig HP eerst terug en healen."
+    },
+    {
+     "r": 6,
+     "tags": [
+      "clutch",
+      "could_save"
+     ],
+     "hp": 100,
+     "wpn": "Vandal",
+     "text": "Laatste man 1 tegen 4: in B Main een lange hoek gepeekt en de volle Vandal verloren.",
+     "tip": "Bewaar je Vandal in een 1v4."
+    },
+    {
+     "r": 7,
+     "tags": [
+      "aim"
+     ],
+     "hp": 100,
+     "wpn": "Marshal",
+     "text": "Met de Marshal gemist en daarna neergeschoten. Wel getrade.",
+     "tip": "Mis je met de Marshal, ga dan meteen terug."
+    },
+    {
+     "r": 8,
+     "tags": [
+      "low_hp",
+      "ability_under_fire"
+     ],
+     "hp": 41,
+     "wpn": "Vandal",
+     "text": "In de Viper-gifwolk gehealed terwijl er een tegenstander met een Bucky vlakbij stond. Wel getrade.",
+     "tip": "Ga eerst uit het gif en heal pas achter dekking."
+    },
+    {
+     "r": 9,
+     "tags": [
+      "ability_under_fire"
+     ],
+     "hp": 100,
+     "wpn": "Guardian",
+     "text": "Een slow orb gegooid terwijl de vijand al op de site stond. Wel getrade.",
+     "tip": "Gooi je utility voordat ze de site op komen."
+    },
+    {
+     "r": 10,
+     "tags": [
+      "ability_under_fire"
+     ],
+     "hp": 65,
+     "wpn": "Classic",
+     "text": "Eco: een orb gegooid op de trap terwijl je onder vuur lag. Wel getrade.",
+     "tip": "Eerst dekking, dan pas utility."
+    },
+    {
+     "r": 12,
+     "tags": [
+      "aim"
+     ],
+     "hp": 77,
+     "wpn": "Vandal",
+     "text": "Terwijl een teamgenoot plantte het duel tegen de Fade verloren. Wel getrade.",
+     "tip": "Bij de plant hou je één hoek vast en blijf je dicht bij de planter."
+    },
+    {
+     "r": 13,
+     "tags": [
+      "aim"
+     ],
+     "hp": 100,
+     "wpn": "Ghost",
+     "text": "Eco: duel met de Hush verloren.",
+     "tip": "Op een eco speel je voor één verrassingskill."
+    },
+    {
+     "r": 14,
+     "tags": [
+      "aim"
+     ],
+     "hp": 100,
+     "wpn": "Classic",
+     "text": "Door de Viper-muur gelopen en het duel met de Miks met een Bulldog verloren.",
+     "tip": "Wacht tot de muur zakt of kies een andere route."
+    },
+    {
+     "r": 16,
+     "tags": [
+      "clutch",
+      "could_save"
+     ],
+     "hp": 100,
+     "wpn": "Vandal",
+     "text": "Laatste man 1 tegen 5: na de plant gepeekt en de Vandal verloren.",
+     "tip": "In een 1v5 is je wapen bewaren de enige winst."
+    },
+    {
+     "r": 17,
+     "tags": [
+      "clutch"
+     ],
+     "hp": 60,
+     "wpn": "Bucky",
+     "text": "1 tegen 3 met een Bucky: het duel met de Sage verloren.",
+     "tip": "Een Bucky werkt alleen van heel dichtbij. Laat ze naar jou komen."
+    },
+    {
+     "r": 21,
+     "tags": [
+      "early"
+     ],
+     "hp": 100,
+     "wpn": "Odin",
+     "text": "Na 5 seconden neergeschoten door de Hush. Wel getrade.",
+     "tip": "Begin de ronde niet met een duel."
+    },
+    {
+     "r": 22,
+     "tags": [
+      "aim"
+     ],
+     "hp": 80,
+     "wpn": "Odin",
+     "text": "Duel met de Jett verloren. De ronde werd wel gewonnen.",
+     "tip": "Met een Odin speel je vanaf een plek waar je kunt blijven sprayen."
+    },
+    {
+     "r": 23,
+     "tags": [
+      "aim"
+     ],
+     "hp": 100,
+     "wpn": "Odin",
+     "text": "Laatste ronde: het duel met de Fade verloren.",
+     "tip": "Wacht op je team voordat je de site op gaat."
+    }
+   ],
+   "good": [
+    "Je utility was actief: 51 abilities en 4 ults.",
+    "In ronde 22 hielp je de ronde winnen met de Odin."
+   ],
+   "note": "Lastige match: 10 van je 17 deaths werden niet getrade."
+  },
+  "dennisvg#3745": {
+   "analysed": "2026-11-26",
+   "source": "OBS-opname, hele match",
+   "self_flash": 0,
+   "focus": {
+    "title": "Met je mes in de hand doodgaan",
+    "what": "In ronde 2, 3, 7, 12, 18 en 23 ging je dood met je mes in je hand. In ronde 3 en 7 gebeurde dat zelfs in de eerste 7 seconden, nog tijdens het lopen uit de spawn.",
+    "todo": "Pak je wapen zodra je in de buurt van een hoek of tegenstander kunt komen. Met je mes lopen is alleen veilig ver weg van het contact.",
+    "goal": "Geen enkele death meer met je mes in de hand."
+   },
+   "deaths": [
+    {
+     "r": 1,
+     "tags": [
+      "aim"
+     ],
+     "hp": 100,
+     "wpn": "Ghost",
+     "text": "Pistol: duel met de Hush verloren. Wel getrade.",
+     "tip": "Hou je crosshair op de hoek waar iemand kan komen."
+    },
+    {
+     "r": 2,
+     "tags": [
+      "knife_out"
+     ],
+     "hp": 100,
+     "wpn": "Classic",
+     "text": "Met je mes in de hand de gang in gelopen en neergeschoten door een Outlaw.",
+     "tip": "Wapen in de hand zodra je een hoek nadert."
+    },
+    {
+     "r": 3,
+     "tags": [
+      "knife_out",
+      "early"
+     ],
+     "hp": 100,
+     "wpn": "Phantom",
+     "text": "Na 7 seconden, met je mes in de hand, door een Outlaw neergeschoten.",
+     "tip": "In het begin van de ronde loop je niet door een open zichtlijn."
+    },
+    {
+     "r": 4,
+     "tags": [
+      "aim"
+     ],
+     "hp": 100,
+     "wpn": "Vandal",
+     "text": "Duel met de Sage verloren.",
+     "tip": "Korte bursts in plaats van sprayen."
+    },
+    {
+     "r": 5,
+     "tags": [
+      "ability_under_fire"
+     ],
+     "hp": 79,
+     "wpn": "Phantom",
+     "text": "Je ult (Run It Back) gebruikt en in een gevecht gestorven.",
+     "tip": "Gebruik Run It Back om info te halen en kom terug voordat hij afloopt."
+    },
+    {
+     "r": 6,
+     "tags": [
+      "aim"
+     ],
+     "hp": 100,
+     "wpn": "Phantom",
+     "text": "Duel met de Jett verloren. Wel getrade.",
+     "tip": "Peek met dekking naast je."
+    },
+    {
+     "r": 7,
+     "tags": [
+      "knife_out",
+      "early"
+     ],
+     "hp": 100,
+     "wpn": "Marshal",
+     "text": "Na 5 seconden met je mes in de hand neergeschoten.",
+     "tip": "Pak je wapen voor je de spawn uit loopt."
+    },
+    {
+     "r": 8,
+     "tags": [
+      "aim"
+     ],
+     "hp": 74,
+     "wpn": "Phantom",
+     "text": "Door de Viper-muur heen het duel met de Miks verloren.",
+     "tip": "Wacht tot de muur zakt of kies een andere route."
+    },
+    {
+     "r": 9,
+     "tags": [
+      "aim"
+     ],
+     "hp": 74,
+     "wpn": "Classic",
+     "text": "Eco: het duel tegen een Bulldog verloren.",
+     "tip": "Op een eco speel je dichtbij een hoek."
+    },
+    {
+     "r": 10,
+     "tags": [
+      "clutch"
+     ],
+     "hp": 100,
+     "wpn": "Phantom",
+     "text": "Laatste man 1 tegen 3: het duel met de Sage verloren.",
+     "tip": "In een 1v3 je wapen bewaren."
+    },
+    {
+     "r": 12,
+     "tags": [
+      "knife_out"
+     ],
+     "hp": 100,
+     "wpn": "Phantom",
+     "text": "Met je mes in de hand naar de site gelopen en neergeschoten.",
+     "tip": "Wapen klaar voordat je de site op loopt."
+    },
+    {
+     "r": 13,
+     "tags": [
+      "aim"
+     ],
+     "hp": 100,
+     "wpn": "Classic",
+     "text": "Eco: het duel met de Jett verloren.",
+     "tip": "Op een eco zoek je een korte afstand."
+    },
+    {
+     "r": 14,
+     "tags": [
+      "clutch"
+     ],
+     "hp": 100,
+     "wpn": "Classic",
+     "text": "Laatste man 1 tegen 3 in een eco-ronde: neergeschoten.",
+     "tip": "In een 1v3 op een eco is er niets te winnen."
+    },
+    {
+     "r": 16,
+     "tags": [
+      "reload"
+     ],
+     "hp": 100,
+     "wpn": "Phantom",
+     "text": "Midden in het gevecht herladen en daarna neergeschoten.",
+     "tip": "Herlaad achter dekking."
+    },
+    {
+     "r": 17,
+     "tags": [
+      "aim"
+     ],
+     "hp": 100,
+     "wpn": "Classic",
+     "text": "Duel met de Miks met een Vandal verloren.",
+     "tip": "Met een pistool zoek je een korte afstand."
+    },
+    {
+     "r": 18,
+     "tags": [
+      "knife_out"
+     ],
+     "hp": 100,
+     "wpn": "Odin",
+     "text": "Met je mes in de hand richting de site gelopen en neergeschoten.",
+     "tip": "Wapen klaar zodra er contact kan komen."
+    },
+    {
+     "r": 19,
+     "tags": [
+      "ability_under_fire"
+     ],
+     "hp": 100,
+     "wpn": "Odin",
+     "text": "Een Curveball gegooid en direct daarna door het mes-ult van de Jett geraakt.",
+     "tip": "Na je Curveball meteen weer je wapen klaar."
+    },
+    {
+     "r": 21,
+     "tags": [
+      "clutch"
+     ],
+     "hp": 100,
+     "wpn": "Odin",
+     "text": "1 tegen 2 met de Odin: het duel met de Jett verloren.",
+     "tip": "Laat ze naar jou komen en hou één hoek vast."
+    },
+    {
+     "r": 22,
+     "tags": [
+      "aim"
+     ],
+     "hp": 100,
+     "wpn": "Odin",
+     "text": "Duel met de Jett verloren. De ronde werd wel gewonnen.",
+     "tip": "Speel met de Odin vanaf een vaste plek."
+    },
+    {
+     "r": 23,
+     "tags": [
+      "clutch",
+      "knife_out"
+     ],
+     "hp": 100,
+     "wpn": "Odin",
+     "text": "Laatste ronde, 1 tegen 1 na Run It Back: met je mes in de hand neergeschoten.",
+     "tip": "In een 1v1 heb je altijd je wapen klaar."
+    }
+   ],
+   "good": [
+    "Geen enkele keer jezelf geflasht.",
+    "Je zette vier keer je ult in."
+   ]
+  }
  }
 }

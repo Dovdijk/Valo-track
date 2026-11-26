@@ -308,6 +308,51 @@
     }
    ],
    "thumb": "clips/thumbs/Compilatie_Don_repeek_v4.jpg"
+  },
+  {
+   "player": "dennisvg#3745",
+   "tag": "knife_out",
+   "title": "Mes in de hand",
+   "count": 7,
+   "file": "Compilatie_Dennis_knife_out.mp4",
+   "items": [
+    {
+     "map": "Corrode",
+     "round": 5,
+     "text": "Met je mes in de hand gelopen op het moment dat de Fade verscheen."
+    },
+    {
+     "map": "Sunset",
+     "round": 2,
+     "text": "Met je mes in de hand de gang in gelopen en neergeschoten door een Outlaw."
+    },
+    {
+     "map": "Sunset",
+     "round": 3,
+     "text": "Na 7 seconden, met je mes in de hand, door een Outlaw neergeschoten."
+    },
+    {
+     "map": "Sunset",
+     "round": 7,
+     "text": "Na 5 seconden met je mes in de hand neergeschoten."
+    },
+    {
+     "map": "Sunset",
+     "round": 12,
+     "text": "Met je mes in de hand naar de site gelopen en neergeschoten."
+    },
+    {
+     "map": "Sunset",
+     "round": 18,
+     "text": "Met je mes in de hand richting de site gelopen en neergeschoten."
+    },
+    {
+     "map": "Sunset",
+     "round": 23,
+     "text": "Laatste ronde, 1 tegen 1 na Run It Back: met je mes in de hand neergeschoten."
+    }
+   ],
+   "thumb": "clips/thumbs/Compilatie_Dennis_knife_out.jpg"
   }
  ]
 }

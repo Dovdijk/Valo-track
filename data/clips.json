@@ -2,6 +2,25 @@
  "base": "https://github.com/Dovdijk/Valo-track/releases/download/clips/",
  "highlights": [
   {
+   "match": "cb367eba-6903-43f6-978a-fd3bfb041f64",
+   "player": "marciebeur#euw",
+   "round": 7,
+   "kind": "Jett binnen 3 seconden",
+   "win": true,
+   "note": "na 2,6 seconden de Jett neergeschoten",
+   "kills": [
+    [
+     "lavocatlakippa",
+     "Vandal",
+     2.6
+    ]
+   ],
+   "file": "Summit_R7_marciebeur_jett.mp4",
+   "slomo": "Summit_R7_marciebeur_jett_slomo.mp4",
+   "len": 10,
+   "thumb": "clips/thumbs/Summit_R7_marciebeur_jett.jpg"
+  },
+  {
    "match": "95f900c7-5e66-496b-bb7c-1e5ab1250173",
    "player": "marciebeur#euw",
    "round": 11,
